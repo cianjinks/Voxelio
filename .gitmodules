@@ -1,0 +1,9 @@
+[submodule "Voxel-Core/dependencies/glfw"]
+	path = Voxel-Core/dependencies/glfw
+	url = https://github.com/cianjinks/glfw
+[submodule "Voxel-Core/dependencies/imgui"]
+	path = Voxel-Core/dependencies/imgui
+	url = https://github.com/cianjinks/imgui
+[submodule "Voxel-Core/dependencies/glm"]
+	path = Voxel-Core/dependencies/glm
+	url = https://github.com/cianjinks/glm
