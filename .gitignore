@@ -1,0 +1,11 @@
+**bin/
+**bin-int/
+*.user
+*imgui.ini
+*.zip
+
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
