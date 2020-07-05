@@ -25,6 +25,7 @@ project "Voxel-Core"
 	includedirs
 	{
 		"src",
+		"dependencies/spdlog/include",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.ImGui}",

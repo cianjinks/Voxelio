@@ -17,6 +17,7 @@ project "Voxel-Editor"
 	{
 		"../Voxel-Core/src",
 		"../Voxel-Core/dependencies",
+		"../Voxel-Core/dependencies/spdlog/include",
 		"../Voxel-Core/%{IncludeDir.glm}",
 		"../Voxel-Core/%{IncludeDir.Glad}",
 		"../Voxel-Core/%{IncludeDir.ImGui}",
