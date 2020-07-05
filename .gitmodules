@@ -7,3 +7,6 @@
 [submodule "Voxel-Core/dependencies/glm"]
 	path = Voxel-Core/dependencies/glm
 	url = https://github.com/cianjinks/glm
+[submodule "Voxel-Core/dependencies/spdlog"]
+	path = Voxel-Core/dependencies/spdlog
+	url = https://github.com/gabime/spdlog
