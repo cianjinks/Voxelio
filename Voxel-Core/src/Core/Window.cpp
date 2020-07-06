@@ -1,3 +1,5 @@
+#include "voxelpch.h"
+
 #include "Window.h"
 #ifdef VX_PLATFORM_WINDOWS
 	#include "Platform/Windows/WindowsWindow.h"

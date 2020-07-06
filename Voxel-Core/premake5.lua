@@ -6,6 +6,9 @@ project "Voxel-Core"
 
 	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("../bin-int/" .. outputdir .. "/%{prj.name}")
+	
+	pchheader "voxelpch.h"
+	pchsource "src/voxelpch.cpp"
 
 	files
 	{

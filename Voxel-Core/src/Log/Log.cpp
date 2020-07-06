@@ -1,3 +1,4 @@
+#include "voxelpch.h"
 #include "Log.h"
 
 namespace VoxelCore {

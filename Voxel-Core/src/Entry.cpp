@@ -1,4 +1,4 @@
-#include "Log/Log.h"
+#include "voxelpch.h"
 #include "Core/Application.h"
 
 extern VoxelCore::Application* VoxelCore::CreateApplication();

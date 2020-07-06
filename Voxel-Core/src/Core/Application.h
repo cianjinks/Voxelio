@@ -1,5 +1,4 @@
 #pragma once
-#include <memory>
 
 #include "Core/Window.h"
 #include "Core/Timestep.h"

@@ -1,7 +1,7 @@
-#include "WindowsWindow.h"
+#include "voxelpch.h"
 
+#include "WindowsWindow.h"
 #include "Core/Application.h"
-#include "Log/Log.h"
 
 namespace VoxelCore {
 

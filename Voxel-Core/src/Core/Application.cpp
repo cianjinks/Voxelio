@@ -1,3 +1,4 @@
+#include "voxelpch.h"
 #include "Application.h"
 
 namespace VoxelCore {
