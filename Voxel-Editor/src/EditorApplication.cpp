@@ -5,13 +5,37 @@ EditorApplication::EditorApplication()
 
 void EditorApplication::PreRender()
 {
+	float vertices[] = {
+		-0.5f, -0.5f,
+		 0.5f, -0.5f,
+		 0.5f,  0.5f,
+		-0.5f,  0.5f,
+	};
 
+	unsigned int indices[] = {
+		0, 1, 2,
+		2, 3, 0
+	};
+
+	vao = VoxelCore::VertexArray::Create();
+	vao->Bind();
+	vbo = VoxelCore::VertexBuffer::Create(vertices, 8 * sizeof(float));
+	vbo->SetLayout({VoxelCore::BufferElement("Position", VoxelCore::BufferDataType::Float2, false)});
+	vbo->Bind();
+	ibo = VoxelCore::IndexBuffer::Create(indices, 6 * sizeof(unsigned int));
+	ibo->Bind();
+	vao->SetVertexBuffer(vbo);
+	vao->SetIndexBuffer(ibo);
+	shader = VoxelCore::Shader::CreateBasicShader("Test Shader", "assets/shaders/testvert.glsl", "assets/shaders/testfrag.glsl");
+	shader->Bind();
 }
 
 void EditorApplication::Render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.5f, 0.5f, 0.0f, 1.0f);
+
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
 void EditorApplication::ImGuiRender()

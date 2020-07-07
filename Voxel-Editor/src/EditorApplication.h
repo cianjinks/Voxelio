@@ -11,6 +11,10 @@ public:
 	float m_WindowHeight;
 	char* m_WindowName;
 private:
+	std::shared_ptr<VoxelCore::VertexArray> vao;
+	std::shared_ptr<VoxelCore::VertexBuffer> vbo;
+	std::shared_ptr<VoxelCore::IndexBuffer> ibo;
+	std::shared_ptr<VoxelCore::Shader> shader;
 
 public:
 	EditorApplication();
