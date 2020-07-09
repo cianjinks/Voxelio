@@ -6,6 +6,7 @@ EditorApplication::EditorApplication()
 void EditorApplication::PreRender()
 {
 	float vertices[] = {
+		// Cube 1
 		-0.5f, -0.5f, -0.5f,
 		 0.5f, -0.5f, -0.5f,
 		 0.5f,  0.5f, -0.5f,
@@ -34,12 +35,43 @@ void EditorApplication::PreRender()
 		-0.5f,  0.5f, -0.5f,
 		 0.5f,  0.5f, -0.5f,
 		 0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f,  0.5f
+		-0.5f,  0.5f,  0.5f,
+
+		// Cube 2
+		-0.5f + 2.0f, -0.5f, -0.5f,
+		 0.5f + 2.0f, -0.5f, -0.5f,
+		 0.5f + 2.0f,  0.5f, -0.5f,
+		-0.5f + 2.0f,  0.5f, -0.5f,
+
+		-0.5f + 2.0f, -0.5f,  0.5f,
+		 0.5f + 2.0f, -0.5f,  0.5f,
+		 0.5f + 2.0f,  0.5f,  0.5f,
+		-0.5f + 2.0f,  0.5f,  0.5f,
+
+		-0.5f + 2.0f,  0.5f,  0.5f,
+		-0.5f + 2.0f,  0.5f, -0.5f,
+		-0.5f + 2.0f, -0.5f, -0.5f,
+		-0.5f + 2.0f, -0.5f,  0.5f,
+
+		 0.5f + 2.0f,  0.5f,  0.5f,
+		 0.5f + 2.0f,  0.5f, -0.5f,
+		 0.5f + 2.0f, -0.5f, -0.5f,
+		 0.5f + 2.0f, -0.5f,  0.5f,
+
+		-0.5f + 2.0f, -0.5f, -0.5f,
+		 0.5f + 2.0f, -0.5f, -0.5f,
+		 0.5f + 2.0f, -0.5f,  0.5f,
+		-0.5f + 2.0f, -0.5f,  0.5f,
+
+		-0.5f + 2.0f,  0.5f, -0.5f,
+		 0.5f + 2.0f,  0.5f, -0.5f,
+		 0.5f + 2.0f,  0.5f,  0.5f,
+		-0.5f + 2.0f,  0.5f,  0.5f
 	};
 
 	std::vector<unsigned int> indices;
 	int j = 0;
-	for (int i = 0; i < 36; i++)
+	for (int i = 0; i < 2 * 36; i++)
 	{
 		indices.emplace_back(j);
 		indices.emplace_back(++j);
@@ -52,10 +84,10 @@ void EditorApplication::PreRender()
 
 	vao = VoxelCore::VertexArray::Create();
 	vao->Bind();
-	vbo = VoxelCore::VertexBuffer::Create(vertices, 12 * 6 * sizeof(float));
+	vbo = VoxelCore::VertexBuffer::Create(vertices, 2 * 12 * 6 * sizeof(float));
 	vbo->SetLayout({VoxelCore::BufferElement("Position", VoxelCore::BufferDataType::Float3, false)});
 	vbo->Bind();
-	ibo = VoxelCore::IndexBuffer::Create(&indices[0], 36 * sizeof(unsigned int));
+	ibo = VoxelCore::IndexBuffer::Create(&indices[0], 2 * 36 * sizeof(unsigned int));
 	ibo->Bind();
 	vao->SetVertexBuffer(vbo);
 	vao->SetIndexBuffer(ibo);
@@ -72,7 +104,7 @@ void EditorApplication::Render()
 	m_CameraController.HandleInput();
 	shader->SetMat4("u_MVP", m_CameraController.GetMVPMatrix());
 
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, 2 * 36, GL_UNSIGNED_INT, 0);
 }
 
 void EditorApplication::ImGuiRender()

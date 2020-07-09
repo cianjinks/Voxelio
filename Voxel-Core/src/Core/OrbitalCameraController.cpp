@@ -99,8 +99,9 @@ namespace VoxelCore {
 
 	void OrbitalCameraController::CalculateCameraPos()
 	{
-		m_CameraPos.x = m_CameraRadius * cos(glm::radians(m_CameraYaw)) * cos(glm::radians(m_CameraPitch));
-		m_CameraPos.y = m_CameraRadius * sin(glm::radians(-(m_CameraPitch)));
-		m_CameraPos.z = m_CameraRadius * sin(glm::radians(m_CameraYaw)) * cos(glm::radians(m_CameraPitch));
+		m_CameraPos.x = -m_CameraRadius * cos(glm::radians(m_CameraYaw)) * cos(glm::radians(m_CameraPitch));
+		m_CameraPos.y = -m_CameraRadius * sin(glm::radians(m_CameraPitch));
+		m_CameraPos.z = -m_CameraRadius * sin(glm::radians(m_CameraYaw)) * cos(glm::radians(m_CameraPitch));
+		m_CameraPos += m_CameraPivot;
 	}
 }
