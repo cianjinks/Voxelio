@@ -13,6 +13,16 @@ namespace VoxelCore {
 		return glfwGetMouseButton((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow(), mouseButton) == GLFW_PRESS;
 	}
 
+	int Input::GetInputMode(int mode)
+	{
+		return glfwGetInputMode((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow(), mode);
+	}
+
+	void Input::SetInputMode(int mode, int value)
+	{
+		glfwSetInputMode((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow(), mode, value);
+	}
+
 	glm::vec2 Input::GetMousePosition()
 	{
 		glm::dvec2 cursorPos;

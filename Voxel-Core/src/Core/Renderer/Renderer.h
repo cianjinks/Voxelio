@@ -1,4 +1,5 @@
 #pragma once
+#include "Core/PerspectiveCameraController.h"
 
 namespace VoxelCore {
 
@@ -14,6 +15,12 @@ namespace VoxelCore {
 		static GraphicsAPI s_API;
 	public:
 		static GraphicsAPI getAPI() { return s_API; };
+
+	private:
+
+	public:
+		static void BeginScene();
+		static void EndScene();
 	};
 
 }

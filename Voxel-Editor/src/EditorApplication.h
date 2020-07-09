@@ -1,9 +1,6 @@
 #pragma once
 #include "VoxelCore.h"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
 class EditorApplication : public VoxelCore::Application
 {
 public:
@@ -16,6 +13,7 @@ private:
 	std::shared_ptr<VoxelCore::IndexBuffer> ibo;
 	std::shared_ptr<VoxelCore::Shader> shader;
 
+	PerspectiveCameraController m_CameraController;
 public:
 	EditorApplication();
 	virtual ~EditorApplication() = default;

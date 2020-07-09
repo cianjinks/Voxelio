@@ -13,5 +13,8 @@ namespace VoxelCore {
 		static glm::vec2 GetMousePosition();
 		static float GetMouseX();
 		static float GetMouseY();
+
+		static int GetInputMode(int mode);
+		static void SetInputMode(int mode, int value);
 	};
 }

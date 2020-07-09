@@ -8,6 +8,9 @@
 #include "Core/ImGui/ImGuiHandler.h"
 #include "Core/Timestep.h"
 #include "Core/Window.h"
+#include "Core/Input.h"
+#include "Core/PerspectiveCamera.h"
+#include "Core/PerspectiveCameraController.h"
 
 // Renderer
 #include "Core/Renderer/Renderer.h"
