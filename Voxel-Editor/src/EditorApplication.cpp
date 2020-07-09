@@ -66,15 +66,11 @@ void EditorApplication::PreRender()
 void EditorApplication::Render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.5f, 0.5f, 0.0f, 1.0f);
+	glClearColor(173.0f / 255.0f, 216.0f / 255.0f, 230.0f / 255.0f, 1.0f);
 
 	// Camera
 	m_CameraController.HandleInput();
-	glm::mat4 model = glm::mat4(1.0f);
-	glm::mat4 view = m_CameraController.GetViewMatrix();
-	glm::mat4 projection = m_CameraController.GetProjectionMatrix();
-	glm::mat4 mvp = projection * view * model;
-	shader->SetMat4("u_MVP", mvp);
+	shader->SetMat4("u_MVP", m_CameraController.GetMVPMatrix());
 
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 }
@@ -101,17 +97,18 @@ void EditorApplication::OnMouseMove(float xpos, float ypos)
 
 void EditorApplication::OnMouseScroll(float xoffset, float yoffset)
 {
-
+	m_CameraController.OnMouseScroll(xoffset, yoffset);
 }
 
 void EditorApplication::OnMouseClick(int button, int action, int mods)
 {
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-		ImGuiIO& io = ImGui::GetIO();
-		if (VoxelCore::Input::GetInputMode(GLFW_CURSOR) == GLFW_CURSOR_NORMAL) {
-			if (!io.WantCaptureMouse) {
-				VoxelCore::Input::SetInputMode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-			}
+	ImGuiIO& io = ImGui::GetIO();
+	if (!io.WantCaptureMouse) {
+		if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+			VoxelCore::Input::SetInputMode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		}
+		else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
+			VoxelCore::Input::SetInputMode(GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		}
 	}
 }

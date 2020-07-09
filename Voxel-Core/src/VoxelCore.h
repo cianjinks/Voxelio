@@ -11,6 +11,7 @@
 #include "Core/Input.h"
 #include "Core/PerspectiveCamera.h"
 #include "Core/PerspectiveCameraController.h"
+#include "Core/OrbitalCameraController.h"
 
 // Renderer
 #include "Core/Renderer/Renderer.h"

@@ -7,19 +7,23 @@
 
 namespace VoxelCore {
 
-	class PerspectiveCameraController : public PerspectiveCamera
+	class OrbitalCameraController : public PerspectiveCamera
 	{
 	private:
 		float m_WindowWidth, m_WindowHeight;
 		float m_MouseX, m_MouseY;
 		bool m_InitialMouseMovement = true;
 
+		float m_CameraRadius = 5.0f;
+		glm::vec3 m_CameraPivot = glm::vec3(0.0f, 0.0f, 0.0f);
+
 	private:
 		void CalculateMatrices();
+		void CalculateCameraPos();
 
 	public:
-		PerspectiveCameraController(float windowWidth, float windowHeight);
-		virtual ~PerspectiveCameraController();
+		OrbitalCameraController(float windowWidth, float windowHeight);
+		virtual ~OrbitalCameraController();
 
 		void OnMouseMove(float xpos, float ypos) override;
 		void OnMouseScroll(float xoffset, float yoffset) override;

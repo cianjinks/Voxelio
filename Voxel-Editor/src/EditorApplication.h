@@ -13,7 +13,7 @@ private:
 	std::shared_ptr<VoxelCore::IndexBuffer> ibo;
 	std::shared_ptr<VoxelCore::Shader> shader;
 
-	PerspectiveCameraController m_CameraController;
+	VoxelCore::OrbitalCameraController m_CameraController;
 public:
 	EditorApplication();
 	virtual ~EditorApplication() = default;
