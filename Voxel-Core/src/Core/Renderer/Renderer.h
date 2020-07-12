@@ -1,5 +1,9 @@
 #pragma once
 #include "Core/PerspectiveCameraController.h"
+#include "Core/OrbitalCameraController.h"
+#include "Core/Renderer/VertexArray.h"
+#include "Core/Renderer/Shader.h"
+#include "Core/Renderer/Mesh/VoxelMesh.h"
 
 namespace VoxelCore {
 
@@ -9,18 +13,50 @@ namespace VoxelCore {
 		OpenGL
 	};
 
+	struct CubeVertex
+	{
+		glm::vec3 Position;
+		glm::vec3 Color;
+		glm::vec3 Normal;
+	};
+
+	struct RendererData
+	{
+		static const int MaxFaces = 6000;
+		static const int MaxVertices = MaxFaces * 4;
+		static const int MaxIndices = MaxFaces * 6;
+
+		static int IndicesCount;
+		static int DrawCalls;
+	};
+
 	class Renderer
 	{
 	private:
 		static GraphicsAPI s_API;
+
+		static std::shared_ptr<VertexArray> vao;
+		static std::shared_ptr<VertexBuffer> vbo;
+		static std::shared_ptr<IndexBuffer> ibo;
+		static std::shared_ptr<Shader> shader;
+
+		static bool m_ActiveScene;
+		static std::vector<float>* m_VertexData;
 	public:
 		static GraphicsAPI getAPI() { return s_API; };
 
 	private:
 
 	public:
-		static void BeginScene();
+		static void Init();
+		static void Shutdown();
+		static void BeginScene(PerspectiveCameraController& camera);
+		static void BeginScene(OrbitalCameraController& camera);
 		static void EndScene();
+		static void FlushData();
+
+		static void DrawCube(const glm::vec3& pos, const glm::vec3& color);
+		static void DrawMesh(const VoxelMesh& mesh);
 	};
 
 }

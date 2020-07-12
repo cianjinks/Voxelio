@@ -37,7 +37,7 @@ namespace VoxelCore {
 		void CalculateCameraPos();
 
 	public:
-		OrbitalCameraController(float windowWidth, float windowHeight);
+		OrbitalCameraController(float windowWidth, float windowHeight, float radius);
 		virtual ~OrbitalCameraController();
 
 		void OnMouseMove(float xpos, float ypos) override;

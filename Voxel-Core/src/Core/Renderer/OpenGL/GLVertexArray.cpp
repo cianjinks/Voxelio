@@ -1,6 +1,6 @@
 #include "voxelpch.h"
 #include "GLVertexArray.h"
-#include "../Buffer.h"
+#include "Core/Renderer/Buffer.h"
 
 namespace VoxelCore {
 

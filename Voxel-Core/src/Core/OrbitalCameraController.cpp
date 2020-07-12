@@ -4,8 +4,9 @@
 
 namespace VoxelCore {
 
-	OrbitalCameraController::OrbitalCameraController(float windowWidth, float windowHeight)
-		: m_WindowWidth(windowWidth), m_WindowHeight(windowHeight), m_MouseX(m_WindowWidth / 2), m_MouseY(m_WindowHeight / 2) {}
+	OrbitalCameraController::OrbitalCameraController(float windowWidth, float windowHeight, float radius)
+		: m_WindowWidth(windowWidth), m_WindowHeight(windowHeight), m_MouseX(m_WindowWidth / 2), m_MouseY(m_WindowHeight / 2), 
+		  m_CameraRadius(radius), m_CameraPos(glm::vec3(0.0f, 0.0f, radius)) {}
 
 	OrbitalCameraController::~OrbitalCameraController() {}
 

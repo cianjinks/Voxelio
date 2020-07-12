@@ -1,5 +1,6 @@
 #include "voxelpch.h"
 #include "Application.h"
+#include "Renderer/Renderer.h"
 
 namespace VoxelCore {
 
@@ -18,6 +19,7 @@ namespace VoxelCore {
 	{
 		m_Window = Window::Create();
 
+		Renderer::Init();
 		this->PreRender();
 		while (!m_Window->WindowShouldClose())
 		{
@@ -28,5 +30,6 @@ namespace VoxelCore {
 			VoxelCore::ImGuiHandler::Render();
 			m_Window->Update();
 		}
+		Renderer::Shutdown();
 	}
 }

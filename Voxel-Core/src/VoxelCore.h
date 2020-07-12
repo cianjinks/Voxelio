@@ -18,3 +18,8 @@
 #include "Core/Renderer/Buffer.h"
 #include "Core/Renderer/Shader.h"
 #include "Core/Renderer/VertexArray.h"
+#include "Core/Renderer/Texture.h"
+
+// Mesh Renderer
+#include "Core/Renderer/Mesh/VoxelMesh.h"
+#include "Core/Renderer/Mesh/VoxelMeshData.h"

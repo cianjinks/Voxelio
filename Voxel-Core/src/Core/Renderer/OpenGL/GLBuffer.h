@@ -1,5 +1,5 @@
 #pragma once
-#include "../Buffer.h"
+#include "Core/Renderer/Buffer.h"
 #include <glad/glad.h>
 
 namespace VoxelCore {

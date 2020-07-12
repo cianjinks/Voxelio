@@ -1,5 +1,5 @@
 #pragma once
-#include "../Shader.h"
+#include "Core/Renderer/Shader.h"
 #include <glad/glad.h>
 
 namespace VoxelCore {

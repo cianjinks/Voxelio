@@ -1,5 +1,5 @@
 #pragma once
-#include "../VertexArray.h"
+#include "Core/Renderer/VertexArray.h"
 #include <glad/glad.h>
 
 namespace VoxelCore {

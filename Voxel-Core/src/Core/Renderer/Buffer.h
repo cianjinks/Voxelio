@@ -36,7 +36,7 @@ namespace VoxelCore {
 		BufferDataType DataType;
 		int Size;
 		bool Normalised;
-		int Offset = 0;
+		long long Offset = 0;
 
 		BufferElement(const std::string& name, BufferDataType dataType, bool normalised)
 			: Name(name), DataType(dataType), Size(GetDataTypeSize(dataType)), Normalised(normalised) {}
