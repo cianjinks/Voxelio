@@ -109,45 +109,45 @@ namespace VoxelCore {
 
 	void Renderer::DrawCube(const glm::vec3& pos, const glm::vec3& color)
 	{
-		float vertices[] = {
-		// Position:								 Color:						Normal:
-		-0.5f + pos.x, -0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-		 0.5f + pos.x, -0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-		 0.5f + pos.x,  0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-		-0.5f + pos.x,  0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-													
-		-0.5f + pos.x, -0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-		 0.5f + pos.x, -0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-		 0.5f + pos.x,  0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-		-0.5f + pos.x,  0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-													 
-		-0.5f + pos.x,  0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-		-0.5f + pos.x,  0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-		-0.5f + pos.x, -0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-		-0.5f + pos.x, -0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-													
-		 0.5f + pos.x,  0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-		 0.5f + pos.x,  0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-		 0.5f + pos.x, -0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-		 0.5f + pos.x, -0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-													
-		-0.5f + pos.x, -0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-		 0.5f + pos.x, -0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-		 0.5f + pos.x, -0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-		-0.5f + pos.x, -0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-													
-		-0.5f + pos.x,  0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-		 0.5f + pos.x,  0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-		 0.5f + pos.x,  0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-		-0.5f + pos.x,  0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f
-		};
-
 		if (RendererData::IndicesCount + (6 * 6) > RendererData::MaxIndices)
 		{
 			FlushData();
 		}
 		RendererData::IndicesCount += 6 * 6;
-		m_VertexData->insert(m_VertexData->end(), std::begin(vertices), std::end(vertices));
+		m_VertexData->insert(m_VertexData->end(), 
+			{
+				// Position:								 Color:						Normal:
+				-0.5f + pos.x, -0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+				 0.5f + pos.x, -0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+				 0.5f + pos.x,  0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+				-0.5f + pos.x,  0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+
+				-0.5f + pos.x, -0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+				 0.5f + pos.x, -0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+				 0.5f + pos.x,  0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+				-0.5f + pos.x,  0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+
+				-0.5f + pos.x,  0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+				-0.5f + pos.x,  0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+				-0.5f + pos.x, -0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+				-0.5f + pos.x, -0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+
+				 0.5f + pos.x,  0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+				 0.5f + pos.x,  0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+				 0.5f + pos.x, -0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+				 0.5f + pos.x, -0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+
+				-0.5f + pos.x, -0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+				 0.5f + pos.x, -0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+				 0.5f + pos.x, -0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+				-0.5f + pos.x, -0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+
+				-0.5f + pos.x,  0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+				 0.5f + pos.x,  0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+				 0.5f + pos.x,  0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
+				-0.5f + pos.x,  0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f
+			}
+		);
 	}
 
 	void Renderer::DrawMesh(const VoxelMesh& mesh)
@@ -157,7 +157,8 @@ namespace VoxelCore {
 			FlushData();
 		}
 		RendererData::IndicesCount += mesh.GetIndicesCount();
-		VX_CORE_INFO("Indices Count: {}", mesh.GetIndicesCount());
+		//VX_CORE_INFO("Indices Count: {}", mesh.GetIndicesCount());
+		// FIX: This simply does one large data copy so it will never get split into multiple draw calls if there is too much data
 		m_VertexData->insert(m_VertexData->end(), std::begin(mesh.GetVertices()), std::end(mesh.GetVertices()));
 	}
 }

@@ -3,7 +3,8 @@
 
 namespace VoxelCore {
 
-	VoxelMesh::VoxelMesh()
+	VoxelMesh::VoxelMesh(int dimension)
+		: m_MeshData(dimension)
 	{
 		size_t xDataSize = m_MeshData.m_Data.size();
 		size_t yDataSize = m_MeshData.m_Data[0].size();
@@ -11,17 +12,34 @@ namespace VoxelCore {
 
 		m_Vertices.reserve(xDataSize * yDataSize * zDataSize);
 
-		const size_t lowerXBound = xDataSize / 2;
-		const size_t lowerYBound = yDataSize / 2;
-		const size_t lowerZBound = zDataSize / 2;
+		const size_t lowerXBound = (xDataSize - 1) / 2;
+		const size_t lowerYBound = (yDataSize - 1) / 2;
+		const size_t lowerZBound = (zDataSize - 1) / 2;
 
-		for (size_t x = 0; x < xDataSize; x++)
+		for (size_t x = 1; x < xDataSize - 1; x++)
 		{
-			for (size_t y = 0; y < yDataSize; y++)
+			for (size_t y = 1; y < yDataSize - 1; y++)
 			{
-				for (size_t z = 0; z < zDataSize; z++)
+				for (size_t z = 1; z < zDataSize - 1; z++)
 				{
-					CreateCube(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color);
+					// Negative Z Face
+					if (!m_MeshData.m_Data[x][y][z - 1].Active) 
+					{ AddNegZFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color); }
+					// Positive Z Face
+					if (!m_MeshData.m_Data[x][y][z + 1].Active) 
+					{ AddPosZFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color); }
+					// Negative X Face
+					if (!m_MeshData.m_Data[x - 1][y][z].Active)
+					{ AddNegXFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color); }
+					// Positive X Face
+					if (!m_MeshData.m_Data[x + 1][y][z].Active) 
+					{ AddPosXFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color); }
+					// Negative Y Face
+					if (!m_MeshData.m_Data[x][y - 1][z].Active) 
+					{ AddNegYFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color); }
+					// Positive Y Face
+					if (!m_MeshData.m_Data[x][y + 1][z].Active) 
+					{ AddPosYFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color); }
 				}
 			}
 		}
@@ -32,37 +50,81 @@ namespace VoxelCore {
 
 	VoxelMesh::~VoxelMesh() {}
 
-	void VoxelMesh::CreateCube(int x, int y, int z, glm::vec3& color)
+	void VoxelMesh::AddNegZFace(int x, int y, int z, glm::vec3& color) 
 	{
-		float vertices[] = {
-			// Position:								 Color:						Normal:
-			-1.0f + x, -1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			 1.0f + x, -1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			 1.0f + x,  1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			-1.0f + x,  1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			-1.0f + x, -1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			 1.0f + x, -1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			 1.0f + x,  1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			-1.0f + x,  1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			-1.0f + x,  1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			-1.0f + x,  1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			-1.0f + x, -1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			-1.0f + x, -1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			 1.0f + x,  1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			 1.0f + x,  1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			 1.0f + x, -1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			 1.0f + x, -1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			-1.0f + x, -1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			 1.0f + x, -1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			 1.0f + x, -1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			-1.0f + x, -1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			-1.0f + x,  1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			 1.0f + x,  1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			 1.0f + x,  1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-			-1.0f + x,  1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f
-		};
+		m_MeshIndices += 6;
+		m_Vertices.insert(m_Vertices.end(),
+			{
+				-1.0f + x, -1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, -1.0f,
+				 1.0f + x, -1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, -1.0f,
+				 1.0f + x,  1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, -1.0f,
+				-1.0f + x,  1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, -1.0f
+			}
+		);
+	}
 
-		m_MeshIndices += 6 * 6;
-		m_Vertices.insert(m_Vertices.end(), std::begin(vertices), std::end(vertices));
+	void VoxelMesh::AddPosZFace(int x, int y, int z, glm::vec3& color) 
+	{
+		m_MeshIndices += 6;
+		m_Vertices.insert(m_Vertices.end(),
+			{
+				-1.0f + x , -1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 1.0f,
+				 1.0f + x , -1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 1.0f,
+				 1.0f + x ,  1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 1.0f,
+				-1.0f + x ,  1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 1.0f
+			}
+		);
+	}
+
+	void VoxelMesh::AddNegXFace(int x, int y, int z, glm::vec3& color) 
+	{
+		m_MeshIndices += 6;
+		m_Vertices.insert(m_Vertices.end(),
+			{
+				-1.0f + x ,  1.0f + y,  1.0f + z, color.x, color.y, color.z, -1.0f, 0.0f, 0.0f,
+				-1.0f + x ,  1.0f + y, -1.0f + z, color.x, color.y, color.z, -1.0f, 0.0f, 0.0f,
+				-1.0f + x , -1.0f + y, -1.0f + z, color.x, color.y, color.z, -1.0f, 0.0f, 0.0f,
+				-1.0f + x , -1.0f + y,  1.0f + z, color.x, color.y, color.z, -1.0f, 0.0f, 0.0f
+			}
+		);
+	}
+
+	void VoxelMesh::AddPosXFace(int x, int y, int z, glm::vec3& color) 
+	{
+		m_MeshIndices += 6;
+		m_Vertices.insert(m_Vertices.end(),
+			{
+				1.0f + x ,  1.0f + y,  1.0f + z, color.x, color.y, color.z, 1.0f, 0.0f, 0.0f,
+				1.0f + x ,  1.0f + y, -1.0f + z, color.x, color.y, color.z, 1.0f, 0.0f, 0.0f,
+				1.0f + x , -1.0f + y, -1.0f + z, color.x, color.y, color.z, 1.0f, 0.0f, 0.0f,
+				1.0f + x , -1.0f + y,  1.0f + z, color.x, color.y, color.z, 1.0f, 0.0f, 0.0f
+			}
+		);
+	}
+
+	void VoxelMesh::AddNegYFace(int x, int y, int z, glm::vec3& color) 
+	{
+		m_MeshIndices += 6;
+		m_Vertices.insert(m_Vertices.end(),
+			{
+				-1.0f + x , -1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, -1.0f, 0.0f,
+				 1.0f + x , -1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, -1.0f, 0.0f,
+				 1.0f + x , -1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, -1.0f, 0.0f,
+				-1.0f + x , -1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, -1.0f, 0.0f,
+			}
+		);
+	}
+
+	void VoxelMesh::AddPosYFace(int x, int y, int z, glm::vec3& color) 
+	{
+		m_MeshIndices += 6;
+		m_Vertices.insert(m_Vertices.end(),
+			{
+				-1.0f + x , 1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 1.0f, 0.0f,
+				 1.0f + x , 1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 1.0f, 0.0f,
+				 1.0f + x , 1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 1.0f, 0.0f,
+				-1.0f + x , 1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 1.0f, 0.0f,
+			}
+		);
 	}
 }

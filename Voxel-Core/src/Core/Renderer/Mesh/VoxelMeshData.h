@@ -23,7 +23,7 @@ namespace VoxelCore {
 		//X:        Y:          Z:
 		std::vector<std::vector<std::vector<VoxelIndexData>>> m_Data;
 
-		VoxelMeshData();
+		VoxelMeshData(int dimension);
 		VoxelMeshData(std::vector<std::vector<std::vector<VoxelIndexData>>>& data);
 		~VoxelMeshData();
 

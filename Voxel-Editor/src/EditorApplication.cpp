@@ -1,18 +1,17 @@
 #include "EditorApplication.h"
 
 EditorApplication::EditorApplication()
-	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_CameraController(1280.0f, 720.0f, 20.0f) {}
+	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_CameraController(1280.0f, 720.0f, 20.0f), m_Mesh(10) {}
 
 void EditorApplication::PreRender()
 {
-
+	glEnable(GL_DEPTH_TEST);
 }
 
 void EditorApplication::Render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(173.0f / 255.0f, 216.0f / 255.0f, 230.0f / 255.0f, 1.0f);
-	glEnable(GL_DEPTH_TEST);
 
 	m_CameraController.HandleInput();
 	VoxelCore::Renderer::BeginScene(m_CameraController);

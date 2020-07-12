@@ -3,10 +3,10 @@
 
 namespace VoxelCore {
 
-	VoxelMeshData::VoxelMeshData()
+	VoxelMeshData::VoxelMeshData(int dimension)
 	{
 		// By default constructs a 10x10 mesh of color red
-		const int meshSize = 10;
+		const int meshSize = dimension + 2;
 		m_Data.reserve(meshSize);
 
 		VoxelIndexData data;
@@ -15,6 +15,7 @@ namespace VoxelCore {
 
 		for (int i = 0; i < meshSize; i++) 
 		{
+			float c = 0.0f;
 			std::vector<std::vector<VoxelIndexData>> v1;
 			v1.reserve(meshSize);
 			for (int j = 0; j < meshSize; j++)
@@ -23,8 +24,14 @@ namespace VoxelCore {
 				v2.reserve(meshSize);
 				for (int k = 0; k < meshSize; k++)
 				{
+					data.Active = true;
+					if (i == 0 || j == 0 || k == 0 || i == meshSize - 1 || j == meshSize - 1 || k == meshSize - 1) {
+						data.Active = false;
+					}
+					data.Color = glm::vec3(c, c, c);
 					v2.emplace_back(std::move(data));
 				}
+				c += 0.09f;
 				v1.emplace_back(std::move(v2));
 			}
 			m_Data.emplace_back(std::move(v1));
