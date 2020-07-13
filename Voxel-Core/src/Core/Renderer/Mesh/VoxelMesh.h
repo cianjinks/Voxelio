@@ -23,6 +23,9 @@ namespace VoxelCore {
 		VoxelMesh(VoxelMeshData& data);
 		~VoxelMesh();
 		
+		void UpdateMesh();
+		void RemoveBlock(int x, int y, int z);
+
 		const std::vector<float>& GetVertices() const { return m_Vertices; };
 		const int GetIndicesCount() const { return m_MeshIndices; };
 	};

@@ -13,8 +13,8 @@ namespace VoxelCore {
 	// TODO: Avoid data wastage (colors still stored even if inactive)
 	struct VoxelIndexData
 	{
-		bool Active;
-		glm::vec3 Color;
+		bool Active = true;
+		glm::vec3 Color = glm::vec3(0.6f, 0.6f, 0.6f);
 	};
 
 	class VoxelMeshData

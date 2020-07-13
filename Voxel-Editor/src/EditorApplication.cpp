@@ -46,7 +46,11 @@ void EditorApplication::ImGuiRender()
 
 void EditorApplication::OnKeyPress(int key, int scancode, int action, int mods)
 {
-
+	if (key == GLFW_KEY_X && action == GLFW_PRESS)
+	{
+		VX_CORE_INFO("Removed block: 1, 1, 1");
+		m_Mesh.RemoveBlock(1, 1, 1);
+	}
 }
 
 void EditorApplication::OnMouseMove(float xpos, float ypos)
