@@ -11,6 +11,7 @@ namespace VoxelCore {
 
 		for (int i = 0; i < meshSize; i++) 
 		{
+			float c = 0.0f;
 			std::vector<std::vector<VoxelIndexData>> v1;
 			v1.reserve(meshSize);
 			for (int j = 0; j < meshSize; j++)
@@ -23,8 +24,10 @@ namespace VoxelCore {
 					if (i == 0 || j == 0 || k == 0 || i == meshSize - 1 || j == meshSize - 1 || k == meshSize - 1) {
 						data.Active = false;
 					}
+					data.Color = glm::vec3(c, c, c);
 					v2.emplace_back(std::move(data));
 				}
+				c += 0.09 / 5;
 				v1.emplace_back(std::move(v2));
 			}
 			m_Data.emplace_back(std::move(v1));

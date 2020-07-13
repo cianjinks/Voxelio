@@ -37,35 +37,37 @@ namespace VoxelCore {
 			{
 				for (int z = 1; z < zDataSize - 1; z++)
 				{
-					// Negative Z Face
-					if (!m_MeshData.m_Data[x][y][(size_t)z - 1].Active)
-					{
-						AddNegZFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color);
-					}
-					// Positive Z Face
-					if (!m_MeshData.m_Data[x][y][(size_t)z + 1].Active)
-					{
-						AddPosZFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color);
-					}
-					// Negative X Face
-					if (!m_MeshData.m_Data[(size_t)x - 1][y][z].Active)
-					{
-						AddNegXFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color);
-					}
-					// Positive X Face
-					if (!m_MeshData.m_Data[(size_t)x + 1][y][z].Active)
-					{
-						AddPosXFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color);
-					}
-					// Negative Y Face
-					if (!m_MeshData.m_Data[x][(size_t)y - 1][z].Active)
-					{
-						AddNegYFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color);
-					}
-					// Positive Y Face
-					if (!m_MeshData.m_Data[x][(size_t)y + 1][z].Active)
-					{
-						AddPosYFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color);
+					if (m_MeshData.m_Data[x][y][z].Active) {
+						// Negative Z Face
+						if (!m_MeshData.m_Data[x][y][(size_t)z - 1].Active)
+						{
+							AddNegZFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color);
+						}
+						// Positive Z Face
+						if (!m_MeshData.m_Data[x][y][(size_t)z + 1].Active)
+						{
+							AddPosZFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color);
+						}
+						// Negative X Face
+						if (!m_MeshData.m_Data[(size_t)x - 1][y][z].Active)
+						{
+							AddNegXFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color);
+						}
+						// Positive X Face
+						if (!m_MeshData.m_Data[(size_t)x + 1][y][z].Active)
+						{
+							AddPosXFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color);
+						}
+						// Negative Y Face
+						if (!m_MeshData.m_Data[x][(size_t)y - 1][z].Active)
+						{
+							AddNegYFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color);
+						}
+						// Positive Y Face
+						if (!m_MeshData.m_Data[x][(size_t)y + 1][z].Active)
+						{
+							AddPosYFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color);
+						}
 					}
 				}
 			}

@@ -15,18 +15,6 @@ void EditorApplication::Render()
 
 	m_CameraController.HandleInput();
 	VoxelCore::Renderer::BeginScene(m_CameraController);
-	/**for (float i = -5.0f; i < 6.0f; i++)
-	{
-		float c = 0.0f;
-		for (float j = -5.0f; j < 6.0f; j++)
-		{
-			for (float k = -5.0f; k < 6.0f; k++)
-			{
-				VoxelCore::Renderer::DrawCube(glm::vec3(i, j, k), glm::vec3(c, c, c));
-			}
-			c += 0.09f;
-		}
-	}**/
 	VoxelCore::Renderer::DrawMesh(m_Mesh);
 	VoxelCore::Renderer::EndScene();
 }
@@ -72,6 +60,19 @@ void EditorApplication::OnMouseClick(int button, int action, int mods)
 		}
 		else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
 			VoxelCore::Input::SetInputMode(GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		}
+
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+			float depth;
+			float x = VoxelCore::Input::GetMouseX();
+			float y = VoxelCore::Input::GetMouseY();
+			glReadPixels((int)x, m_WindowWidth - (int)y - 1, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+
+			glm::vec4 viewport = glm::vec4(0, 0, m_WindowWidth, m_WindowHeight);
+			glm::vec3 wincoord = glm::vec3(x, m_WindowHeight - y - 1, depth);
+			glm::vec3 objcoord = glm::unProject(wincoord, m_CameraController.GetViewMatrix(), m_CameraController.GetProjectionMatrix(), viewport);
+
+			VX_CORE_INFO("Coordinates in object space: {:0.2f} {:0.2f} {:0.2f}", objcoord.x, objcoord.y, objcoord.z);
 		}
 	}
 }
