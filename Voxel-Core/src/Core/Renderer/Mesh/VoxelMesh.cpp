@@ -55,10 +55,10 @@ namespace VoxelCore {
 		m_MeshIndices += 6;
 		m_Vertices.insert(m_Vertices.end(),
 			{
-				-1.0f + x, -1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, -1.0f,
-				 1.0f + x, -1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, -1.0f,
-				 1.0f + x,  1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, -1.0f,
-				-1.0f + x,  1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, -1.0f
+				-0.5f + x, -0.5f + y, -0.5f + z, color.x, color.y, color.z, 0.0f, 0.0f, -1.0f,
+				 0.5f + x, -0.5f + y, -0.5f + z, color.x, color.y, color.z, 0.0f, 0.0f, -1.0f,
+				 0.5f + x,  0.5f + y, -0.5f + z, color.x, color.y, color.z, 0.0f, 0.0f, -1.0f,
+				-0.5f + x,  0.5f + y, -0.5f + z, color.x, color.y, color.z, 0.0f, 0.0f, -1.0f
 			}
 		);
 	}
@@ -68,10 +68,10 @@ namespace VoxelCore {
 		m_MeshIndices += 6;
 		m_Vertices.insert(m_Vertices.end(),
 			{
-				-1.0f + x , -1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 1.0f,
-				 1.0f + x , -1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 1.0f,
-				 1.0f + x ,  1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 1.0f,
-				-1.0f + x ,  1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 0.0f, 1.0f
+				-0.5f + x , -0.5f + y,  0.5f + z, color.x, color.y, color.z, 0.0f, 0.0f, 1.0f,
+				 0.5f + x , -0.5f + y,  0.5f + z, color.x, color.y, color.z, 0.0f, 0.0f, 1.0f,
+				 0.5f + x ,  0.5f + y,  0.5f + z, color.x, color.y, color.z, 0.0f, 0.0f, 1.0f,
+				-0.5f + x ,  0.5f + y,  0.5f + z, color.x, color.y, color.z, 0.0f, 0.0f, 1.0f
 			}
 		);
 	}
@@ -81,10 +81,10 @@ namespace VoxelCore {
 		m_MeshIndices += 6;
 		m_Vertices.insert(m_Vertices.end(),
 			{
-				-1.0f + x ,  1.0f + y,  1.0f + z, color.x, color.y, color.z, -1.0f, 0.0f, 0.0f,
-				-1.0f + x ,  1.0f + y, -1.0f + z, color.x, color.y, color.z, -1.0f, 0.0f, 0.0f,
-				-1.0f + x , -1.0f + y, -1.0f + z, color.x, color.y, color.z, -1.0f, 0.0f, 0.0f,
-				-1.0f + x , -1.0f + y,  1.0f + z, color.x, color.y, color.z, -1.0f, 0.0f, 0.0f
+				-0.5f + x ,  0.5f + y,  0.5f + z, color.x, color.y, color.z, -1.0f, 0.0f, 0.0f,
+				-0.5f + x ,  0.5f + y, -0.5f + z, color.x, color.y, color.z, -1.0f, 0.0f, 0.0f,
+				-0.5f + x , -0.5f + y, -0.5f + z, color.x, color.y, color.z, -1.0f, 0.0f, 0.0f,
+				-0.5f + x , -0.5f + y,  0.5f + z, color.x, color.y, color.z, -1.0f, 0.0f, 0.0f
 			}
 		);
 	}
@@ -94,10 +94,10 @@ namespace VoxelCore {
 		m_MeshIndices += 6;
 		m_Vertices.insert(m_Vertices.end(),
 			{
-				1.0f + x ,  1.0f + y,  1.0f + z, color.x, color.y, color.z, 1.0f, 0.0f, 0.0f,
-				1.0f + x ,  1.0f + y, -1.0f + z, color.x, color.y, color.z, 1.0f, 0.0f, 0.0f,
-				1.0f + x , -1.0f + y, -1.0f + z, color.x, color.y, color.z, 1.0f, 0.0f, 0.0f,
-				1.0f + x , -1.0f + y,  1.0f + z, color.x, color.y, color.z, 1.0f, 0.0f, 0.0f
+				0.5f + x ,  0.5f + y,  0.5f + z, color.x, color.y, color.z, 1.0f, 0.0f, 0.0f,
+				0.5f + x ,  0.5f + y, -0.5f + z, color.x, color.y, color.z, 1.0f, 0.0f, 0.0f,
+				0.5f + x , -0.5f + y, -0.5f + z, color.x, color.y, color.z, 1.0f, 0.0f, 0.0f,
+				0.5f + x , -0.5f + y,  0.5f + z, color.x, color.y, color.z, 1.0f, 0.0f, 0.0f
 			}
 		);
 	}
@@ -107,10 +107,10 @@ namespace VoxelCore {
 		m_MeshIndices += 6;
 		m_Vertices.insert(m_Vertices.end(),
 			{
-				-1.0f + x , -1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, -1.0f, 0.0f,
-				 1.0f + x , -1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, -1.0f, 0.0f,
-				 1.0f + x , -1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, -1.0f, 0.0f,
-				-1.0f + x , -1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, -1.0f, 0.0f,
+				-0.5f + x , -0.5f + y, -0.5f + z, color.x, color.y, color.z, 0.0f, -1.0f, 0.0f,
+				 0.5f + x , -0.5f + y, -0.5f + z, color.x, color.y, color.z, 0.0f, -1.0f, 0.0f,
+				 0.5f + x , -0.5f + y,  0.5f + z, color.x, color.y, color.z, 0.0f, -1.0f, 0.0f,
+				-0.5f + x , -0.5f + y,  0.5f + z, color.x, color.y, color.z, 0.0f, -1.0f, 0.0f,
 			}
 		);
 	}
@@ -120,10 +120,10 @@ namespace VoxelCore {
 		m_MeshIndices += 6;
 		m_Vertices.insert(m_Vertices.end(),
 			{
-				-1.0f + x , 1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 1.0f, 0.0f,
-				 1.0f + x , 1.0f + y, -1.0f + z, color.x, color.y, color.z, 0.0f, 1.0f, 0.0f,
-				 1.0f + x , 1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 1.0f, 0.0f,
-				-1.0f + x , 1.0f + y,  1.0f + z, color.x, color.y, color.z, 0.0f, 1.0f, 0.0f,
+				-0.5f + x , 0.5f + y, -0.5f + z, color.x, color.y, color.z, 0.0f, 1.0f, 0.0f,
+				 0.5f + x , 0.5f + y, -0.5f + z, color.x, color.y, color.z, 0.0f, 1.0f, 0.0f,
+				 0.5f + x , 0.5f + y,  0.5f + z, color.x, color.y, color.z, 0.0f, 1.0f, 0.0f,
+				-0.5f + x , 0.5f + y,  0.5f + z, color.x, color.y, color.z, 0.0f, 1.0f, 0.0f,
 			}
 		);
 	}
