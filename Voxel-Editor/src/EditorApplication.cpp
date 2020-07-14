@@ -13,6 +13,7 @@ void EditorApplication::Render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(173.0f / 255.0f, 216.0f / 255.0f, 230.0f / 255.0f, 1.0f);
 
+	MouseSelection();
 	m_CameraController.HandleInput();
 	m_CameraController.SetFarPlane(500.0f);
 	VoxelCore::Renderer::BeginScene(m_CameraController);
@@ -62,18 +63,33 @@ void EditorApplication::OnMouseClick(int button, int action, int mods)
 		else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
 			VoxelCore::Input::SetInputMode(GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		}
+	}
+}
 
-		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-			float depth;
-			float x = VoxelCore::Input::GetMouseX();
-			float y = VoxelCore::Input::GetMouseY();
-			glReadPixels((int)x, m_WindowWidth - (int)y - 1, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+void EditorApplication::MouseSelection()
+{
+	float x = VoxelCore::Input::GetMouseX();
+	float y = VoxelCore::Input::GetMouseY();
+	glm::vec4 viewport = glm::vec4(0, 0, m_WindowWidth, m_WindowHeight);
 
-			glm::vec4 viewport = glm::vec4(0, 0, m_WindowWidth, m_WindowHeight);
-			glm::vec3 wincoord = glm::vec3(x, m_WindowHeight - y - 1, depth);
-			glm::vec3 objcoord = glm::unProject(wincoord, m_CameraController.GetViewMatrix(), m_CameraController.GetProjectionMatrix(), viewport);
+	glm::vec3 startcoord = glm::unProject(glm::vec3(x, m_WindowHeight - y, m_CameraController.GetNearPlane()),
+		m_CameraController.GetViewMatrix(), m_CameraController.GetProjectionMatrix(), viewport);
 
-			VX_CORE_INFO("Coordinates in object space: {:0.2f} {:0.2f} {:0.2f}", objcoord.x, objcoord.y, objcoord.z);
-		}
+	glm::vec3 endcoord = glm::unProject(glm::vec3(x, m_WindowHeight - y, m_CameraController.GetFarPlane()),
+		m_CameraController.GetViewMatrix(), m_CameraController.GetProjectionMatrix(), viewport);
+
+	glm::vec3 bmin = m_Mesh.GetBlockMin(1, 1, 1);
+	glm::vec3 bmax = m_Mesh.GetBlockMax(1, 1, 1);
+
+	glm::vec3 raydir = startcoord - endcoord;
+	VoxelCore::Ray ray(startcoord, raydir);
+
+	if (VoxelCore::Ray::RayAABBCollision(ray, bmin, bmax))
+	{
+		VX_CORE_INFO("Ray hit block 1, 1, 1");
+	}
+	else 
+	{
+		VX_CORE_INFO("Ray did not hit block 1, 1, 1");
 	}
 }

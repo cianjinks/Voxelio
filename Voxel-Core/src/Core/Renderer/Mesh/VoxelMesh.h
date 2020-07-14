@@ -10,6 +10,8 @@ namespace VoxelCore {
 		std::vector<float> m_Vertices;
 		int m_MeshIndices = 0;
 
+		int lowerXBound = 0, lowerYBound = 0, lowerZBound = 0;
+
 	private:
 		void AddNegZFace(int x, int y, int z, glm::vec3& color);
 		void AddPosZFace(int x, int y, int z, glm::vec3& color);
@@ -25,6 +27,9 @@ namespace VoxelCore {
 		
 		void UpdateMesh();
 		void RemoveBlock(int x, int y, int z);
+		glm::vec3 GetBlockPos(int xindex, int yindex, int zindex);
+		glm::vec3 GetBlockMin(int xindex, int yindex, int zindex);
+		glm::vec3 GetBlockMax(int xindex, int yindex, int zindex);
 
 		const std::vector<float>& GetVertices() const { return m_Vertices; };
 		const int GetIndicesCount() const { return m_MeshIndices; };

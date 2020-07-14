@@ -27,6 +27,8 @@ public:
 	float GetWindowHeight() override { return m_WindowHeight; };
 	char* GetWindowName() override { return m_WindowName; };
 
+	void MouseSelection();
+
 };
 
 VoxelCore::Application* VoxelCore::CreateApplication()

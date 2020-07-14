@@ -27,9 +27,9 @@ namespace VoxelCore {
 		m_Vertices.clear();
 		m_Vertices.reserve(xDataSize * yDataSize * zDataSize);
 
-		const int lowerXBound = ((int)xDataSize - 1) / 2;
-		const int lowerYBound = ((int)yDataSize - 1) / 2;
-		const int lowerZBound = ((int)zDataSize - 1) / 2;
+		lowerXBound = ((int)xDataSize - 1) / 2;
+		lowerYBound = ((int)yDataSize - 1) / 2;
+		lowerZBound = ((int)zDataSize - 1) / 2;
 
 		for (int x = 1; x < xDataSize - 1; x++)
 		{
@@ -72,6 +72,23 @@ namespace VoxelCore {
 				}
 			}
 		}
+	}
+
+	glm::vec3 VoxelMesh::GetBlockPos(int xindex, int yindex, int zindex)
+	{
+		return glm::vec3(xindex - lowerXBound, yindex - lowerYBound, zindex - lowerZBound);
+	}
+
+	glm::vec3 VoxelMesh::GetBlockMin(int xindex, int yindex, int zindex)
+	{
+		glm::vec3 pos = GetBlockPos(xindex, yindex, zindex);
+		return glm::vec3(pos.x - 0.5, pos.y - 0.5, pos.z - 0.5);
+	}
+
+	glm::vec3 VoxelMesh::GetBlockMax(int xindex, int yindex, int zindex)
+	{
+		glm::vec3 pos = GetBlockPos(xindex, yindex, zindex);
+		return glm::vec3(pos.x + 0.5, pos.y + 0.5, pos.z + 0.5);
 	}
 
 	void VoxelMesh::RemoveBlock(int x, int y, int z)
