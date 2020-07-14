@@ -159,7 +159,7 @@ namespace VoxelCore {
 			int drawCalls = mesh.GetIndicesCount() / RendererData::MaxIndices;
 			for (int flush = 0; flush < drawCalls; flush++)
 			{
-				m_VertexData->insert(m_VertexData->end(), std::begin(mesh.GetVertices()) + drawnElements, std::begin(mesh.GetVertices()) + drawnElements + RendererData::MaxVertices * s_CubeVertexElementCount);
+				m_VertexData->insert(m_VertexData->end(), std::begin(mesh.GetVertices()) + drawnElements, std::begin(mesh.GetVertices()) + (drawnElements + RendererData::MaxVertices * s_CubeVertexElementCount));
 				drawnElements += RendererData::MaxVertices * s_CubeVertexElementCount;
 				RendererData::IndicesCount += RendererData::MaxIndices;
 				FlushData();

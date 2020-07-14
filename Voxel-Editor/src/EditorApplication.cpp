@@ -78,18 +78,18 @@ void EditorApplication::MouseSelection()
 	glm::vec3 endcoord = glm::unProject(glm::vec3(x, m_WindowHeight - y, m_CameraController.GetFarPlane()),
 		m_CameraController.GetViewMatrix(), m_CameraController.GetProjectionMatrix(), viewport);
 
-	glm::vec3 bmin = m_Mesh.GetBlockMin(1, 1, 1);
-	glm::vec3 bmax = m_Mesh.GetBlockMax(1, 1, 1);
-
 	glm::vec3 raydir = startcoord - endcoord;
 	VoxelCore::Ray ray(startcoord, raydir);
 
+	glm::vec3 bmin = m_Mesh.GetBlockMin(1, 1, 1);
+	glm::vec3 bmax = m_Mesh.GetBlockMax(1, 1, 1);
+
 	if (VoxelCore::Ray::RayAABBCollision(ray, bmin, bmax))
 	{
-		VX_CORE_INFO("Ray hit block 1, 1, 1");
+		m_Mesh.SetBlockColor(1, 1, 1, glm::vec3(1.0f, 1.0f, 0.0f));
 	}
 	else 
 	{
-		VX_CORE_INFO("Ray did not hit block 1, 1, 1");
+		m_Mesh.SetBlockColor(1, 1, 1, glm::vec3(0.09f, 0.09f, 0.09f));
 	}
 }

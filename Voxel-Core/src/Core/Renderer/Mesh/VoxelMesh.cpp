@@ -1,5 +1,6 @@
 #include "voxelpch.h"
 #include "VoxelMesh.h"
+#include "Core/Renderer/Renderer.h"
 
 namespace VoxelCore {
 
@@ -19,9 +20,9 @@ namespace VoxelCore {
 
 	void VoxelMesh::UpdateMesh()
 	{
-		size_t xDataSize = m_MeshData.m_Data.size();
-		size_t yDataSize = m_MeshData.m_Data[0].size();
-		size_t zDataSize = m_MeshData.m_Data[0][0].size();
+		xDataSize = m_MeshData.m_Data.size();
+		yDataSize = m_MeshData.m_Data[0].size();
+		zDataSize = m_MeshData.m_Data[0][0].size();
 
 		m_MeshIndices = 0;
 		m_Vertices.clear();
@@ -74,6 +75,11 @@ namespace VoxelCore {
 		}
 	}
 
+	void VoxelMesh::UpdateMesh(int xindex, int yindex, int zindex)
+	{
+
+	}
+
 	glm::vec3 VoxelMesh::GetBlockPos(int xindex, int yindex, int zindex)
 	{
 		return glm::vec3(xindex - lowerXBound, yindex - lowerYBound, zindex - lowerZBound);
@@ -91,12 +97,19 @@ namespace VoxelCore {
 		return glm::vec3(pos.x + 0.5, pos.y + 0.5, pos.z + 0.5);
 	}
 
-	void VoxelMesh::RemoveBlock(int x, int y, int z)
+	void VoxelMesh::SetBlockColor(int xindex, int yindex, int zindex, const glm::vec3 color)
 	{
-		m_MeshData.m_Data[x][y][z].Active = false;
-		UpdateMesh();
+		m_MeshData.m_Data[xindex][yindex][zindex].Color = color;
+		UpdateMesh(xindex, yindex, zindex);
 	}
 
+	void VoxelMesh::RemoveBlock(int xindex, int yindex, int zindex)
+	{
+		m_MeshData.m_Data[xindex][yindex][zindex].Active = false;
+		UpdateMesh(xindex, yindex, zindex);
+	}
+
+	// Creation Functions
 	void VoxelMesh::AddNegZFace(int x, int y, int z, glm::vec3& color) 
 	{
 		m_MeshIndices += 6;

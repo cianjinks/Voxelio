@@ -11,6 +11,9 @@ namespace VoxelCore {
 		int m_MeshIndices = 0;
 
 		int lowerXBound = 0, lowerYBound = 0, lowerZBound = 0;
+		size_t xDataSize = 0;
+		size_t yDataSize = 0;
+		size_t zDataSize = 0;
 
 	private:
 		void AddNegZFace(int x, int y, int z, glm::vec3& color);
@@ -26,10 +29,14 @@ namespace VoxelCore {
 		~VoxelMesh();
 		
 		void UpdateMesh();
-		void RemoveBlock(int x, int y, int z);
+		void UpdateMesh(int xindex, int yindex, int zindex);
+		void RemoveBlock(int xindex, int yindex, int zindex);
+
 		glm::vec3 GetBlockPos(int xindex, int yindex, int zindex);
 		glm::vec3 GetBlockMin(int xindex, int yindex, int zindex);
 		glm::vec3 GetBlockMax(int xindex, int yindex, int zindex);
+
+		void SetBlockColor(int xindex, int yindex, int zindex, const glm::vec3 color);
 
 		const std::vector<float>& GetVertices() const { return m_Vertices; };
 		const int GetIndicesCount() const { return m_MeshIndices; };
