@@ -12,7 +12,7 @@ namespace VoxelCore {
 
 	void OrbitalCameraController::OnMouseScroll(float xoffset, float yoffset) 
 	{
-		const float sensitivity = 0.35f;
+		const float sensitivity = 0.5f;
 		yoffset *= sensitivity;
 		
 		VX_CORE_INFO("Y Offset {:.3f}", yoffset);

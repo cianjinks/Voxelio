@@ -22,7 +22,7 @@ namespace VoxelCore {
 
 	struct RendererData
 	{
-		static const int MaxFaces = 6000;
+		static const int MaxFaces = 18000;
 		static const int MaxVertices = MaxFaces * 4;
 		static const int MaxIndices = MaxFaces * 6;
 
@@ -44,7 +44,7 @@ namespace VoxelCore {
 		static std::vector<float>* m_VertexData;
 	public:
 		static GraphicsAPI getAPI() { return s_API; };
-
+		static int s_CubeVertexElementCount;
 	private:
 
 	public:

@@ -14,6 +14,7 @@ void EditorApplication::Render()
 	glClearColor(173.0f / 255.0f, 216.0f / 255.0f, 230.0f / 255.0f, 1.0f);
 
 	m_CameraController.HandleInput();
+	m_CameraController.SetFarPlane(500.0f);
 	VoxelCore::Renderer::BeginScene(m_CameraController);
 	VoxelCore::Renderer::DrawMesh(m_Mesh);
 	VoxelCore::Renderer::EndScene();

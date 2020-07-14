@@ -6,6 +6,7 @@
 namespace VoxelCore {
 
 	GraphicsAPI Renderer::s_API = GraphicsAPI::OpenGL;
+	int Renderer::s_CubeVertexElementCount = 9;
 
 	std::shared_ptr<VertexArray> Renderer::vao = nullptr;
 	std::shared_ptr<VertexBuffer> Renderer::vbo = nullptr;
@@ -152,13 +153,20 @@ namespace VoxelCore {
 
 	void Renderer::DrawMesh(const VoxelMesh& mesh)
 	{
+		int drawnElements = 0;
 		if ((RendererData::IndicesCount + mesh.GetIndicesCount()) > RendererData::MaxIndices)
 		{
-			FlushData();
+			int drawCalls = mesh.GetIndicesCount() / RendererData::MaxIndices;
+			for (int flush = 0; flush < drawCalls; flush++)
+			{
+				m_VertexData->insert(m_VertexData->end(), std::begin(mesh.GetVertices()) + drawnElements, std::begin(mesh.GetVertices()) + drawnElements + RendererData::MaxVertices * s_CubeVertexElementCount);
+				drawnElements += RendererData::MaxVertices * s_CubeVertexElementCount;
+				RendererData::IndicesCount += RendererData::MaxIndices;
+				FlushData();
+			}
 		}
 		RendererData::IndicesCount += mesh.GetIndicesCount();
 		//VX_CORE_INFO("Indices Count: {}", mesh.GetIndicesCount());
-		// FIX: This simply does one large data copy so it will never get split into multiple draw calls if there is too much data
-		m_VertexData->insert(m_VertexData->end(), std::begin(mesh.GetVertices()), std::end(mesh.GetVertices()));
+		m_VertexData->insert(m_VertexData->end(), std::begin(mesh.GetVertices()) + drawnElements, std::end(mesh.GetVertices()));
 	}
 }

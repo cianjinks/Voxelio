@@ -27,7 +27,7 @@ namespace VoxelCore {
 					data.Color = glm::vec3(c, c, c);
 					v2.emplace_back(std::move(data));
 				}
-				c += 0.09 / 5;
+				c += 0.09f / 1.0f;
 				v1.emplace_back(std::move(v2));
 			}
 			m_Data.emplace_back(std::move(v1));
