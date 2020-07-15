@@ -36,11 +36,7 @@ void EditorApplication::ImGuiRender()
 
 void EditorApplication::OnKeyPress(int key, int scancode, int action, int mods)
 {
-	if (key == GLFW_KEY_X && action == GLFW_PRESS)
-	{
-		VX_CORE_INFO("Removed block: 1, 1, 1");
-		m_Mesh.RemoveBlock(1, 1, 1);
-	}
+
 }
 
 void EditorApplication::OnMouseMove(float xpos, float ypos)
@@ -81,15 +77,17 @@ void EditorApplication::MouseSelection()
 	glm::vec3 raydir = startcoord - endcoord;
 	VoxelCore::Ray ray(startcoord, raydir);
 
-	glm::vec3 bmin = m_Mesh.GetBlockMin(1, 1, 1);
-	glm::vec3 bmax = m_Mesh.GetBlockMax(1, 1, 1);
+	glm::vec3 bmin = m_Mesh.GetBlockMin(10, 10, 10);
+	glm::vec3 bmax = m_Mesh.GetBlockMax(10, 10, 10);
 
 	if (VoxelCore::Ray::RayAABBCollision(ray, bmin, bmax))
 	{
-		m_Mesh.SetBlockColor(1, 1, 1, glm::vec3(1.0f, 1.0f, 0.0f));
+		//m_Mesh.SetBlockColor(1, 1, 1, glm::vec3(1.0f, 1.0f, 0.0f));
+		m_Mesh.DisableBlock(10, 10, 10);
 	}
 	else 
 	{
-		m_Mesh.SetBlockColor(1, 1, 1, glm::vec3(0.09f, 0.09f, 0.09f));
+		//m_Mesh.SetBlockColor(1, 1, 1, glm::vec3(0.09f, 0.09f, 0.09f));
+		m_Mesh.EnableBlock(10, 10, 10);
 	}
 }

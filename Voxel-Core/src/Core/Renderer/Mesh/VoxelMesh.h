@@ -21,13 +21,15 @@ namespace VoxelCore {
 		
 		void UpdateMesh();
 		void UpdateMesh(int xindex, int yindex, int zindex);
-		void RemoveBlock(int xindex, int yindex, int zindex);
+		void UpateSurroundingMesh(int xindex, int yindex, int zindex);
+		void EnableBlock(int xindex, int yindex, int zindex);
+		void DisableBlock(int xindex, int yindex, int zindex);
+		void SetBlockColor(int xindex, int yindex, int zindex, const glm::vec3& color);
+
 
 		glm::vec3 GetBlockPos(int xindex, int yindex, int zindex);
 		glm::vec3 GetBlockMin(int xindex, int yindex, int zindex);
 		glm::vec3 GetBlockMax(int xindex, int yindex, int zindex);
-
-		void SetBlockColor(int xindex, int yindex, int zindex, const glm::vec3& color);
 
 		const std::vector<std::vector<std::vector<VoxelBlock>>>& GetBlocks() const { return m_Blocks; };
 		const int GetIndicesCount() const { return m_MeshIndices; };
