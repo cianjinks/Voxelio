@@ -153,7 +153,7 @@ namespace VoxelCore {
 
 	void Renderer::DrawMesh(const VoxelMesh& mesh)
 	{
-		int drawnElements = 0;
+		/**int drawnElements = 0;
 		if ((RendererData::IndicesCount + mesh.GetIndicesCount()) > RendererData::MaxIndices)
 		{
 			int drawCalls = mesh.GetIndicesCount() / RendererData::MaxIndices;
@@ -167,6 +167,20 @@ namespace VoxelCore {
 		}
 		RendererData::IndicesCount += mesh.GetIndicesCount();
 		//VX_CORE_INFO("Indices Count: {}", mesh.GetIndicesCount());
-		m_VertexData->insert(m_VertexData->end(), std::begin(mesh.GetVertices()) + drawnElements, std::end(mesh.GetVertices()));
+		m_VertexData->insert(m_VertexData->end(), std::begin(mesh.GetVertices()) + drawnElements, std::end(mesh.GetVertices()));**/
+
+		auto& blocks = mesh.GetBlocks();
+		for (auto& v1 : blocks)
+		{
+			for (auto& v2 : v1) 
+			{
+				for (auto& v3 : v2)
+				{
+					auto& vertices = v3.GetVertices();
+					m_VertexData->insert(m_VertexData->end(), std::begin(vertices), std::end(vertices));
+				}
+			}
+		}
+		RendererData::IndicesCount += mesh.GetIndicesCount();
 	}
 }

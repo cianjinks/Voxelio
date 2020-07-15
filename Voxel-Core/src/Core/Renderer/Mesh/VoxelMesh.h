@@ -1,5 +1,6 @@
 #pragma once
 #include "VoxelMeshData.h"
+#include "VoxelBlock.h"
 
 namespace VoxelCore {
 
@@ -7,21 +8,11 @@ namespace VoxelCore {
 	{
 	private:
 		VoxelMeshData m_MeshData;
-		std::vector<float> m_Vertices;
+		std::vector<std::vector<std::vector<VoxelBlock>>> m_Blocks;
+
 		int m_MeshIndices = 0;
-
 		int lowerXBound = 0, lowerYBound = 0, lowerZBound = 0;
-		size_t xDataSize = 0;
-		size_t yDataSize = 0;
-		size_t zDataSize = 0;
-
-	private:
-		void AddNegZFace(int x, int y, int z, glm::vec3& color);
-		void AddPosZFace(int x, int y, int z, glm::vec3& color);
-		void AddNegXFace(int x, int y, int z, glm::vec3& color);
-		void AddPosXFace(int x, int y, int z, glm::vec3& color);
-		void AddNegYFace(int x, int y, int z, glm::vec3& color);
-		void AddPosYFace(int x, int y, int z, glm::vec3& color);
+		size_t xDataSize = 0, yDataSize = 0, zDataSize = 0;
 
 	public:
 		VoxelMesh(int dimension);
@@ -36,9 +27,9 @@ namespace VoxelCore {
 		glm::vec3 GetBlockMin(int xindex, int yindex, int zindex);
 		glm::vec3 GetBlockMax(int xindex, int yindex, int zindex);
 
-		void SetBlockColor(int xindex, int yindex, int zindex, const glm::vec3 color);
+		void SetBlockColor(int xindex, int yindex, int zindex, const glm::vec3& color);
 
-		const std::vector<float>& GetVertices() const { return m_Vertices; };
+		const std::vector<std::vector<std::vector<VoxelBlock>>>& GetBlocks() const { return m_Blocks; };
 		const int GetIndicesCount() const { return m_MeshIndices; };
 	};
 }
