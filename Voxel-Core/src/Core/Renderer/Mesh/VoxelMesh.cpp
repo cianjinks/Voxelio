@@ -16,7 +16,10 @@ namespace VoxelCore {
 		UpdateMesh();
 	}
 
-	VoxelMesh::~VoxelMesh() {}
+	VoxelMesh::~VoxelMesh() { 
+		m_VoxelData->clear();
+		delete m_VoxelData; 
+	}
 
 	void VoxelMesh::UpdateMesh()
 	{
@@ -24,67 +27,46 @@ namespace VoxelCore {
 		yDataSize = m_MeshData.m_Data[0].size();
 		zDataSize = m_MeshData.m_Data[0][0].size();
 
-		m_MeshIndices = 0;
-		m_Blocks.clear();
-		m_Blocks.reserve(xDataSize * yDataSize * zDataSize);
-
 		lowerXBound = ((int)xDataSize) / 2;
 		lowerYBound = ((int)yDataSize) / 2;
 		lowerZBound = ((int)zDataSize) / 2;
 
+		m_MeshIndices = 0;
+		m_VoxelData = new std::vector<float>(xDataSize * yDataSize * zDataSize * VoxelBlockGenerator::s_VoxelCubeElementCount);
+		//m_VoxelData->clear();
+		std::fill(m_VoxelData->begin(), m_VoxelData->end(), 0.0f);
+
 		for (int x = 0; x < xDataSize; x++)
 		{
-			std::vector<std::vector<VoxelBlock>> outerblocks;
 			for (int y = 0; y < yDataSize; y++)
 			{
-				std::vector<VoxelBlock> innerblocks;
 				for (int z = 0; z < zDataSize; z++)
 				{
-					VoxelBlock block;
+					int index = ((x * yDataSize * zDataSize) + (y * zDataSize) + z) * VoxelBlockGenerator::s_VoxelCubeElementCount;
+					//int index = ((z * yDataSize * xDataSize) + (y * xDataSize) + x) * VoxelBlockGenerator::s_VoxelCubeElementCount;
 					if (m_MeshData.m_Data[x][y][z].Active) {
-						// Negative Z Face
-						if (!m_MeshData.m_Data[x][y][(size_t)z - 1].Active)
-						{
-							block.AddNegZFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color);
-						}
-						// Positive Z Face
-						if (!m_MeshData.m_Data[x][y][(size_t)z + 1].Active)
-						{
-							block.AddPosZFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color);
-						}
-						// Negative X Face
-						if (!m_MeshData.m_Data[(size_t)x - 1][y][z].Active)
-						{
-							block.AddNegXFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color);
-						}
-						// Positive X Face
-						if (!m_MeshData.m_Data[(size_t)x + 1][y][z].Active)
-						{
-							block.AddPosXFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color);
-						}
-						// Negative Y Face
-						if (!m_MeshData.m_Data[x][(size_t)y - 1][z].Active)
-						{
-							block.AddNegYFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color);
-						}
-						// Positive Y Face
-						if (!m_MeshData.m_Data[x][(size_t)y + 1][z].Active)
-						{
-							block.AddPosYFace(x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color);
-						}
+						int faces = VoxelFace::None;
+						if (!m_MeshData.m_Data[x][y][(size_t)z - 1].Active) { faces = faces | VoxelFace::NegZFace; }
+						if (!m_MeshData.m_Data[x][y][(size_t)z + 1].Active) { faces = faces | VoxelFace::PosZFace; }
+						if (!m_MeshData.m_Data[(size_t)x - 1][y][z].Active) { faces = faces | VoxelFace::NegXFace; }
+						if (!m_MeshData.m_Data[(size_t)x + 1][y][z].Active) { faces = faces | VoxelFace::PosXFace; }
+						if (!m_MeshData.m_Data[x][(size_t)y - 1][z].Active) { faces = faces | VoxelFace::NegYFace; }
+						if (!m_MeshData.m_Data[x][(size_t)y + 1][z].Active) { faces = faces | VoxelFace::PosYFace; }
+						VoxelBlockGenerator::GenerateBlock(m_VoxelData, faces, x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color, index);
 					}
-					m_MeshIndices += block.GetIndices();
-					innerblocks.emplace_back(block);
+					else
+					{
+						VoxelBlockGenerator::GenerateEmptyBlock(m_VoxelData, index);
+					}
+					m_MeshIndices += VoxelBlockGenerator::s_VoxelCubeIndicesCount;
 				}
-				outerblocks.emplace_back(std::move(innerblocks));
 			}
-			m_Blocks.emplace_back(std::move(outerblocks));
 		}
 	}
 
 	void VoxelMesh::UpdateMesh(int xindex, int yindex, int zindex)
 	{
-		auto& block = m_Blocks[xindex][yindex][zindex];
+		/**auto& block = m_Blocks[xindex][yindex][zindex];
 		m_MeshIndices -= block.GetIndices();
 		block.Reset();
 		if (m_MeshData.m_Data[xindex][yindex][zindex].Active) {
@@ -120,6 +102,7 @@ namespace VoxelCore {
 			}
 		}
 		m_MeshIndices += block.GetIndices();
+		**/
 	}
 
 	void VoxelMesh::UpateSurroundingMesh(int xindex, int yindex, int zindex)

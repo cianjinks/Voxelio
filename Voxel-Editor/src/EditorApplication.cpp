@@ -6,6 +6,7 @@ EditorApplication::EditorApplication()
 void EditorApplication::PreRender()
 {
 	glEnable(GL_DEPTH_TEST);
+	glfwSwapInterval(0);
 }
 
 void EditorApplication::Render()

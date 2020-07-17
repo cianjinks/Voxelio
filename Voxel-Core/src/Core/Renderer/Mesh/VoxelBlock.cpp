@@ -3,17 +3,74 @@
 
 namespace VoxelCore {
 
-	void VoxelBlock::Reset()
+	void VoxelBlockGenerator::GenerateBlock(std::vector<float>* data, int faces, int x, int y, int z, glm::vec3& color, int index)
 	{
-		m_Indices = 0;
-		m_Vertices.clear();
+		// TODO: Add blank data for null faces
+		if (faces != VoxelFace::None) {
+			if (faces & VoxelFace::NegZFace) {
+				SetNegZFace(data, index + (0 * s_VoxelFaceElementCount), x, y, z, color);
+			}
+			else
+			{
+				EmptyFace(data, index + (0 * s_VoxelFaceElementCount));
+			}
+
+			if (faces & VoxelFace::PosZFace) {
+				SetPosZFace(data, index + (1 * s_VoxelFaceElementCount), x, y, z, color);
+			}
+			else
+			{
+				EmptyFace(data, index + (1 * s_VoxelFaceElementCount));
+			}
+
+			if (faces & VoxelFace::NegXFace) {
+				SetNegXFace(data, index + (2 * s_VoxelFaceElementCount), x, y, z, color);
+			}
+			else
+			{
+				EmptyFace(data, index + (2 * s_VoxelFaceElementCount));
+			}
+
+			if (faces & VoxelFace::PosXFace) {
+				SetPosXFace(data, index + (3 * s_VoxelFaceElementCount), x, y, z, color);
+			}
+			else
+			{
+				EmptyFace(data, index + (3 * s_VoxelFaceElementCount));
+			}
+
+			if (faces & VoxelFace::NegYFace) {
+				SetNegYFace(data, index + (4 * s_VoxelFaceElementCount), x, y, z, color);
+			}
+			else
+			{
+				EmptyFace(data, index + (4 * s_VoxelFaceElementCount));
+			}
+
+			if (faces & VoxelFace::PosYFace) {
+				SetPosYFace(data, index + (5 * s_VoxelFaceElementCount), x, y, z, color);
+			}
+			else
+			{
+				EmptyFace(data, index + (5 * s_VoxelFaceElementCount));
+			}
+		}
+		else
+		{
+			GenerateEmptyBlock(data, index);
+		}
+	}
+
+	void VoxelBlockGenerator::GenerateEmptyBlock(std::vector<float>* data, int index)
+	{
+		std::fill(data->begin() + index, data->begin() + index + s_VoxelCubeElementCount, 0.0f);
 	}
 
 	// Creation Functions
-	void VoxelBlock::AddNegZFace(int x, int y, int z, glm::vec3& color)
+	void VoxelBlockGenerator::SetNegZFace(std::vector<float>* data, int index, int x, int y, int z, glm::vec3& color)
 	{
-		m_Indices += 6;
-		m_Vertices.insert(m_Vertices.end(),
+		data->erase(data->begin() + index, data->begin() + index + s_VoxelFaceElementCount);
+		data->insert(data->begin() + index,
 			{
 				-0.5f + x, -0.5f + y, -0.5f + z, color.x, color.y, color.z, 0.0f, 0.0f, -1.0f,
 				 0.5f + x, -0.5f + y, -0.5f + z, color.x, color.y, color.z, 0.0f, 0.0f, -1.0f,
@@ -23,10 +80,10 @@ namespace VoxelCore {
 		);
 	}
 
-	void VoxelBlock::AddPosZFace(int x, int y, int z, glm::vec3& color)
+	void VoxelBlockGenerator::SetPosZFace(std::vector<float>* data, int index, int x, int y, int z, glm::vec3& color)
 	{
-		m_Indices += 6;
-		m_Vertices.insert(m_Vertices.end(),
+		data->erase(data->begin() + index, data->begin() + index + s_VoxelFaceElementCount);
+		data->insert(data->begin() + index,
 			{
 				-0.5f + x , -0.5f + y,  0.5f + z, color.x, color.y, color.z, 0.0f, 0.0f, 1.0f,
 				 0.5f + x , -0.5f + y,  0.5f + z, color.x, color.y, color.z, 0.0f, 0.0f, 1.0f,
@@ -36,10 +93,10 @@ namespace VoxelCore {
 		);
 	}
 
-	void VoxelBlock::AddNegXFace(int x, int y, int z, glm::vec3& color)
+	void VoxelBlockGenerator::SetNegXFace(std::vector<float>* data, int index, int x, int y, int z, glm::vec3& color)
 	{
-		m_Indices += 6;
-		m_Vertices.insert(m_Vertices.end(),
+		data->erase(data->begin() + index, data->begin() + index + s_VoxelFaceElementCount);
+		data->insert(data->begin() + index,
 			{
 				-0.5f + x ,  0.5f + y,  0.5f + z, color.x, color.y, color.z, -1.0f, 0.0f, 0.0f,
 				-0.5f + x ,  0.5f + y, -0.5f + z, color.x, color.y, color.z, -1.0f, 0.0f, 0.0f,
@@ -49,10 +106,11 @@ namespace VoxelCore {
 		);
 	}
 
-	void VoxelBlock::AddPosXFace(int x, int y, int z, glm::vec3& color)
+	void VoxelBlockGenerator::SetPosXFace(std::vector<float>* data, int index, int x, int y, int z, glm::vec3& color)
 	{
-		m_Indices += 6;
-		m_Vertices.insert(m_Vertices.end(),
+
+		data->erase(data->begin() + index, data->begin() + index + s_VoxelFaceElementCount);
+		data->insert(data->begin() + index,
 			{
 				0.5f + x ,  0.5f + y,  0.5f + z, color.x, color.y, color.z, 1.0f, 0.0f, 0.0f,
 				0.5f + x ,  0.5f + y, -0.5f + z, color.x, color.y, color.z, 1.0f, 0.0f, 0.0f,
@@ -62,23 +120,23 @@ namespace VoxelCore {
 		);
 	}
 
-	void VoxelBlock::AddNegYFace(int x, int y, int z, glm::vec3& color)
+	void VoxelBlockGenerator::SetNegYFace(std::vector<float>* data, int index, int x, int y, int z, glm::vec3& color)
 	{
-		m_Indices += 6;
-		m_Vertices.insert(m_Vertices.end(),
+		data->erase(data->begin() + index, data->begin() + index + s_VoxelFaceElementCount);
+		data->insert(data->begin() + index,
 			{
 				-0.5f + x , -0.5f + y, -0.5f + z, color.x, color.y, color.z, 0.0f, -1.0f, 0.0f,
 				 0.5f + x , -0.5f + y, -0.5f + z, color.x, color.y, color.z, 0.0f, -1.0f, 0.0f,
 				 0.5f + x , -0.5f + y,  0.5f + z, color.x, color.y, color.z, 0.0f, -1.0f, 0.0f,
-				-0.5f + x , -0.5f + y,  0.5f + z, color.x, color.y, color.z, 0.0f, -1.0f, 0.0f,
+				-0.5f + x , -0.5f + y,  0.5f + z, color.x, color.y, color.z, 0.0f, -1.0f, 0.0f
 			}
 		);
 	}
 
-	void VoxelBlock::AddPosYFace(int x, int y, int z, glm::vec3& color)
+	void VoxelBlockGenerator::SetPosYFace(std::vector<float>* data, int index, int x, int y, int z, glm::vec3& color)
 	{
-		m_Indices += 6;
-		m_Vertices.insert(m_Vertices.end(),
+		data->erase(data->begin() + index, data->begin() + index + s_VoxelFaceElementCount);
+		data->insert(data->begin() + index,
 			{
 				-0.5f + x , 0.5f + y, -0.5f + z, color.x, color.y, color.z, 0.0f, 1.0f, 0.0f,
 				 0.5f + x , 0.5f + y, -0.5f + z, color.x, color.y, color.z, 0.0f, 1.0f, 0.0f,
@@ -86,5 +144,12 @@ namespace VoxelCore {
 				-0.5f + x , 0.5f + y,  0.5f + z, color.x, color.y, color.z, 0.0f, 1.0f, 0.0f,
 			}
 		);
+	}
+
+	void VoxelBlockGenerator::EmptyFace(std::vector<float>* data, int index)
+	{
+		//data->erase(data->begin() + index, data->begin() + index + s_VoxelFaceElementCount);
+		//std::fill(data->begin() + index, data->begin() + index + s_VoxelFaceElementCount, 0.0f);
+		std::fill(data->begin() + index, data->begin() + index + s_VoxelFaceElementCount, 0.0f);
 	}
 }

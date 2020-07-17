@@ -42,6 +42,7 @@ namespace VoxelCore {
 
 		static bool m_ActiveScene;
 		static std::vector<float>* m_VertexData;
+
 	public:
 		static GraphicsAPI getAPI() { return s_API; };
 		static int s_CubeVertexElementCount;
@@ -55,8 +56,7 @@ namespace VoxelCore {
 		static void EndScene();
 		static void FlushData();
 
-		static void DrawCube(const glm::vec3& pos, const glm::vec3& color);
-		static void DrawMesh(const VoxelMesh& mesh);
+		static void DrawMesh(VoxelMesh& mesh);
 	};
 
 }

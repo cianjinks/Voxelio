@@ -8,7 +8,7 @@ namespace VoxelCore {
 	{
 	private:
 		VoxelMeshData m_MeshData;
-		std::vector<std::vector<std::vector<VoxelBlock>>> m_Blocks;
+		std::vector<float>* m_VoxelData;
 
 		int m_MeshIndices = 0;
 		int lowerXBound = 0, lowerYBound = 0, lowerZBound = 0;
@@ -31,7 +31,7 @@ namespace VoxelCore {
 		glm::vec3 GetBlockMin(int xindex, int yindex, int zindex);
 		glm::vec3 GetBlockMax(int xindex, int yindex, int zindex);
 
-		const std::vector<std::vector<std::vector<VoxelBlock>>>& GetBlocks() const { return m_Blocks; };
+		std::vector<float>* GetData() { return m_VoxelData; };
 		const int GetIndicesCount() const { return m_MeshIndices; };
 	};
 }
