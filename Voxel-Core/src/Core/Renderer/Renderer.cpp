@@ -21,7 +21,7 @@ namespace VoxelCore {
 	{
 		vao = VertexArray::Create();
 		vao->Bind();
-		vbo = VertexBuffer::Create(RendererData::MaxVertices * sizeof(CubeVertex));
+		vbo = VertexBuffer::Create(RendererData::MaxFloats * sizeof(float));
 		vbo->SetLayout({ 
 			BufferElement("a_Pos", BufferDataType::Float3, false),
 			BufferElement("a_Color", BufferDataType::Float3, false),
@@ -84,7 +84,7 @@ namespace VoxelCore {
 	{
 		if (m_ActiveScene)
 		{
-			vbo->SetData(m_VertexData->data(), m_VertexData->size() * sizeof(float));
+			vbo->SetData(m_VertexData->data(), (int)m_VertexData->size() * sizeof(float));
 			// HARDCODED API USAGE
 			if (RendererData::IndicesCount != 0)
 			{
@@ -124,7 +124,9 @@ namespace VoxelCore {
 		//VX_CORE_INFO("Indices Count: {}", mesh.GetIndicesCount());
 		m_VertexData->insert(m_VertexData->end(), std::begin(mesh.GetVertices()) + drawnElements, std::end(mesh.GetVertices()));**/
 
-		m_VertexData = mesh.GetData();
-		RendererData::IndicesCount += mesh.GetIndicesCount();
+		if ((RendererData::IndicesCount + mesh.GetIndicesCount()) <= RendererData::MaxIndices) {
+			RendererData::IndicesCount += mesh.GetIndicesCount();
+			m_VertexData = mesh.GetData();
+		}
 	}
 }

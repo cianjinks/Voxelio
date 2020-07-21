@@ -7,7 +7,7 @@ namespace VoxelCore {
 	class VoxelMesh 
 	{
 	private:
-		VoxelMeshData m_MeshData;
+		VoxelMeshData* m_MeshData;
 		std::vector<float>* m_VoxelData;
 
 		int m_MeshIndices = 0;
@@ -16,7 +16,6 @@ namespace VoxelCore {
 
 	public:
 		VoxelMesh(int dimension);
-		VoxelMesh(VoxelMeshData& data);
 		~VoxelMesh();
 		
 		void UpdateMesh();

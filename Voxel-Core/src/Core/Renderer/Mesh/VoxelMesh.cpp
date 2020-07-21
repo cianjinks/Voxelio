@@ -5,27 +5,22 @@
 namespace VoxelCore {
 
 	VoxelMesh::VoxelMesh(int dimension)
-		: m_MeshData(dimension)
 	{
-		UpdateMesh();
-	}
-
-	VoxelMesh::VoxelMesh(VoxelMeshData& data)
-		: m_MeshData(data) 
-	{
+		m_MeshData = new VoxelMeshData(dimension);
 		UpdateMesh();
 	}
 
 	VoxelMesh::~VoxelMesh() { 
 		m_VoxelData->clear();
 		delete m_VoxelData; 
+		delete m_MeshData;
 	}
 
 	void VoxelMesh::UpdateMesh()
 	{
-		xDataSize = m_MeshData.m_Data.size();
-		yDataSize = m_MeshData.m_Data[0].size();
-		zDataSize = m_MeshData.m_Data[0][0].size();
+		xDataSize = m_MeshData->m_Data.size();
+		yDataSize = m_MeshData->m_Data[0].size();
+		zDataSize = m_MeshData->m_Data[0][0].size();
 
 		lowerXBound = ((int)xDataSize) / 2;
 		lowerYBound = ((int)yDataSize) / 2;
@@ -34,31 +29,34 @@ namespace VoxelCore {
 		m_MeshIndices = 0;
 		m_VoxelData = new std::vector<float>(xDataSize * yDataSize * zDataSize * VoxelBlockGenerator::s_VoxelCubeElementCount);
 		//m_VoxelData->clear();
-		std::fill(m_VoxelData->begin(), m_VoxelData->end(), 0.0f);
+		//std::fill(m_VoxelData->begin(), m_VoxelData->end(), 0.0f);
 
+		int blockCount = 0;
 		for (int x = 0; x < xDataSize; x++)
 		{
 			for (int y = 0; y < yDataSize; y++)
 			{
 				for (int z = 0; z < zDataSize; z++)
 				{
-					int index = ((x * yDataSize * zDataSize) + (y * zDataSize) + z) * VoxelBlockGenerator::s_VoxelCubeElementCount;
+					//int index = ((x * yDataSize * zDataSize) + (y * zDataSize) + z) * VoxelBlockGenerator::s_VoxelCubeElementCount;
 					//int index = ((z * yDataSize * xDataSize) + (y * xDataSize) + x) * VoxelBlockGenerator::s_VoxelCubeElementCount;
-					if (m_MeshData.m_Data[x][y][z].Active) {
+					int index = blockCount * VoxelBlockGenerator::s_VoxelCubeElementCount;
+					if (m_MeshData->m_Data[x][y][z].Active) {
 						int faces = VoxelFace::None;
-						if (!m_MeshData.m_Data[x][y][(size_t)z - 1].Active) { faces = faces | VoxelFace::NegZFace; }
-						if (!m_MeshData.m_Data[x][y][(size_t)z + 1].Active) { faces = faces | VoxelFace::PosZFace; }
-						if (!m_MeshData.m_Data[(size_t)x - 1][y][z].Active) { faces = faces | VoxelFace::NegXFace; }
-						if (!m_MeshData.m_Data[(size_t)x + 1][y][z].Active) { faces = faces | VoxelFace::PosXFace; }
-						if (!m_MeshData.m_Data[x][(size_t)y - 1][z].Active) { faces = faces | VoxelFace::NegYFace; }
-						if (!m_MeshData.m_Data[x][(size_t)y + 1][z].Active) { faces = faces | VoxelFace::PosYFace; }
-						VoxelBlockGenerator::GenerateBlock(m_VoxelData, faces, x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData.m_Data[x][y][z].Color, index);
+						if (!m_MeshData->m_Data[x][y][(size_t)z - 1].Active) { faces = faces | VoxelFace::NegZFace; }
+						if (!m_MeshData->m_Data[x][y][(size_t)z + 1].Active) { faces = faces | VoxelFace::PosZFace; }
+						if (!m_MeshData->m_Data[(size_t)x - 1][y][z].Active) { faces = faces | VoxelFace::NegXFace; }
+						if (!m_MeshData->m_Data[(size_t)x + 1][y][z].Active) { faces = faces | VoxelFace::PosXFace; }
+						if (!m_MeshData->m_Data[x][(size_t)y - 1][z].Active) { faces = faces | VoxelFace::NegYFace; }
+						if (!m_MeshData->m_Data[x][(size_t)y + 1][z].Active) { faces = faces | VoxelFace::PosYFace; }
+						VoxelBlockGenerator::GenerateBlock(m_VoxelData, faces, x - lowerXBound, y - lowerYBound, z - lowerZBound, m_MeshData->m_Data[x][y][z].Color, index);
 					}
 					else
 					{
 						VoxelBlockGenerator::GenerateEmptyBlock(m_VoxelData, index);
 					}
 					m_MeshIndices += VoxelBlockGenerator::s_VoxelCubeIndicesCount;
+					blockCount++;
 				}
 			}
 		}
@@ -119,19 +117,19 @@ namespace VoxelCore {
 
 	void VoxelMesh::SetBlockColor(int xindex, int yindex, int zindex, const glm::vec3& color)
 	{
-		m_MeshData.m_Data[xindex][yindex][zindex].Color = color;
+		m_MeshData->m_Data[xindex][yindex][zindex].Color = color;
 		UpdateMesh(xindex, yindex, zindex);
 	}
 
 	void VoxelMesh::EnableBlock(int xindex, int yindex, int zindex)
 	{
-		m_MeshData.m_Data[xindex][yindex][zindex].Active = true;
+		m_MeshData->m_Data[xindex][yindex][zindex].Active = true;
 		UpateSurroundingMesh(xindex, yindex, zindex);
 	}
 
 	void VoxelMesh::DisableBlock(int xindex, int yindex, int zindex)
 	{
-		m_MeshData.m_Data[xindex][yindex][zindex].Active = false;
+		m_MeshData->m_Data[xindex][yindex][zindex].Active = false;
 		UpateSurroundingMesh(xindex, yindex, zindex);
 	}
 

@@ -22,9 +22,11 @@ namespace VoxelCore {
 
 	struct RendererData
 	{
-		static const int MaxFaces = 18000;
+		static const int MaxCubes = 125000;
+		static const int MaxFaces = MaxCubes * 6;
 		static const int MaxVertices = MaxFaces * 4;
 		static const int MaxIndices = MaxFaces * 6;
+		static const int MaxFloats = MaxVertices * 9;
 
 		static int IndicesCount;
 		static int DrawCalls;

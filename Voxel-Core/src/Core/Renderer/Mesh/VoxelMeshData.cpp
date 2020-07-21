@@ -7,7 +7,7 @@ namespace VoxelCore {
 	{
 		// By default constructs a 10x10 mesh of color red
 		const int meshSize = dimension + 2;
-		m_Data.reserve(meshSize);
+		m_Data.reserve((size_t)(meshSize) * (size_t)(meshSize) * (size_t)(meshSize));
 
 		for (int i = 0; i < meshSize; i++) 
 		{

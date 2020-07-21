@@ -1,7 +1,7 @@
 #include "EditorApplication.h"
 
 EditorApplication::EditorApplication()
-	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_CameraController(1280.0f, 720.0f, 20.0f), m_Mesh(10) {}
+	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_CameraController(1280.0f, 720.0f, 20.0f), m_Mesh(30) {}
 
 void EditorApplication::PreRender()
 {
@@ -78,17 +78,17 @@ void EditorApplication::MouseSelection()
 	glm::vec3 raydir = startcoord - endcoord;
 	VoxelCore::Ray ray(startcoord, raydir);
 
-	glm::vec3 bmin = m_Mesh.GetBlockMin(10, 10, 10);
-	glm::vec3 bmax = m_Mesh.GetBlockMax(10, 10, 10);
+	glm::vec3 bmin = m_Mesh.GetBlockMin(1, 1, 1);
+	glm::vec3 bmax = m_Mesh.GetBlockMax(1, 1, 1);
 
 	if (VoxelCore::Ray::RayAABBCollision(ray, bmin, bmax))
 	{
-		//m_Mesh.SetBlockColor(1, 1, 1, glm::vec3(1.0f, 1.0f, 0.0f));
-		m_Mesh.DisableBlock(10, 10, 10);
+		m_Mesh.SetBlockColor(1, 1, 1, glm::vec3(1.0f, 1.0f, 0.0f));
+		//m_Mesh.DisableBlock(10, 10, 10);
 	}
 	else 
 	{
-		//m_Mesh.SetBlockColor(1, 1, 1, glm::vec3(0.09f, 0.09f, 0.09f));
-		m_Mesh.EnableBlock(10, 10, 10);
+		m_Mesh.SetBlockColor(1, 1, 1, glm::vec3(0.09f, 0.09f, 0.09f));
+		//m_Mesh.EnableBlock(10, 10, 10);
 	}
 }
