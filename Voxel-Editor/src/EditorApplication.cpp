@@ -1,11 +1,13 @@
 #include "EditorApplication.h"
 
 EditorApplication::EditorApplication()
-	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_CameraController(1280.0f, 720.0f, 20.0f), m_Mesh(10) {}
+	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_CameraController(1280.0f, 720.0f, 3.0f) {}
 
 void EditorApplication::PreRender()
 {
 	glEnable(GL_DEPTH_TEST);
+	glfwSwapInterval(0);
+	m_CameraController.SetFarPlane(1000.0f);
 }
 
 void EditorApplication::Render()
@@ -13,11 +15,15 @@ void EditorApplication::Render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(173.0f / 255.0f, 216.0f / 255.0f, 230.0f / 255.0f, 1.0f);
 
+	//m_Mesh.Refresh();
+
 	MouseSelection();
 	m_CameraController.HandleInput();
-	m_CameraController.SetFarPlane(500.0f);
+	unsigned int bufferData;
+	glGenTextures(1, &bufferData);
+	glBindTexture(GL_TEXURE_BUFFER)
 	VoxelCore::Renderer::BeginScene(m_CameraController);
-	VoxelCore::Renderer::DrawMesh(m_Mesh);
+	VoxelCore::Renderer::DrawQuad(glm::vec3(0, 0, 0));
 	VoxelCore::Renderer::EndScene();
 }
 
@@ -39,7 +45,7 @@ void EditorApplication::OnKeyPress(int key, int scancode, int action, int mods)
 	if (key == GLFW_KEY_X && action == GLFW_PRESS)
 	{
 		VX_CORE_INFO("Removed block: 1, 1, 1");
-		m_Mesh.RemoveBlock(1, 1, 1);
+		//m_Mesh.RemoveBlock(1, 1, 1);
 	}
 }
 
@@ -81,15 +87,15 @@ void EditorApplication::MouseSelection()
 	glm::vec3 raydir = startcoord - endcoord;
 	VoxelCore::Ray ray(startcoord, raydir);
 
-	glm::vec3 bmin = m_Mesh.GetBlockMin(1, 1, 1);
-	glm::vec3 bmax = m_Mesh.GetBlockMax(1, 1, 1);
-
-	if (VoxelCore::Ray::RayAABBCollision(ray, bmin, bmax))
-	{
-		m_Mesh.SetBlockColor(1, 1, 1, glm::vec3(1.0f, 1.0f, 0.0f));
-	}
-	else 
-	{
-		m_Mesh.SetBlockColor(1, 1, 1, glm::vec3(0.09f, 0.09f, 0.09f));
-	}
+	//glm::vec3 bmin = m_Mesh.GetBlockMin(1, 1, 1);
+	//glm::vec3 bmax = m_Mesh.GetBlockMax(1, 1, 1);
+	//
+	//if (VoxelCore::Ray::RayAABBCollision(ray, bmin, bmax))
+	//{
+	//	m_Mesh.SetBlockColor(1, 1, 1, glm::vec3(1.0f, 1.0f, 0.0f));
+	//}
+	//else 
+	//{
+	//	m_Mesh.SetBlockColor(1, 1, 1, glm::vec3(0.09f, 0.09f, 0.09f));
+	//}
 }

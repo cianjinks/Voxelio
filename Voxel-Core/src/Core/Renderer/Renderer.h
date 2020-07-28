@@ -3,7 +3,6 @@
 #include "Core/OrbitalCameraController.h"
 #include "Core/Renderer/VertexArray.h"
 #include "Core/Renderer/Shader.h"
-#include "Core/Renderer/Mesh/VoxelMesh.h"
 
 namespace VoxelCore {
 
@@ -22,7 +21,7 @@ namespace VoxelCore {
 
 	struct RendererData
 	{
-		static const int MaxFaces = 18000;
+		static const int MaxFaces = 128 * 128 * 6;
 		static const int MaxVertices = MaxFaces * 4;
 		static const int MaxIndices = MaxFaces * 6;
 
@@ -55,8 +54,7 @@ namespace VoxelCore {
 		static void EndScene();
 		static void FlushData();
 
-		static void DrawCube(const glm::vec3& pos, const glm::vec3& color);
-		static void DrawMesh(const VoxelMesh& mesh);
+		static void DrawQuad(const glm::vec3& pos);
 	};
 
 }

@@ -9,7 +9,6 @@ public:
 	char* m_WindowName;
 private:
 	VoxelCore::OrbitalCameraController m_CameraController;
-	VoxelCore::VoxelMesh m_Mesh;
 public:
 	EditorApplication();
 	virtual ~EditorApplication() = default;

@@ -52,7 +52,7 @@ namespace VoxelCore {
 		shader = Shader::CreateBasicShader("Test Shader", "assets/shaders/testvert.glsl", "assets/shaders/testfrag.glsl");
 		shader->Bind();
 
-		m_VertexData = new std::vector<float>(RendererData::MaxVertices * sizeof(CubeVertex));
+		m_VertexData = new std::vector<float>(RendererData::MaxVertices);
 
 		VX_CORE_INFO("Initialised Renderer");
 	}
@@ -66,7 +66,6 @@ namespace VoxelCore {
 	{
 		if (!m_ActiveScene)
 		{
-			m_VertexData->clear();
 			RendererData::IndicesCount = 0;
 			shader->Bind();
 			shader->SetMat4("u_MVP", camera.GetMVPMatrix());
@@ -85,7 +84,7 @@ namespace VoxelCore {
 	{
 		if (m_ActiveScene)
 		{
-			vbo->SetData(m_VertexData->data(), (int)m_VertexData->size() * sizeof(float));
+			vbo->SetData(m_VertexData->data(), m_VertexData->size() * sizeof(float));
 			// HARDCODED API USAGE
 			if (RendererData::IndicesCount != 0)
 			{
@@ -103,84 +102,23 @@ namespace VoxelCore {
 	void Renderer::FlushData()
 	{
 		EndScene();
-		m_VertexData->clear();
 		RendererData::IndicesCount = 0;
 		m_ActiveScene = true;
 	}
 
-	void Renderer::DrawCube(const glm::vec3& pos, const glm::vec3& color)
+	void Renderer::DrawQuad(const glm::vec3& pos)
 	{
-		if (RendererData::IndicesCount + (6 * 6) > RendererData::MaxIndices)
+		if (RendererData::IndicesCount + 6 > RendererData::MaxIndices)
 		{
 			FlushData();
 		}
-		RendererData::IndicesCount += 6 * 6;
-		m_VertexData->insert(m_VertexData->end(), 
-			{
-				// Position:								 Color:						Normal:
-				-0.5f + pos.x, -0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-				 0.5f + pos.x, -0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-				 0.5f + pos.x,  0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-				-0.5f + pos.x,  0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-
-				-0.5f + pos.x, -0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-				 0.5f + pos.x, -0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-				 0.5f + pos.x,  0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-				-0.5f + pos.x,  0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-
-				-0.5f + pos.x,  0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-				-0.5f + pos.x,  0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-				-0.5f + pos.x, -0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-				-0.5f + pos.x, -0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-
-				 0.5f + pos.x,  0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-				 0.5f + pos.x,  0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-				 0.5f + pos.x, -0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-				 0.5f + pos.x, -0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-
-				-0.5f + pos.x, -0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-				 0.5f + pos.x, -0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-				 0.5f + pos.x, -0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-				-0.5f + pos.x, -0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-
-				-0.5f + pos.x,  0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-				 0.5f + pos.x,  0.5f + pos.y, -0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-				 0.5f + pos.x,  0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f,
-				-0.5f + pos.x,  0.5f + pos.y,  0.5f + pos.z, color.x, color.y, color.z, 0.0f, 0.0f, 0.0f
-			}
-		);
-	}
-
-	void Renderer::DrawMesh(const VoxelMesh& mesh)
-	{
-		/**int drawnElements = 0;
-		if ((RendererData::IndicesCount + mesh.GetIndicesCount()) > RendererData::MaxIndices)
+		RendererData::IndicesCount += 6;
+		m_VertexData->insert(m_VertexData->begin(), 
 		{
-			int drawCalls = mesh.GetIndicesCount() / RendererData::MaxIndices;
-			for (int flush = 0; flush < drawCalls; flush++)
-			{
-				m_VertexData->insert(m_VertexData->end(), std::begin(mesh.GetVertices()) + drawnElements, std::begin(mesh.GetVertices()) + (drawnElements + RendererData::MaxVertices * s_CubeVertexElementCount));
-				drawnElements += RendererData::MaxVertices * s_CubeVertexElementCount;
-				RendererData::IndicesCount += RendererData::MaxIndices;
-				FlushData();
-			}
-		}
-		RendererData::IndicesCount += mesh.GetIndicesCount();
-		//VX_CORE_INFO("Indices Count: {}", mesh.GetIndicesCount());
-		m_VertexData->insert(m_VertexData->end(), std::begin(mesh.GetVertices()) + drawnElements, std::end(mesh.GetVertices()));**/
-
-		auto& blocks = mesh.GetBlocks();
-		for (auto& v1 : blocks)
-		{
-			for (auto& v2 : v1) 
-			{
-				for (auto& v3 : v2)
-				{
-					auto& vertices = v3.GetVertices();
-					m_VertexData->insert(m_VertexData->end(), std::begin(vertices), std::end(vertices));
-				}
-			}
-		}
-		RendererData::IndicesCount += mesh.GetIndicesCount();
+			-0.5f + pos.x , -0.5f + pos.y,  0.5f + pos.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+			 0.5f + pos.x , -0.5f + pos.y,  0.5f + pos.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+			 0.5f + pos.x ,  0.5f + pos.y,  0.5f + pos.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+			-0.5f + pos.x ,  0.5f + pos.y,  0.5f + pos.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f
+		});
 	}
 }
