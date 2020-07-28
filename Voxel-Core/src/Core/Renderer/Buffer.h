@@ -136,4 +136,29 @@ namespace VoxelCore {
 		static std::shared_ptr<IndexBuffer> Create(int size);
 		static std::shared_ptr<IndexBuffer> Create(void* indices, int size);
 	};
+
+	enum class DataBufferFormat
+	{
+		FLOAT1, FLOAT2, FLOAT3, FLOAT4, UINT1, UINT2, UINT3, UINT4
+	};
+
+	// Used for uploading large amounts of data to a shader
+	class DataBuffer
+	{
+	public:
+		virtual ~DataBuffer() = default;
+
+		virtual void Bind() const = 0;
+		virtual void Unbind() const = 0;
+
+		virtual void SetData(const void* data, int size) = 0;
+		virtual int GetSize() const = 0;
+
+		virtual void SetFormat(DataBufferFormat format) = 0;
+		virtual DataBufferFormat GetFormat() = 0;
+
+		static std::shared_ptr<DataBuffer> Create(int size, DataBufferFormat format);
+		static std::shared_ptr<DataBuffer> Create(void* data, int size, DataBufferFormat format);
+
+	};
 }

@@ -3,6 +3,7 @@
 #include "Core/OrbitalCameraController.h"
 #include "Core/Renderer/VertexArray.h"
 #include "Core/Renderer/Shader.h"
+#include "Core/Renderer/Octree/CompactVoxelOctree.h"
 
 namespace VoxelCore {
 
@@ -39,10 +40,12 @@ namespace VoxelCore {
 		static std::shared_ptr<VertexArray> vao;
 		static std::shared_ptr<VertexBuffer> vbo;
 		static std::shared_ptr<IndexBuffer> ibo;
+		static std::shared_ptr<DataBuffer> dbo;
 		static std::shared_ptr<Shader> shader;
 
 		static bool m_ActiveScene;
 		static std::vector<float>* m_VertexData;
+		static CompactVoxelOctree* m_Octree;
 
 	public:
 		static GraphicsAPI getAPI() { return s_API; };
@@ -57,11 +60,7 @@ namespace VoxelCore {
 		static void EndScene();
 		static void FlushData();
 
-<<<<<<< HEAD
 		static void DrawQuad(const glm::vec3& pos);
-=======
-		static void DrawMesh(VoxelMesh& mesh);
->>>>>>> 87c30104790c136ddf79637347a71dc851da814f
 	};
 
 }

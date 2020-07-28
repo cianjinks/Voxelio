@@ -52,4 +52,5 @@ public:
 	int Get(int x, int y, int z);
 
 	uint32_t* GetData();
+	int GetNodeCount() const { return m_NodeCount; };
 };

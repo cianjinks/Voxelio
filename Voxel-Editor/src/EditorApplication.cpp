@@ -18,9 +18,6 @@ void EditorApplication::Render()
 
 	MouseSelection();
 	m_CameraController.HandleInput();
-	unsigned int bufferData;
-	glGenTextures(1, &bufferData);
-	glBindTexture(GL_TEXURE_BUFFER)
 	VoxelCore::Renderer::BeginScene(m_CameraController);
 	VoxelCore::Renderer::DrawQuad(glm::vec3(0, 0, 0));
 	VoxelCore::Renderer::EndScene();
@@ -80,7 +77,4 @@ void EditorApplication::MouseSelection()
 
 	glm::vec3 raydir = startcoord - endcoord;
 	VoxelCore::Ray ray(startcoord, raydir);
-
-	glm::vec3 bmin = m_Mesh.GetBlockMin(1, 1, 1);
-	glm::vec3 bmax = m_Mesh.GetBlockMax(1, 1, 1);
 }

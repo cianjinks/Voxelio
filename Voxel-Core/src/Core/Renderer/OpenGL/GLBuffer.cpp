@@ -90,4 +90,57 @@ namespace VoxelCore {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BufferID);
 		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, size, data);
 	}
+
+	// OpenGL Texture Buffer (Data Buffer - Used to upload large amounts of data to shader)
+	GLDataBuffer::GLDataBuffer(int size, DataBufferFormat format)
+		: m_Size(size), m_Format(format)
+	{
+		glGenBuffers(1, &m_DataBufferID);
+		glBindBuffer(GL_TEXTURE_BUFFER, m_DataBufferID);
+		glBufferData(GL_TEXTURE_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
+
+		glGenTextures(1, &m_BufferID);
+		glBindTexture(GL_TEXTURE_BUFFER, m_BufferID);
+		glTexBuffer(GL_TEXTURE_BUFFER, GetGLBufferDataFormat(format), m_DataBufferID);
+	}
+
+	GLDataBuffer::GLDataBuffer(void* data, int size, DataBufferFormat format)
+		: m_Size(size), m_Format(format)
+	{
+		glGenBuffers(1, &m_DataBufferID);
+		glBindBuffer(GL_TEXTURE_BUFFER, m_DataBufferID);
+		glBufferData(GL_TEXTURE_BUFFER, size, data, GL_STATIC_DRAW);
+
+		glGenTextures(1, &m_BufferID);
+		glBindTexture(GL_TEXTURE_BUFFER, m_BufferID);
+		glTexBuffer(GL_TEXTURE_BUFFER, GetGLBufferDataFormat(format), m_DataBufferID);
+	}
+
+	GLDataBuffer::~GLDataBuffer()
+	{
+		glDeleteBuffers(1, &m_DataBufferID);
+		glDeleteTextures(1, &m_BufferID);
+	}
+
+	void GLDataBuffer::Bind() const
+	{
+		glBindBuffer(GL_TEXTURE_BUFFER, m_DataBufferID);
+		glBindTexture(GL_TEXTURE_BUFFER, m_BufferID);
+		glTexBuffer(GL_TEXTURE_BUFFER, GetGLBufferDataFormat(m_Format), m_DataBufferID);
+	}
+	void GLDataBuffer::Unbind() const
+	{
+		glBindBuffer(GL_TEXTURE_BUFFER, 0);
+		glBindTexture(GL_TEXTURE_BUFFER, 0);
+		// Test this:
+		glTexBuffer(GL_TEXTURE_BUFFER, GetGLBufferDataFormat(m_Format), 0);
+	}
+
+	void GLDataBuffer::SetData(const void* data, int size)
+	{
+		glBindBuffer(GL_TEXTURE_BUFFER, m_DataBufferID);
+		glBufferSubData(GL_TEXTURE_BUFFER, 0, size, data);
+		glBindTexture(GL_TEXTURE_BUFFER, m_BufferID);
+		glTexBuffer(GL_TEXTURE_BUFFER, GetGLBufferDataFormat(m_Format), m_DataBufferID);
+	}
 }

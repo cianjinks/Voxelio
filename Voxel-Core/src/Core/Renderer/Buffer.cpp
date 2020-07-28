@@ -52,4 +52,28 @@ namespace VoxelCore {
 		VX_CORE_ERROR("Unknown graphics API specified for Index Buffer");
 		return nullptr;
 	}
+
+	std::shared_ptr<DataBuffer> DataBuffer::Create(int size, DataBufferFormat format)
+	{
+		switch (Renderer::getAPI())
+		{
+			case GraphicsAPI::None: VX_CORE_CRITICAL("Unsupported graphics API specified for Data Buffer"); return nullptr;
+			case GraphicsAPI::OpenGL: return std::make_shared<GLDataBuffer>(size, format);
+		}
+
+		VX_CORE_ERROR("Unknown graphics API specified for Data Buffer");
+		return nullptr;
+	}
+
+	std::shared_ptr<DataBuffer> DataBuffer::Create(void* data, int size, DataBufferFormat format)
+	{
+		switch (Renderer::getAPI())
+		{
+		case GraphicsAPI::None: VX_CORE_CRITICAL("Unsupported graphics API specified for Data Buffer"); return nullptr;
+		case GraphicsAPI::OpenGL: return std::make_shared<GLDataBuffer>(data, size, format);
+		}
+
+		VX_CORE_ERROR("Unknown graphics API specified for Data Buffer");
+		return nullptr;
+	}
 }
