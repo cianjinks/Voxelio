@@ -21,7 +21,7 @@ namespace VoxelCore {
 	{
 		vao = VertexArray::Create();
 		vao->Bind();
-		vbo = VertexBuffer::Create(RendererData::MaxVertices * sizeof(CubeVertex));
+		vbo = VertexBuffer::Create(RendererData::MaxFloats * sizeof(float));
 		vbo->SetLayout({ 
 			BufferElement("a_Pos", BufferDataType::Float3, false),
 			BufferElement("a_Color", BufferDataType::Float3, false),
@@ -51,7 +51,7 @@ namespace VoxelCore {
 		vao->SetIndexBuffer(ibo);
 		shader = Shader::CreateBasicShader("Test Shader", "assets/shaders/testvert.glsl", "assets/shaders/testfrag.glsl");
 		shader->Bind();
-
+		
 		m_VertexData = new std::vector<float>(RendererData::MaxVertices);
 
 		VX_CORE_INFO("Initialised Renderer");
@@ -59,7 +59,7 @@ namespace VoxelCore {
 
 	void Renderer::Shutdown()
 	{
-		delete m_VertexData;
+		//delete[] m_VertexData;
 	}
 
 	void Renderer::BeginScene(OrbitalCameraController& camera)
