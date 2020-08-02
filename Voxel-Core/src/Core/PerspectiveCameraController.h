@@ -51,6 +51,8 @@ namespace VoxelCore {
 		float GetNearPlane() override { return m_NearPlane; };
 		float GetFarPlane() override { return m_FarPlane; };
 
+		glm::vec3& GetCameraPos() override { return m_CameraPos; };
+
 		glm::mat4& GetViewMatrix() override { return m_ViewMatrix; };
 		glm::mat4& GetProjectionMatrix() override { return m_ProjectionMatrix; };
 		glm::mat4& GetMVPMatrix() override { return m_MVPMatrix; };

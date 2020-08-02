@@ -11,5 +11,6 @@ out vec4 v_Pos;
 void main()
 {
 	gl_Position = u_MVP * vec4(a_Pos, 1.0f);
-	v_Pos =  u_MVP * vec4(a_Pos, 1.0f);
+	v_Pos = vec4(a_Pos, 1.0f);
+
 }

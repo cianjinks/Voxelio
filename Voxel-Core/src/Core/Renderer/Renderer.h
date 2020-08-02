@@ -28,6 +28,8 @@ namespace VoxelCore {
 		static const int MaxIndices = MaxFaces * 6;
 		static const int MaxFloats = MaxVertices * 9;
 
+		static const int MaxNodeCount = 8 * 8 * 8 * 8 * 8;
+
 		static int IndicesCount;
 		static int DrawCalls;
 	};
@@ -45,7 +47,6 @@ namespace VoxelCore {
 
 		static bool m_ActiveScene;
 		static std::vector<float>* m_VertexData;
-		static CompactVoxelOctree* m_Octree;
 
 	public:
 		static GraphicsAPI getAPI() { return s_API; };
@@ -61,6 +62,7 @@ namespace VoxelCore {
 		static void FlushData();
 
 		static void DrawQuad(const glm::vec3& pos);
+		static void DrawOctree(CompactVoxelOctree& octree);
 	};
 
 }

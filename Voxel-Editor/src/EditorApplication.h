@@ -7,8 +7,11 @@ public:
 	float m_WindowWidth;
 	float m_WindowHeight;
 	char* m_WindowName;
+
 private:
 	VoxelCore::OrbitalCameraController m_CameraController;
+	VoxelCore::CompactVoxelOctree m_Octree;
+
 public:
 	EditorApplication();
 	virtual ~EditorApplication() = default;

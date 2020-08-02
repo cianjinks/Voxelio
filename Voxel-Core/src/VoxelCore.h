@@ -21,3 +21,5 @@
 #include "Core/Renderer/Shader.h"
 #include "Core/Renderer/VertexArray.h"
 #include "Core/Renderer/Texture.h"
+
+#include "Core/Renderer/Octree/CompactVoxelOctree.h"

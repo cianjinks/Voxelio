@@ -21,6 +21,8 @@ namespace VoxelCore {
 		virtual float GetNearPlane() = 0;
 		virtual float GetFarPlane() = 0;
 
+		virtual glm::vec3& GetCameraPos() = 0;
+
 		virtual float GetAspectRatio() = 0;
 		virtual glm::mat4& GetViewMatrix() = 0;
 		virtual glm::mat4& GetProjectionMatrix() = 0;

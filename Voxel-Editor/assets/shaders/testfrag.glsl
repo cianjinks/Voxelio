@@ -42,7 +42,8 @@ vec4 trace(Ray ray, inout Hit hit) {
     float scale = 1.0f;
 	vec3 minBox = center - scale;
 	vec3 maxBox = center + scale;
-	vec4 f = vec4(1.0f);
+	//vec4 f = vec4(1.0f);
+    vec4 f = vec4(173.0f / 255.0f, 216.0f / 255.0f, 230.0f / 255.0f, 1.0f);
     struct Stack {
 		uint index;
 		vec3 center;
@@ -104,7 +105,8 @@ void main() {
 	vec3 cameraPlaneU = vec3(1.0, 0.0, 0.0);
 	vec3 cameraPlaneV = vec3(0.0, 1.0, 0.0);
     vec3 rayDir = cameraDir + v_Pos.x * cameraPlaneU + v_Pos.y * cameraPlaneV;
-	vec3 rayPos = vec3(0.0, 0.25 * sin(u_Time * 2.7), -3.4);
+    vec3 rayPos = vec3(0.0, 0.25 * sin(u_Time * 2.7), -3.4);
+	//vec3 rayPos = vec3(0.0, 0.25 * sin(u_Time * 2.7), -3.4);
     rayPos.xz = rotate2d(rayPos.xz, u_Time);
    	rayDir.xz = rotate2d(rayDir.xz, u_Time);
 	Ray ray;

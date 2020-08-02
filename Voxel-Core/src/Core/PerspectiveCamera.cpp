@@ -1,7 +1,4 @@
 #include "voxelpch.h"
 #include "PerspectiveCamera.h"
 
-namespace VoxelCore {
-
-
-}
+namespace VoxelCore {}

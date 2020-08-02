@@ -1,7 +1,7 @@
 #include "EditorApplication.h"
 
 EditorApplication::EditorApplication()
-	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_CameraController(1280.0f, 720.0f, 3.0f) {}
+	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_CameraController(1280.0f, 720.0f, 2.0f), m_Octree(3) {}
 
 void EditorApplication::PreRender()
 {
@@ -14,12 +14,11 @@ void EditorApplication::Render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(173.0f / 255.0f, 216.0f / 255.0f, 230.0f / 255.0f, 1.0f);
 
-	//m_Mesh.Refresh();
-
 	MouseSelection();
 	m_CameraController.HandleInput();
 	VoxelCore::Renderer::BeginScene(m_CameraController);
 	VoxelCore::Renderer::DrawQuad(glm::vec3(0, 0, 0));
+	VoxelCore::Renderer::DrawOctree(m_Octree);
 	VoxelCore::Renderer::EndScene();
 }
 
@@ -38,6 +37,15 @@ void EditorApplication::ImGuiRender()
 
 void EditorApplication::OnKeyPress(int key, int scancode, int action, int mods)
 {
+	if (key == GLFW_KEY_X && action == GLFW_PRESS)
+	{
+		m_Octree.Deactivate(0, 0, 0);
+	}
+
+	if (key == GLFW_KEY_Z && action == GLFW_PRESS)
+	{
+		m_Octree.Deactivate(2, 0, 0);
+	}
 }
 
 void EditorApplication::OnMouseMove(float xpos, float ypos)
