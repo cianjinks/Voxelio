@@ -8,6 +8,8 @@ public:
 	float m_WindowHeight;
 	char* m_WindowName;
 
+	int division = 1;
+
 private:
 	VoxelCore::OrbitalCameraController m_CameraController;
 	VoxelCore::CompactVoxelOctree m_Octree;

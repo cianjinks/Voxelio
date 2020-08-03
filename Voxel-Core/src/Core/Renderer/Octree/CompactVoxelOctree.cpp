@@ -15,6 +15,8 @@ namespace VoxelCore {
 
 	uint32_t CompactNode::GetData() { return m_Data; }
 
+#if 0
+	// Wrong endian
 	void CompactNode::SetValidMaskBit(int index)
 	{
 		uint32_t bit = 1 << (15 - index);
@@ -51,6 +53,47 @@ namespace VoxelCore {
 		uint32_t bit = m_Data >> (7 - index);
 		return bit & ~clearmask;
 	}
+#endif
+
+#if 1
+	// Correct endian
+	void CompactNode::SetValidMaskBit(int index)
+	{
+		uint32_t bit = 1 << (8 + index);
+		m_Data |= bit;
+	}
+
+	void CompactNode::ClearValidMaskBit(int index)
+	{
+		uint32_t bit = 1 << (8 + index);
+		m_Data &= ~bit;
+	}
+
+	int CompactNode::GetValidMaskBit(int index)
+	{
+		uint32_t clearmask = 0xFFFFFFFE;
+		uint32_t bit = m_Data >> (8 + index);
+		return bit & ~clearmask;
+	}
+
+	void CompactNode::SetLeafMaskBit(int index)
+	{
+		uint32_t bit = 1 << index;
+		m_Data |= bit;
+	}
+	void CompactNode::ClearLeafMaskBit(int index)
+	{
+		uint32_t bit = 1 << index;
+		m_Data &= ~bit;
+	}
+
+	int CompactNode::GetLeafMaskBit(int index)
+	{
+		uint32_t clearmask = 0xFFFFFFFE;
+		uint32_t bit = m_Data >> index;
+		return bit & ~clearmask;
+	}
+#endif
 
 	bool CompactNode::HasBranch()
 	{
@@ -104,10 +147,9 @@ namespace VoxelCore {
 
 		// TEST
 		/**uint32_t array[230] = { 66046, 196352, 719365, 1111306, 1504267, 1798287, 2010960, 2383776, 2760672, 3081212, 3244159, 3317855, 3448927, 3604224, 4127237, 4521728, 4997311, 5075087, 5308160, 5821483, 6094592, 6583690, 6924885, 7205389, 7533324, 7879365, 8190469, 8581900, 8917486, 9045243, 9153109, 9436928, 9961216, 10485504, 10945277, 11012853, 11206400, 11685298, 11992832, 12474280, 12782835, 12914672, 13238016, 13729664, 14169036, 14418430, 14484221, 14565312, 14946798, 33023, 57599, 12543, 52479, 41727, 51455, 52479, 8447, 65535, 52479, 52479, 65535, 65535, 57599, 61695, 35071, 65535, 43775, 65535, 61695, 65535, 62207, 65535, 65535, 65535, 65535, 65535, 49407, 61695, 20735, 12543, 52479, 50431, 65535, 65535, 52479, 52479, 65535, 65535, 20735, 50431, 65535, 54783, 65535, 65535, 65535, 65535, 65535, 65535, 65535, 65535, 62975, 28927, 65535, 12543, 65535, 33023, 61695, 56831, 14335, 12543, 60159, 65535, 47871, 65535, 61695, 61695, 65535, 65535, 29695, 12543, 65535, 511, 8447, 47103, 49407, 63743, 65535, 19711, 8959, 1535, 61695, 61695, 65535, 65535, 13311, 12799, 4351, 30719, 5631, 35071, 35071, 35071, 767, 52479, 52479, 65535, 65535, 52479, 52479, 8191, 49151, 35583, 65535, 44031, 65535, 2303, 36863, 2815, 45055, 65535, 65535, 65535, 65535, 53247, 61439, 65535, 65535, 3327, 2815, 767, 52479, 52479, 65535, 65535, 52479, 52479, 65535, 65535, 52479, 65535, 56831, 19967, 65535, 65535, 65535, 65535, 65535, 65535, 65535, 65535, 65535, 13311, 65535, 24575, 24575, 3327, 1279, 4095, 3583, 4095, 511, 61183, 65535, 65535, 65535, 61183, 57343, 49151, 32767, 65535, 65535, 22527, 1023, 4095, 4095, 511, 13311, 13311, 767, 1023, 4607, 1279, 65535, 65535, 13311, 13311, 16383, 8191, 30719, 511 };
-		m_NodeCount = 230;
-		for (int i = 0; i < m_NodeCount; i++)
+		for (int i = 0; i < 230; i++)
 		{
-			m_Nodes[i].SetData(array[i]);
+			m_Nodes.emplace_back(array[i]);
 		}**/
 		m_Nodes.reserve(MAX_OCTREE_NODES);
 		m_Nodes.emplace_back(0x0001FFFF);
@@ -118,106 +160,38 @@ namespace VoxelCore {
 		
 	}
 
-#if 0
+#if 1
 	void CompactVoxelOctree::Activate(int x, int y, int z)
 	{
-		CompactNode node = m_Nodes[0];
-		uint32_t size = (uint32_t)std::pow(2, m_Levels - 1);
-
-		// We build a stack of nodes along the path that we edited via this function so that we can try simplifying it at the end
-		// This also results in it filling in any news nodes required along that path
-		int stack_ptr = 0;
-		CompactNode* simplify_stack = new CompactNode[m_Levels - 1];
+		CompactNode* node = &m_Nodes[0]; // Retrieve the root node
+		int size = std::pow(2, m_Levels);
 
 		while (size != 0)
 		{
-			//if (node->GetNodeType() == NodeType::BRANCH)
-			if (node.GetLeafMaskBit((x / size) + 2 * (y / size) + 4 * (z / size)) == 0)
+			int index = (x / size) + 2 * (y / size) + 4 * (z / size);
+			// Check if subnode at index is a branch or a leaf
+			if (node->GetValidMaskBit(index) == 1 && node->GetLeafMaskBit(index) == 0) // This would mean it is a branch
 			{
-				simplify_stack[stack_ptr++] = node;
-				size /= 2;
-				// This probably dosen't work
-				node = m_Nodes[node.GetIndex() + node.GetBranchIndex((x / size) + 2 * (y / size) + 4 * (z / size))];
+				node = &m_Nodes[(size_t)node->GetIndex() + (size_t)node->GetBranchIndex(index)];
 				x -= size * (x / size);
 				y -= size * (y / size);
 				z -= size * (z / size);
-			}
-			else {
-				if (size == 1)
-				{
-					int index = x + 2 * y + 4 * z;
-					node.SetLeafMaskBit(index);
-					node.SetValidMaskBit(index);
-					break;
-				}
-				else {
-					// Transform the leaf into a branch
-					int index = (x / size) + 2 * (y / size) + 4 * (z / size);
-					// Check if a branch index already exists:
-					bool branch = node.HasBranch();
-
-					node.ClearLeafMaskBit(index);
-					node.SetValidMaskBit(index);
-					if (branch)
-					{
-						// In this case I think it will ruin all other nodes index
-						m_Nodes.insert(m_Nodes.begin() + node.GetIndex() + node.GetBranchIndex(index), 0x0000FFFF);
-					}
-					else
-					{
-						node.SetIndex(m_Nodes.size());
-						m_Nodes.emplace_back(0x0000FFFF);
-					}
-				}
-			}
-		}
-
-		//simplify_stack[stack_ptr++] = node;
-
-		// Traverses the path we made a change within to see if any simplification can be done
-		/**while (stack_ptr != 0)
-		{
-			node = simplify_stack[--stack_ptr];
-			if (node->GetNodeType() == NodeType::BRANCH)
-			{
-				node->SimplifyBranch();
-			}
-		}**/
-
-		delete[] simplify_stack;
-	}
-#endif
-
-#if 1
-	void CompactVoxelOctree::Deactivate(int x, int y, int z)
-	{
-		CompactNode* node = &m_Nodes[0];
-		uint32_t size = (uint32_t)std::pow(2, m_Levels - 1);
-
-		while (size != 0)
-		{
-			int testIndex = (x / size) + 2 * (y / size) + 4 * (z / size);
-			if (node->GetLeafMaskBit(testIndex) == 0 && node->GetValidMaskBit(testIndex) == 1)
-			{
 				size /= 2;
-				// This probably dosen't work
-				node = &m_Nodes[(size_t)node->GetIndex() + (size_t)node->GetBranchIndex(testIndex)];
-				//x -= size * (x / size);
-				//y -= size * (y / size);
-				//z -= size * (z / size);
 			}
-			else {
+			else
+			{
+				// If it's not a branch we need to check if this is the final subnode and thus supposed leaf
 				if (size == 1)
 				{
-					int index = x + 2 * y + 4 * z;
-					node->ClearLeafMaskBit(index);
-					node->ClearValidMaskBit(index);
+					// Activate the subnode if it is the final one
+					node->SetLeafMaskBit(index);
+					node->SetValidMaskBit(index);
 					break;
 				}
-				else {
-					// Transform the leaf into a branch
-					//int index = (x / size) + 2 * (y / size) + 4 * (z / size);
-					int index = x + 2 * y + 4 * z;
+				else
+				{
+					// Turn the leaf into a branch if it is not the final one
+
 					// Check if a branch index already exists:
 					bool branch = node->HasBranch();
 
@@ -225,13 +199,15 @@ namespace VoxelCore {
 					node->SetValidMaskBit(index);
 					if (branch)
 					{
-						// In this case I think it will ruin all other nodes index
-						m_Nodes.insert(m_Nodes.begin() + node->GetIndex() + node->GetBranchIndex(index), 0x0000FFFF);
+						// In this case I think it will ruin all other nodes index (solved via a freelist or padding as done below)
+						m_Nodes[(size_t)node->GetIndex() + (size_t)node->GetBranchIndex(index)] = 0x0000FFFF;
 					}
 					else
 					{
 						node->SetIndex(m_Nodes.size());
 						m_Nodes.emplace_back(0x0000FFFF);
+						// Add 7 spaces of padding for future branches:
+						m_Nodes.insert(m_Nodes.end(), { 0, 0, 0, 0, 0, 0, 0 });
 					}
 				}
 			}
@@ -240,6 +216,63 @@ namespace VoxelCore {
 #endif
 
 #if 1
+	void CompactVoxelOctree::Deactivate(int x, int y, int z)
+	{
+		VX_CORE_INFO("[Deactivate Subnode] X: {0} Y {1} Z {2}", x, y, z);
+
+		CompactNode* node = &m_Nodes[0]; // Retrieve the root node
+		int size = std::pow(2, m_Levels);
+
+		while (size != 0)
+		{
+			int index = (x / size) + 2 * (y / size) + 4 * (z / size);
+			// Check if subnode at index is a branch or a leaf
+			if (node->GetValidMaskBit(index) == 1 && node->GetLeafMaskBit(index) == 0) // This would mean it is a branch
+			{
+				node = &m_Nodes[(size_t)node->GetIndex() + (size_t)node->GetBranchIndex(index)];
+				x -= size * (x / size);
+				y -= size * (y / size);
+				z -= size * (z / size);
+				size /= 2;
+			}
+			else
+			{
+				// If it's not a branch we need to check if this is the final subnode and thus supposed leaf
+				if (size == 1)
+				{
+					// Deactivate the subnode if it is the final one
+					node->ClearLeafMaskBit(index);
+					node->ClearValidMaskBit(index);
+					break;
+				}
+				else
+				{
+					// Turn the leaf into a branch if it is not the final one
+
+					// Check if a branch index already exists:
+					bool branch = node->HasBranch();
+
+					node->ClearLeafMaskBit(index);
+					node->SetValidMaskBit(index);
+					if (branch)
+					{
+						// In this case I think it will ruin all other nodes index (solved via a freelist or padding as done below)
+						m_Nodes[(size_t)node->GetIndex() + (size_t)node->GetBranchIndex(index)] = 0x0000FFFF;
+					}
+					else
+					{
+						node->SetIndex(m_Nodes.size());
+						m_Nodes.emplace_back(0x0000FFFF);
+						// Add 7 spaces of padding for future branches:
+						m_Nodes.insert(m_Nodes.end(), { 0, 0, 0, 0, 0, 0, 0 });
+					}
+				}
+			}
+		}
+	}
+#endif
+
+#if 0
 	int CompactVoxelOctree::Get(int x, int y, int z)
 	{
 		CompactNode node = m_Nodes[0];
@@ -251,7 +284,7 @@ namespace VoxelCore {
 			{
 				size /= 2;
 				// This probably dosen't work
-				node = m_Nodes[node.GetIndex() + node.GetBranchIndex((x / size) + 2 * (y / size) + 4 * (z / size))];
+				node = m_Nodes[(size_t)node.GetIndex() + (size_t)node.GetBranchIndex((x / size) + 2 * (y / size) + 4 * (z / size))];
 				x -= size * (x / size);
 				y -= size * (y / size);
 				z -= size * (z / size);

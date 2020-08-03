@@ -66,8 +66,11 @@ vec4 trace(Ray ray, inout Hit hit) {
         uint voxel_leaf_mask = voxel_node & 0x000000FFu;
         uint accumulated_offset = 0u;
         for (uint i = 0u; i < 8u; ++i) {
+            // This original implementation is a reverse of how I did it
             bool empty = (voxel_child_mask & (1u << i)) == 0u;
             bool is_leaf = (voxel_leaf_mask & (1u << i)) != 0u;
+            //bool empty = (voxel_child_mask & (1u << (7 - i))) == 0u;
+            //bool is_leaf = (voxel_leaf_mask & (1u << (7 - i))) != 0u;
             if (empty){ //empty
                 continue;
             }
