@@ -221,7 +221,7 @@ namespace VoxelCore {
 		VX_CORE_INFO("[Deactivate Subnode] X: {0} Y {1} Z {2}", x, y, z);
 
 		CompactNode* node = &m_Nodes[0]; // Retrieve the root node
-		int size = std::pow(2, m_Levels);
+		int size = std::pow(2, m_Levels - 1);
 
 		while (size != 0)
 		{

@@ -1,3 +1,4 @@
+// Majority of ray trace code from: https://www.shadertoy.com/view/WlXXWf
 #version 410 core
 layout(location = 0) out vec4 a_Color;
 
@@ -14,7 +15,18 @@ const vec3 NNN = vec3(-1, -1, -1);
 const vec3 NNP = vec3(-1, -1, 1);
 const vec3 NPP = vec3(-1, 1, 1);
 const vec3 PPN = vec3(1, 1, -1);
-const vec3 POS[8] = vec3[8](PNN, PNP, PPN, PPP, NNN, NNP, NPN, NPP);
+const vec3 POS[8] = vec3[8](NNN, PNN, NPN, PPN, NNP, PNP, NPP, PPP);
+
+const vec3 RED = vec3(1.0f, 0.0f, 0.0f);
+const vec3 ORANGE = vec3(1.0f, 165.0f / 255.0f, 0.0f);
+const vec3 YELLOW = vec3(1.0f, 1.0f, 0.0f);
+const vec3 GREEN = vec3(0.0f, 1.0f, 0.0f);
+const vec3 BLUE = vec3(0.0f, 0.0f, 1.0f);
+const vec3 INDIGO = vec3(75.0f / 255.0f, 0.0f, 130.0f / 255.0f);
+const vec3 VIOLET = vec3(238.0f / 255.0f, 130.0f / 255.0f, 238.0f / 255.0f);
+const vec3 SKY_BLUE = vec3(149.0f / 255.0f, 202.0f / 255.0f, 255.0f / 255.0f);
+const vec3 COLORS[8] = vec3[8](RED, ORANGE, YELLOW, GREEN, BLUE, INDIGO, VIOLET, SKY_BLUE);
+
 
 struct Ray { vec3 o, d, invDir; };
 
@@ -56,7 +68,6 @@ vec4 trace(Ray ray, inout Hit hit) {
     scale *= 0.5f;
     stack[0] = Stack( 0u, center, scale);
     while(stackPos-- > 0) {
-        f = vec4(0.1f);
         center = stack[stackPos].center;
 		index = stack[stackPos].index;
 		scale = stack[stackPos].scale;
@@ -66,11 +77,8 @@ vec4 trace(Ray ray, inout Hit hit) {
         uint voxel_leaf_mask = voxel_node & 0x000000FFu;
         uint accumulated_offset = 0u;
         for (uint i = 0u; i < 8u; ++i) {
-            // This original implementation is a reverse of how I did it
             bool empty = (voxel_child_mask & (1u << i)) == 0u;
             bool is_leaf = (voxel_leaf_mask & (1u << i)) != 0u;
-            //bool empty = (voxel_child_mask & (1u << (7 - i))) == 0u;
-            //bool is_leaf = (voxel_leaf_mask & (1u << (7 - i))) != 0u;
             if (empty){ //empty
                 continue;
             }
@@ -88,9 +96,9 @@ vec4 trace(Ray ray, inout Hit hit) {
             }
             if (is_leaf){ //not empty, but a leaf
                 return vec4(1.0f,0.0f,0.0f,1.0f);
-            } else { //not empty and not a leaf
+                //return vec4(COLORS[i], 1.0f);
+            } else { //not empty and not a leaf (branch)
             	stack[stackPos++] = Stack(voxel_group_offset+accumulated_offset, new_center, scale*0.5f   );
-            	f.z += 0.4f;
                 accumulated_offset+=1u;
             }
         }
