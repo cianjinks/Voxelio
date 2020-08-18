@@ -44,7 +44,7 @@ void EditorApplication::OnKeyPress(int key, int scancode, int action, int mods)
 
 	if (key == GLFW_KEY_Z && action == GLFW_PRESS)
 	{
-		m_Octree.Deactivate(1, 1, division++); 
+		m_Octree.Deactivate(1, 1, 0); 
 	}
 }
 

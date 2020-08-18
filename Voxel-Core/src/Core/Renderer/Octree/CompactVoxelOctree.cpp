@@ -15,48 +15,6 @@ namespace VoxelCore {
 
 	uint32_t CompactNode::GetData() { return m_Data; }
 
-#if 0
-	// Wrong endian
-	void CompactNode::SetValidMaskBit(int index)
-	{
-		uint32_t bit = 1 << (15 - index);
-		m_Data |= bit;
-	}
-
-	void CompactNode::ClearValidMaskBit(int index)
-	{
-		uint32_t bit = 1 << (15 - index);
-		m_Data &= ~bit;
-	}
-
-	int CompactNode::GetValidMaskBit(int index)
-	{
-		uint32_t clearmask = 0xFFFFFFFE;
-		uint32_t bit = m_Data >> (15 - index);
-		return bit & ~clearmask;
-	}
-
-	void CompactNode::SetLeafMaskBit(int index)
-	{
-		uint32_t bit = 1 << (7 - index);
-		m_Data |= bit;
-	}
-	void CompactNode::ClearLeafMaskBit(int index)
-	{
-		uint32_t bit = 1 << (7 - index);
-		m_Data &= ~bit;
-	}
-
-	int CompactNode::GetLeafMaskBit(int index)
-	{
-		uint32_t clearmask = 0xFFFFFFFE;
-		uint32_t bit = m_Data >> (7 - index);
-		return bit & ~clearmask;
-	}
-#endif
-
-#if 1
-	// Correct endian
 	void CompactNode::SetValidMaskBit(int index)
 	{
 		uint32_t bit = 1 << (8 + index);
@@ -93,7 +51,6 @@ namespace VoxelCore {
 		uint32_t bit = m_Data >> index;
 		return bit & ~clearmask;
 	}
-#endif
 
 	bool CompactNode::HasBranch()
 	{
@@ -153,6 +110,7 @@ namespace VoxelCore {
 		}**/
 		m_Nodes.reserve(MAX_OCTREE_NODES);
 		m_Nodes.emplace_back(0x0001FFFF);
+		//m_Nodes.emplace_back(0x00000000);
 	}
 
 	CompactVoxelOctree::~CompactVoxelOctree()
@@ -160,117 +118,133 @@ namespace VoxelCore {
 		
 	}
 
-#if 1
 	void CompactVoxelOctree::Activate(int x, int y, int z)
 	{
-		CompactNode* node = &m_Nodes[0]; // Retrieve the root node
-		int size = std::pow(2, m_Levels);
-
-		while (size != 0)
+		int sizelength = std::pow(2, m_Levels);
+		// Makes sure index is in bounds (otherwise undefined behavior can occur)
+		if ((x < sizelength && x >= 0) && (y < sizelength && y >= 0) && (z < sizelength && z >= 0))
 		{
-			int index = (x / size) + 2 * (y / size) + 4 * (z / size);
-			// Check if subnode at index is a branch or a leaf
-			if (node->GetValidMaskBit(index) == 1 && node->GetLeafMaskBit(index) == 0) // This would mean it is a branch
+			VX_CORE_INFO("[Activate Subnode] X: {0} Y {1} Z {2}", x, y, z);
+
+			CompactNode* node = &m_Nodes[0]; // Retrieve the root node
+			int size = std::pow(2, m_Levels - 1);
+
+			while (size != 0)
 			{
-				node = &m_Nodes[(size_t)node->GetIndex() + (size_t)node->GetBranchIndex(index)];
-				x -= size * (x / size);
-				y -= size * (y / size);
-				z -= size * (z / size);
-				size /= 2;
-			}
-			else
-			{
-				// If it's not a branch we need to check if this is the final subnode and thus supposed leaf
-				if (size == 1)
+				int index = (x / size) + 2 * (y / size) + 4 * (z / size);
+				// Check if subnode at index is a branch or a leaf
+				if (node->GetValidMaskBit(index) == 1 && node->GetLeafMaskBit(index) == 0) // This would mean it is a branch
 				{
-					// Activate the subnode if it is the final one
-					node->SetLeafMaskBit(index);
-					node->SetValidMaskBit(index);
-					break;
+					node = &m_Nodes[(size_t)node->GetIndex() + (size_t)node->GetBranchIndex(index)];
+					x -= size * (x / size);
+					y -= size * (y / size);
+					z -= size * (z / size);
+					size /= 2;
 				}
 				else
 				{
-					// Turn the leaf into a branch if it is not the final one
-
-					// Check if a branch index already exists:
-					bool branch = node->HasBranch();
-
-					node->ClearLeafMaskBit(index);
-					node->SetValidMaskBit(index);
-					if (branch)
+					// If it's not a branch we need to check if this is the final subnode and thus supposed leaf
+					if (size == 1)
 					{
-						// In this case I think it will ruin all other nodes index (solved via a freelist or padding as done below)
-						m_Nodes[(size_t)node->GetIndex() + (size_t)node->GetBranchIndex(index)] = 0x0000FFFF;
+						// Deactivate the subnode if it is the final one
+						node->SetLeafMaskBit(index);
+						node->SetValidMaskBit(index);
+						break;
 					}
 					else
 					{
-						node->SetIndex(m_Nodes.size());
-						m_Nodes.emplace_back(0x0000FFFF);
-						// Add 7 spaces of padding for future branches:
-						m_Nodes.insert(m_Nodes.end(), { 0, 0, 0, 0, 0, 0, 0 });
+						// Turn the leaf into a branch if it is not the final one
+
+						// Check if a branch index already exists:
+						bool branch = node->HasBranch();
+
+						node->ClearLeafMaskBit(index);
+						node->SetValidMaskBit(index);
+						if (branch)
+						{
+							// In this case I think it will ruin all other nodes index (solved via a freelist or padding as done below)
+							m_Nodes[(size_t)node->GetIndex() + (size_t)node->GetBranchIndex(index)] = 0x0000FFFF;
+						}
+						else
+						{
+							node->SetIndex(m_Nodes.size());
+							m_Nodes.emplace_back(0x0000FFFF);
+							// Add 7 spaces of padding for future branches:
+							m_Nodes.insert(m_Nodes.end(), { 0, 0, 0, 0, 0, 0, 0 });
+						}
 					}
 				}
 			}
 		}
+		else
+		{
+			VX_CORE_CRITICAL("Octree Index {0}, {1}, {2} is out of bounds", x, y, z);
+		}
 	}
-#endif
 
-#if 1
 	void CompactVoxelOctree::Deactivate(int x, int y, int z)
 	{
-		VX_CORE_INFO("[Deactivate Subnode] X: {0} Y {1} Z {2}", x, y, z);
-
-		CompactNode* node = &m_Nodes[0]; // Retrieve the root node
-		int size = std::pow(2, m_Levels - 1);
-
-		while (size != 0)
+		int sizelength = std::pow(2, m_Levels);
+		// Makes sure index is in bounds (otherwise undefined behavior can occur)
+		if ((x < sizelength && x >= 0) && (y < sizelength && y >= 0) && (z < sizelength && z >= 0))
 		{
-			int index = (x / size) + 2 * (y / size) + 4 * (z / size);
-			// Check if subnode at index is a branch or a leaf
-			if (node->GetValidMaskBit(index) == 1 && node->GetLeafMaskBit(index) == 0) // This would mean it is a branch
+			VX_CORE_INFO("[Deactivate Subnode] X: {0} Y {1} Z {2}", x, y, z);
+
+			CompactNode* node = &m_Nodes[0]; // Retrieve the root node
+			int size = std::pow(2, m_Levels - 1);
+
+			while (size != 0)
 			{
-				node = &m_Nodes[(size_t)node->GetIndex() + (size_t)node->GetBranchIndex(index)];
-				x -= size * (x / size);
-				y -= size * (y / size);
-				z -= size * (z / size);
-				size /= 2;
-			}
-			else
-			{
-				// If it's not a branch we need to check if this is the final subnode and thus supposed leaf
-				if (size == 1)
+				int index = (x / size) + 2 * (y / size) + 4 * (z / size);
+				// Check if subnode at index is a branch or a leaf
+				if (node->GetValidMaskBit(index) == 1 && node->GetLeafMaskBit(index) == 0) // This would mean it is a branch
 				{
-					// Deactivate the subnode if it is the final one
-					node->ClearLeafMaskBit(index);
-					node->ClearValidMaskBit(index);
-					break;
+					node = &m_Nodes[(size_t)node->GetIndex() + (size_t)node->GetBranchIndex(index)];
+					x -= size * (x / size);
+					y -= size * (y / size);
+					z -= size * (z / size);
+					size /= 2;
 				}
 				else
 				{
-					// Turn the leaf into a branch if it is not the final one
-
-					// Check if a branch index already exists:
-					bool branch = node->HasBranch();
-
-					node->ClearLeafMaskBit(index);
-					node->SetValidMaskBit(index);
-					if (branch)
+					// If it's not a branch we need to check if this is the final subnode and thus supposed leaf
+					if (size == 1)
 					{
-						// In this case I think it will ruin all other nodes index (solved via a freelist or padding as done below)
-						m_Nodes[(size_t)node->GetIndex() + (size_t)node->GetBranchIndex(index)] = 0x0000FFFF;
+						// Deactivate the subnode if it is the final one
+						node->ClearLeafMaskBit(index);
+						node->ClearValidMaskBit(index);
+						break;
 					}
 					else
 					{
-						node->SetIndex(m_Nodes.size());
-						m_Nodes.emplace_back(0x0000FFFF);
-						// Add 7 spaces of padding for future branches:
-						m_Nodes.insert(m_Nodes.end(), { 0, 0, 0, 0, 0, 0, 0 });
+						// Turn the leaf into a branch if it is not the final one
+
+						// Check if a branch index already exists:
+						bool branch = node->HasBranch();
+
+						node->ClearLeafMaskBit(index);
+						node->SetValidMaskBit(index);
+						if (branch)
+						{
+							// In this case I think it will ruin all other nodes index (solved via a freelist or padding as done below)
+							m_Nodes[(size_t)node->GetIndex() + (size_t)node->GetBranchIndex(index)] = 0x0000FFFF;
+						}
+						else
+						{
+							node->SetIndex(m_Nodes.size());
+							m_Nodes.emplace_back(0x0000FFFF);
+							// Add 7 spaces of padding for future branches:
+							m_Nodes.insert(m_Nodes.end(), { 0, 0, 0, 0, 0, 0, 0 });
+						}
 					}
 				}
 			}
 		}
+		else
+		{
+			VX_CORE_CRITICAL("Octree Index {0}, {1}, {2} is out of bounds", x, y, z);
+		}
 	}
-#endif
 
 #if 0
 	int CompactVoxelOctree::Get(int x, int y, int z)
