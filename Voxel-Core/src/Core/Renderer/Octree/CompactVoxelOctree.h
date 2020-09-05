@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <cmath>
+#include <glm/glm.hpp>
 
 namespace VoxelCore {
 	class CompactNode
@@ -8,33 +9,36 @@ namespace VoxelCore {
 	private:
 
 		// LAYOUT:
-		// Index	Valid Mask  Leaf Mask
-		// 16bits	8bits		8bits
+		// Spare Index	Color Index  Voxel Index  Valid Mask  Leaf Mask
+		// 16bits		16bits		 16bits	      8bits		  8bits
 
-		uint32_t m_Data;
+		uint64_t m_Data;
 	public:
 		CompactNode();
-		CompactNode(uint32_t data);
+		CompactNode(uint64_t data);
 		~CompactNode();
 
-		void SetData(uint32_t data);
-		uint32_t GetData();
+		void SetData(uint64_t data);
+		uint64_t GetData();
 
-		void SetValidMaskBit(int index);
-		void ClearValidMaskBit(int index);
-		int GetValidMaskBit(int index);
+		void SetValidMaskBit(uint64_t index);
+		void ClearValidMaskBit(uint64_t index);
+		uint64_t GetValidMaskBit(uint64_t index);
 
-		void SetLeafMaskBit(int index);
-		void ClearLeafMaskBit(int index);
-		int GetLeafMaskBit(int index);
+		void SetLeafMaskBit(uint64_t index);
+		void ClearLeafMaskBit(uint64_t index);
+		uint64_t GetLeafMaskBit(uint64_t index);
 
 		bool HasBranch();
-		int GetBranchIndex(int index);
+		uint64_t GetBranchIndex(uint64_t index);
 
-		void SetIndex(uint32_t index);
-		uint32_t GetIndex();
+		void SetIndex(uint64_t index);
+		uint64_t GetIndex();
 
-		operator uint32_t() const { return m_Data; };
+		void SetColorIndex(uint64_t index);
+		uint64_t GetColorIndex();
+
+		operator uint64_t() const { return m_Data; };
 	};
 
 	class CompactVoxelOctree
@@ -51,7 +55,9 @@ namespace VoxelCore {
 		void Deactivate(int x, int y, int z);
 		int Get(int x, int y, int z);
 
-		uint32_t* GetData();
+		void SetColorIndex(int x, int y, int z, uint64_t colorIndex);
+
+		uint64_t* GetData();
 		int GetNodeCount() const { return m_Nodes.size(); };
 
 		constexpr static int MAX_OCTREE_NODES = 8 * 8 * 8;

@@ -56,7 +56,7 @@ namespace VoxelCore {
 		
 		m_VertexData = new std::vector<float>(RendererData::MaxVertices);
 
-		dbo = DataBuffer::Create(RendererData::MaxNodeCount * sizeof(uint32_t), DataBufferFormat::UINT1);
+		dbo = DataBuffer::Create(RendererData::MaxNodeCount * sizeof(uint64_t), DataBufferFormat::UINT2);
 		dbo->Bind();
 
 		VX_CORE_INFO("Initialised Renderer");
@@ -131,7 +131,7 @@ namespace VoxelCore {
 
 	void Renderer::DrawOctree(CompactVoxelOctree& octree)
 	{
-		dbo->SetData(octree.GetData(), octree.GetNodeCount() * sizeof(uint32_t));
+		dbo->SetData(octree.GetData(), octree.GetNodeCount() * sizeof(uint64_t));
 		dbo->Bind();
 	}
 }

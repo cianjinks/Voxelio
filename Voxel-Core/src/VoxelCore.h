@@ -13,7 +13,8 @@
 #include "Core/PerspectiveCameraController.h"
 #include "Core/OrbitalCameraController.h"
 
-#include "Core/Ray.h"
+// Util
+#include "Util/Ray.h"
 
 // Renderer
 #include "Core/Renderer/Renderer.h"

@@ -85,6 +85,7 @@ vec4 rayTrace(Ray ray, out Hit hit) {
 	if(!AABBoxIntersect(minBox, maxBox, ray, rootHit)) return vec4(vec3(0.5f), 1.0f);
 
 	uint parent;
+	uint colorIndex;
 	uint parentptr = 0;
 	stack[0] = OcStackElement(parentptr, pos, scale*0.5f);
 
@@ -94,6 +95,7 @@ vec4 rayTrace(Ray ray, out Hit hit) {
 		scale = stack[stackptr].scale;
 
 		parent = texelFetch(u_VoxelData, int(parentptr)).r;
+		colorIndex = texelFetch(u_VoxelData, int(parentptr)).g;
 
 		uint numBranches = 0;
 
@@ -134,6 +136,7 @@ vec4 rayTrace(Ray ray, out Hit hit) {
 					} 
 					// Voxel is a branch
 					else { 
+															// *2 because of storing color indices
 						stack[stackptr++] = OcStackElement((parent>>16)+numBranches, new_center, scale*0.5f  );
 					    numBranches+=1u;
 					}
@@ -142,10 +145,12 @@ vec4 rayTrace(Ray ray, out Hit hit) {
 		}
 		// Here we decide whether which hit to output:
 		if(aHit) {
-			if(lowestDistanceIdx > 4) {
+			if(colorIndex == 0) {
+				return vec4(1.0f, 0.0f, 0.0f, 1.0f);
+			}
+			else {
 				return vec4(0.0f, 1.0f, 0.0f, 1.0f);
 			}
-			return vec4(1.0f, 0.0f, 0.0f, 1.0f);
 		}
 	}
 
