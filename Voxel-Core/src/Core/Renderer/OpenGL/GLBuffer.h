@@ -84,4 +84,23 @@ namespace VoxelCore {
 			return 0;
 		};
 	};
+
+	class GLFrameBuffer : public FrameBuffer
+	{
+	private:
+		GLuint m_BufferID = 0, m_ColorAttachment = 0, m_DepthAttachment = 0;
+		FrameBufferData m_FrameBufferData;
+
+	public:
+		GLFrameBuffer(const FrameBufferData& data);
+		virtual ~GLFrameBuffer();
+
+		void Bind() override;
+		void Unbind() override;
+
+		void Refresh() override;
+
+		void Resize(uint32_t width, uint32_t height) override;
+		const FrameBufferData& GetFrameBufferData() const override { return m_FrameBufferData; };
+	};
 }

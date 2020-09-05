@@ -76,4 +76,16 @@ namespace VoxelCore {
 		VX_CORE_ERROR("Unknown graphics API specified for Data Buffer");
 		return nullptr;
 	}
+
+	std::shared_ptr<FrameBuffer> FrameBuffer::Create(const FrameBufferData& data)
+	{
+		switch (Renderer::getAPI())
+		{
+		case GraphicsAPI::None: VX_CORE_CRITICAL("Unsupported graphics API specified for Frame Buffer"); return nullptr;
+		case GraphicsAPI::OpenGL: return std::make_shared<GLFrameBuffer>(data);
+		}
+
+		VX_CORE_ERROR("Unknown graphics API specified for Frame Buffer");
+		return nullptr;
+	}
 }

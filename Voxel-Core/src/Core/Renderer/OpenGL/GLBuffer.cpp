@@ -143,4 +143,69 @@ namespace VoxelCore {
 		glBindTexture(GL_TEXTURE_BUFFER, m_BufferID);
 		glTexBuffer(GL_TEXTURE_BUFFER, GetGLBufferDataFormat(m_Format), m_DataBufferID);
 	}
+
+	GLFrameBuffer::GLFrameBuffer(const FrameBufferData& data)
+		: m_FrameBufferData(data)
+	{
+		Refresh();
+	}
+
+	GLFrameBuffer::~GLFrameBuffer()
+	{
+		glDeleteFramebuffers(1, &m_BufferID);
+		glDeleteTextures(1, &m_ColorAttachment);
+		glDeleteTextures(1, &m_DepthAttachment);
+	}
+
+	void GLFrameBuffer::Bind()
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, m_BufferID);
+		glViewport(0, 0, m_FrameBufferData.Width, m_FrameBufferData.Height);
+	}
+
+	void GLFrameBuffer::Unbind()
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void GLFrameBuffer::Refresh()
+	{
+		if (m_BufferID)
+		{
+			glDeleteFramebuffers(1, &m_BufferID);
+			glDeleteTextures(1, &m_ColorAttachment);
+			glDeleteTextures(1, &m_DepthAttachment);
+		}
+
+		glCreateFramebuffers(1, &m_BufferID);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_BufferID);
+
+		glCreateTextures(GL_TEXTURE_2D, 1, &m_ColorAttachment);
+		glBindTexture(GL_TEXTURE_2D, m_ColorAttachment);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_FrameBufferData.Width, m_FrameBufferData.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorAttachment, 0);
+
+		glCreateTextures(GL_TEXTURE_2D, 1, &m_DepthAttachment);
+		glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
+		glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH24_STENCIL8, m_FrameBufferData.Width, m_FrameBufferData.Height);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachment, 0);
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		{
+			VX_CORE_CRITICAL("Framebuffer is incomplete!");
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void GLFrameBuffer::Resize(uint32_t width, uint32_t height)
+	{
+		m_FrameBufferData.Width = width;
+		m_FrameBufferData.Height = height;
+
+		Refresh();
+	}
 }

@@ -161,4 +161,25 @@ namespace VoxelCore {
 		static std::shared_ptr<DataBuffer> Create(void* data, int size, DataBufferFormat format);
 
 	};
+
+	struct FrameBufferData
+	{
+		uint32_t Width = 0, Height = 0;
+	};
+
+	class FrameBuffer
+	{
+	public:
+		virtual ~FrameBuffer() = default;
+
+		virtual void Bind() = 0;
+		virtual void Unbind() = 0;
+
+		virtual void Refresh() = 0;
+
+		virtual void Resize(uint32_t width, uint32_t height) = 0;
+		virtual const FrameBufferData& GetFrameBufferData() const = 0;
+
+		static std::shared_ptr<FrameBuffer> Create(const FrameBufferData& data);
+	};
 }
