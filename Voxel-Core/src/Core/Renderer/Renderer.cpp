@@ -51,7 +51,7 @@ namespace VoxelCore {
 		ibo->Bind();
 		vao->SetVertexBuffer(vbo);
 		vao->SetIndexBuffer(ibo);
-		shader = Shader::CreateBasicShader("Test Shader", "assets/shaders/testvert.glsl", "assets/shaders/testfragphong.glsl");
+		shader = Shader::CreateBasicShader("Test Shader", "assets/shaders/testvert.glsl", "assets/shaders/copyfrag.glsl");
 		shader->Bind();
 		
 		m_VertexData = new std::vector<float>(RendererData::MaxVertices);

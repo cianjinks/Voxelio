@@ -1,7 +1,7 @@
 #include "EditorApplication.h"
 
 EditorApplication::EditorApplication()
-	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_CameraController(1280.0f, 720.0f, 2.0f), m_Octree(3) {}
+	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_CameraController(1280.0f, 720.0f, 2.0f), m_Octree(2) {}
 
 void EditorApplication::PreRender()
 {
@@ -44,7 +44,26 @@ void EditorApplication::OnKeyPress(int key, int scancode, int action, int mods)
 
 	if (key == GLFW_KEY_Z && action == GLFW_PRESS)
 	{
-		m_Octree.Deactivate(1, 1, 0); 
+		m_Octree.Deactivate(0, 0, 1); 
+	}
+
+	if (key == GLFW_KEY_C && action == GLFW_PRESS)
+	{
+		m_Octree.Deactivate(0, 1, 0);
+	}
+
+	if (key == GLFW_KEY_V && action == GLFW_PRESS)
+	{
+		m_Octree.Deactivate(0, 1, 1);
+	}
+
+	if (key == GLFW_KEY_B && action == GLFW_PRESS)
+	{
+		m_Octree.Deactivate(3, 3, 2);
+	}
+
+	if (key == GLFW_KEY_N && action == GLFW_PRESS) {
+		m_Octree.Deactivate(3, 3, 3);
 	}
 }
 

@@ -115,9 +115,10 @@ void main() {
 	vec3 cameraDir = vec3(0.0, 0.0, 0.8);
 	vec3 cameraPlaneU = vec3(1.0, 0.0, 0.0);
 	vec3 cameraPlaneV = vec3(0.0, 1.0, 0.0);
-    vec3 rayDir = cameraDir + v_Pos.x * cameraPlaneU + v_Pos.y * cameraPlaneV;
-    vec3 rayPos = vec3(0.0, 0.25 * sin(u_Time * 2.7), -3.4);
-	//vec3 rayPos = vec3(0.0, 0.25 * sin(u_Time * 2.7), -3.4);
+    //vec3 rayDir = cameraDir + v_Pos.x * cameraPlaneU + v_Pos.y * cameraPlaneV;
+    vec3 rayDir = cameraDir + vec3(v_Pos);
+    //vec3 rayPos = vec3(0.0, 0.25 * sin(u_Time * 2.7), -3.4);
+	vec3 rayPos = vec3(0.0, 0.0f, -4.5);
     rayPos.xz = rotate2d(rayPos.xz, u_Time);
    	rayDir.xz = rotate2d(rayDir.xz, u_Time);
 	Ray ray;
