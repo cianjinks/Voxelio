@@ -20,8 +20,9 @@ void EditorApplication::Render()
 	m_CameraController.HandleInput();
 
 	m_FBO->Bind();
+
+	glClearColor(173.0f / 255.0f, 216.0f / 255.0f, 230.0f / 255.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
 
 	VoxelCore::Renderer::BeginScene(m_CameraController);
 	VoxelCore::Renderer::DrawQuad(glm::vec3(0, 0, 0));
@@ -29,8 +30,8 @@ void EditorApplication::Render()
 	VoxelCore::Renderer::EndScene();
 	m_FBO->Unbind();
 
+	glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(173.0f / 255.0f, 216.0f / 255.0f, 230.0f / 255.0f, 1.0f);
 }
 
 void EditorApplication::ImGuiRender()
@@ -50,13 +51,16 @@ void EditorApplication::ImGuiRender()
 	ImGui::End();**/
 
 	static bool dockspaceOpen = true;
-	ImGuiViewport* viewport = ImGui::GetMainViewport();
-	ImGui::SetNextWindowPos(viewport->Pos);
-	ImGui::SetNextWindowSize(viewport->Size);
-	ImGui::SetNextWindowViewport(viewport->ID);
+	//ImGuiViewport* viewport = ImGui::GetMainViewport();
+	//ImGui::SetNextWindowPos(viewport->Pos);
+	//ImGui::SetNextWindowSize(viewport->Size);
+	//ImGui::SetNextWindowViewport(viewport->ID);
+	//ImGui::SetNextWindowPos(ImVec2(0, 0));
+	ImGui::SetNextWindowSize(ImVec2(m_FBOData.Width, m_FBOData.Height));
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ));
-	ImGui::Begin("Viewport", &dockspaceOpen, ImGuiWindowFlags_NoTitleBar);
+	ImGui::Begin("Viewport", &dockspaceOpen);// , ImGuiWindowFlags_NoTitleBar);
+
 
 	ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 
@@ -64,6 +68,9 @@ void EditorApplication::ImGuiRender()
 	ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ viewportPanelSize.x, viewportPanelSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 	ImGui::End();
 	ImGui::PopStyleVar();
+
+	static bool demoWindow = true;
+	ImGui::ShowDemoWindow(&demoWindow);
 
 }
 
