@@ -81,7 +81,8 @@ namespace VoxelCore {
 
 		glViewport(0, 0, (GLsizei)application.GetWindowWidth(), (GLsizei)application.GetWindowHeight());
 		glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
-			glViewport(0, 0, width, height);
+			VoxelCore::Application& application = *(VoxelCore::Application*)glfwGetWindowUserPointer(window);
+			application.OnResize(width, height);
 		});
 
 		VoxelCore::ImGuiHandler::Init(m_Window);

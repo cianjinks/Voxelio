@@ -31,6 +31,7 @@ namespace VoxelCore {
 		virtual void OnMouseMove(float xpos, float ypos) = 0;
 		virtual void OnMouseScroll(float xoffset, float yoffset) = 0;
 		virtual void OnMouseClick(int button, int action, int mods) = 0;
+		virtual void OnResize(int width, int height) = 0;
 
 		static Application& Get() { return *s_Instance; };
 	};

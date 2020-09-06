@@ -14,6 +14,9 @@ private:
 	VoxelCore::OrbitalCameraController m_CameraController;
 	VoxelCore::CompactVoxelOctree m_Octree;
 
+	VoxelCore::FrameBufferData m_FBOData;
+	std::shared_ptr<VoxelCore::FrameBuffer> m_FBO;
+
 public:
 	EditorApplication();
 	virtual ~EditorApplication() = default;
@@ -26,6 +29,7 @@ public:
 	void OnMouseMove(float xpos, float ypos) override;
 	void OnMouseScroll(float xoffset, float yoffset) override;
 	void OnMouseClick(int button, int action, int mods) override;
+	void OnResize(int width, int height) override;
 
 	float GetWindowWidth() override { return m_WindowWidth; };
 	float GetWindowHeight() override { return m_WindowHeight; };

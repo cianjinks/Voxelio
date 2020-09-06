@@ -99,8 +99,11 @@ namespace VoxelCore {
 		void Unbind() override;
 
 		void Refresh() override;
-
 		void Resize(uint32_t width, uint32_t height) override;
+
+		uint32_t GetFrameBufferColorData() const override { return m_ColorAttachment; };
+		uint32_t GetFrameBufferDepthData() const override { return m_DepthAttachment; };
 		const FrameBufferData& GetFrameBufferData() const override { return m_FrameBufferData; };
+
 	};
 }

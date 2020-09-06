@@ -176,8 +176,11 @@ namespace VoxelCore {
 		virtual void Unbind() = 0;
 
 		virtual void Refresh() = 0;
-
 		virtual void Resize(uint32_t width, uint32_t height) = 0;
+
+		virtual uint32_t GetFrameBufferColorData() const = 0;
+		virtual uint32_t GetFrameBufferDepthData() const = 0;
+
 		virtual const FrameBufferData& GetFrameBufferData() const = 0;
 
 		static std::shared_ptr<FrameBuffer> Create(const FrameBufferData& data);
