@@ -9,7 +9,7 @@ namespace VoxelCore {
 	{
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
-		io.IniFilename = NULL;
+		//io.IniFilename = NULL;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		ImGui::StyleColorsDark();
 		ImGui_ImplGlfw_InitForOpenGL(window, true);

@@ -18,6 +18,10 @@ private:
 	std::shared_ptr<VoxelCore::FrameBuffer> m_FBO;
 	glm::vec2 m_ViewportSize = { 0, 0 };
 
+	// Palette Editor UI
+	VoxelCore::VoxelColorPalette m_Palette;
+	VoxelCore::VoxelColor m_PaletteEditorColor = VoxelCore::VoxelColor("Test Color", 0.0f, 0.0f, 0.0f, 0.0f);
+
 public:
 	EditorApplication();
 	virtual ~EditorApplication() = default;

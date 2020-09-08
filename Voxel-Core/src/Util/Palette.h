@@ -5,8 +5,11 @@ namespace VoxelCore {
 
 	struct VoxelColor
 	{
-		glm::vec4 color;
 		std::string name;
+		glm::vec4 color;
+
+		VoxelColor(const std::string& name, float r, float g, float b, float a)
+			: color(r, g, b, a), name(name) {};
 	};
 
 	class VoxelColorPalette

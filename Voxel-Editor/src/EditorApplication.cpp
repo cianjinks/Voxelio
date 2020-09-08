@@ -123,6 +123,29 @@ void EditorApplication::ImGuiRender()
 	ImGui::Text(("Draw Calls: " + std::to_string(VoxelCore::RendererData::DrawCalls)).c_str());
 	ImGui::End();
 
+	// Palette Editor
+	ImGui::Begin("Palette Editor");
+	//ImGui::InputText("Name", );
+	ImGui::ColorPicker4("", &m_PaletteEditorColor.color.x, 0);
+
+	if (ImGui::Button("Add Color"))
+	{
+		
+		m_Palette.GetColors().emplace_back(m_PaletteEditorColor);
+	}
+
+	ImGui::Separator();
+	ImGui::Text("Color Palette: ");
+
+	ImDrawList* drawlist = ImGui::GetWindowDrawList();
+	for (auto& pc : m_Palette.GetColors())
+	{
+		//drawlist->AddRectFilled(ImVec2(0, 0), ImVec2(40, 40), ImU32(ImColor(color.color.x, color.color.y, color.color.z, color.color.a)), 0);
+		ImGui::Text((pc.name + ": " + std::to_string(pc.color.r) + " " + std::to_string(pc.color.g) + " " + std::to_string(pc.color.b) + " " + std::to_string(pc.color.a)).c_str());
+	}
+	
+	ImGui::End();
+
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 	ImGui::Begin("Viewport");
 
