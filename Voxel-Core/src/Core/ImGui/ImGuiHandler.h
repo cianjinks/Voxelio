@@ -2,6 +2,7 @@
 #include "imgui.h"
 #include "examples/imgui_impl_opengl3.h"
 #include "examples/imgui_impl_glfw.h"
+#include "misc/cpp/imgui_stdlib.h"
 
 namespace VoxelCore {
 
