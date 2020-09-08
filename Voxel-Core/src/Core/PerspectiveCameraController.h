@@ -42,6 +42,8 @@ namespace VoxelCore {
 		void OnMouseScroll(float xoffset, float yoffset) override;
 		void HandleInput() override;
 
+		void Resize(float width, float height) override;
+
 		void SetFOV(float fov) override { m_CameraFOV = fov; };
 		void SetNearPlane(float nearplane) override { m_NearPlane = nearplane; };
 		void SetFarPlane(float farplane) override { m_FarPlane = farplane; };

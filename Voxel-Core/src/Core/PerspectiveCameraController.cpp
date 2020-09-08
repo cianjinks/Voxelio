@@ -74,6 +74,12 @@ namespace VoxelCore {
 		CalculateMatrices();
 	}
 
+	void PerspectiveCameraController::Resize(float width, float height)
+	{
+		m_WindowWidth = width;
+		m_WindowHeight = height;
+	}
+
 	void PerspectiveCameraController::CalculateMatrices()
 	{
 		m_ViewMatrix = glm::lookAt(m_CameraPos, m_CameraPos + m_CameraFront, m_CameraUp);

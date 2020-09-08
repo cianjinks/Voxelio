@@ -91,6 +91,12 @@ namespace VoxelCore {
 		CalculateMatrices();
 	}
 
+	void OrbitalCameraController::Resize(float width, float height)
+	{
+		m_WindowWidth = width;
+		m_WindowHeight = height;
+	}
+
 	void OrbitalCameraController::CalculateMatrices()
 	{
 		m_ViewMatrix = glm::lookAt(m_CameraPos, m_CameraPivot, m_CameraUp);

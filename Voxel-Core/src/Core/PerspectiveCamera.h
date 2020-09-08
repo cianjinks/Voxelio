@@ -12,6 +12,8 @@ namespace VoxelCore {
 		virtual void OnMouseScroll(float xoffset, float yoffset) = 0;
 		virtual void HandleInput() = 0;
 
+		virtual void Resize(float width, float height) = 0;
+
 		virtual void SetFOV(float fov) = 0;
 		virtual void SetNearPlane(float nearpane) = 0;
 		virtual void SetFarPlane(float farplane) = 0;

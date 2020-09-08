@@ -16,6 +16,7 @@ private:
 
 	VoxelCore::FrameBufferData m_FBOData;
 	std::shared_ptr<VoxelCore::FrameBuffer> m_FBO;
+	glm::vec2 m_ViewportSize = { 0, 0 };
 
 public:
 	EditorApplication();
