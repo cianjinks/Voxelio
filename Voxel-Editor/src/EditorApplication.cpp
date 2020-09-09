@@ -1,7 +1,9 @@
 #include "EditorApplication.h"
 
+int EditorApplication::s_OctreeLevels = 2;
+
 EditorApplication::EditorApplication()
-	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_CameraController(1280.0f, 720.0f, 2.0f), m_Octree(2) {}
+	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_CameraController(1280.0f, 720.0f, 2.0f), m_Octree(s_OctreeLevels) {}
 
 void EditorApplication::PreRender()
 {
@@ -137,13 +139,50 @@ void EditorApplication::ImGuiRender()
 	ImGui::Separator();
 	ImGui::Text("Color Palette: ");
 
-	ImDrawList* drawlist = ImGui::GetWindowDrawList();
-	for (auto& pc : m_Palette.GetColors())
+	const float squareDim = 50.0f;
+	int squaresPerLine = (ImGui::GetWindowWidth() / squareDim) - 1;
+	VX_EDITOR_INFO("Current Color Selection: {}", m_CurrentSelectedColor.name);
+	auto colors = m_Palette.GetColors();
+	int count = 1;
+
+	for (int pc = 0; pc < colors.size(); pc++)
 	{
-		//drawlist->AddRectFilled(ImVec2(0, 0), ImVec2(40, 40), ImU32(ImColor(color.color.x, color.color.y, color.color.z, color.color.a)), 0);
-		ImGui::Text((pc.name + ": " + std::to_string(pc.color.r) + " " + std::to_string(pc.color.g) + " " + std::to_string(pc.color.b) + " " + std::to_string(pc.color.a)).c_str());
+
+		if (count == squaresPerLine)
+		{
+			if (ImGui::ColorButton(colors[pc].name.c_str(), ImVec4(colors[pc].color.r, colors[pc].color.g, colors[pc].color.b, colors[pc].color.a), 0, ImVec2(50, 50)))
+			{
+				m_CurrentSelectedColor = colors[pc];
+				m_CurrentSelectedColorIndex = pc;
+			}
+			count = 0;
+		}
+		else
+		{
+			if(ImGui::ColorButton(colors[pc].name.c_str(), ImVec4(colors[pc].color.r, colors[pc].color.g, colors[pc].color.b, colors[pc].color.a), 0, ImVec2(50, 50)))
+			{
+				m_CurrentSelectedColor = colors[pc];
+				m_CurrentSelectedColorIndex = pc;
+			}
+			ImGui::SameLine();
+		}
+		count++;
 	}
 	
+	ImGui::End();
+
+	// Tools
+	ImGui::Begin("Tools");
+
+	ImGui::Text("Currently Selected Color: ");
+	ImGui::ColorButton(m_CurrentSelectedColor.name.c_str(), 
+		ImVec4(m_CurrentSelectedColor.color.r, m_CurrentSelectedColor.color.g, m_CurrentSelectedColor.color.b, m_CurrentSelectedColor.color.a), 0, ImVec2(80, 80));
+	ImGui::DragInt3("Selected Voxel", &m_SelectedVoxel.x, 1.0f, 0, std::pow(2, s_OctreeLevels) - 1);
+	if (ImGui::Button("Apply Color"))
+	{
+		m_Octree.SetColorIndex(m_SelectedVoxel.x, m_SelectedVoxel.y, m_SelectedVoxel.z, (uint64_t)m_CurrentSelectedColorIndex);
+	}
+
 	ImGui::End();
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
@@ -163,6 +202,7 @@ void EditorApplication::ImGuiRender()
 
 	ImGui::End();
 
+	//ImGui::ShowDemoWindow();
 }
 
 void EditorApplication::OnKeyPress(int key, int scancode, int action, int mods)

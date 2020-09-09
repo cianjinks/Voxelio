@@ -11,8 +11,12 @@ public:
 	int division = 0;
 
 private:
+	// Camera
 	VoxelCore::OrbitalCameraController m_CameraController;
+
+	// Octree
 	VoxelCore::CompactVoxelOctree m_Octree;
+	static int s_OctreeLevels;
 
 	VoxelCore::FrameBufferData m_FBOData;
 	std::shared_ptr<VoxelCore::FrameBuffer> m_FBO;
@@ -21,6 +25,11 @@ private:
 	// Palette Editor UI
 	VoxelCore::VoxelColorPalette m_Palette;
 	VoxelCore::VoxelColor m_PaletteEditorColor = VoxelCore::VoxelColor("Test Color", 0.0f, 0.0f, 0.0f, 0.0f);
+	VoxelCore::VoxelColor m_CurrentSelectedColor = VoxelCore::VoxelColor("Default Color", 1.0f, 1.0f, 1.0f, 1.0f);
+	int m_CurrentSelectedColorIndex = 0;
+
+	// Tools UI
+	glm::ivec3 m_SelectedVoxel = glm::ivec3(0);
 
 public:
 	EditorApplication();
