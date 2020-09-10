@@ -6,6 +6,7 @@ in mat4 v_MVP;
 
 uniform float u_Time;
 uniform usamplerBuffer u_VoxelData;
+uniform usamplerBuffer u_ColorData;
 
 #define FLT_MAX 3.402823466e+38
 
@@ -146,7 +147,7 @@ vec4 rayTrace(Ray ray, out Hit hit) {
 		// Here we decide whether which hit to output:
 		if(aHit) {
 			if(colorIndex == 0) {
-				return vec4(1.0f, 0.0f, 0.0f, 1.0f);
+				return texelFetch(u_ColorData, int(colorIndex)).rgba;
 			}
 			else {
 				return vec4(0.0f, 1.0f, 0.0f, 1.0f);

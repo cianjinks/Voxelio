@@ -11,7 +11,8 @@ namespace VoxelCore {
 	std::shared_ptr<VertexArray> Renderer::vao = nullptr;
 	std::shared_ptr<VertexBuffer> Renderer::vbo = nullptr;
 	std::shared_ptr<IndexBuffer> Renderer::ibo = nullptr;
-	std::shared_ptr<DataBuffer> Renderer::dbo = nullptr;
+	std::shared_ptr<DataBuffer> Renderer::octdbo = nullptr;
+	std::shared_ptr<DataBuffer> Renderer::colordbo = nullptr;
 	std::shared_ptr<Shader> Renderer::shader = nullptr;
 
 	std::vector<float>* Renderer::m_VertexData = nullptr;
@@ -51,13 +52,17 @@ namespace VoxelCore {
 		ibo->Bind();
 		vao->SetVertexBuffer(vbo);
 		vao->SetIndexBuffer(ibo);
-		shader = Shader::CreateBasicShader("Test Shader", "assets/shaders/testvert.glsl", "assets/shaders/customfrag5.glsl");
+		shader = Shader::CreateBasicShader("Test Shader", "assets/shaders/testvert.glsl", "assets/shaders/copyfrag.glsl");
 		shader->Bind();
 		
 		m_VertexData = new std::vector<float>(RendererData::MaxVertices);
 
-		dbo = DataBuffer::Create(RendererData::MaxNodeCount * sizeof(uint64_t), DataBufferFormat::UINT2);
-		dbo->Bind();
+		glActiveTexture(GL_TEXTURE0);
+		octdbo = DataBuffer::Create(RendererData::MaxNodeCount * sizeof(uint64_t), DataBufferFormat::UINT2);
+		octdbo->Bind();
+		glActiveTexture(GL_TEXTURE1);
+		colordbo = DataBuffer::Create(RendererData::MaxColorPaletteSize * 4 * sizeof(float), DataBufferFormat::FLOAT4);
+		colordbo->Bind();
 
 		VX_CORE_INFO("Initialised Renderer");
 	}
@@ -129,9 +134,15 @@ namespace VoxelCore {
 		});
 	}
 
-	void Renderer::DrawOctree(CompactVoxelOctree& octree)
+	void Renderer::DrawOctree(CompactVoxelOctree& octree, VoxelColorPalette& palette)
 	{
-		dbo->SetData(octree.GetData(), octree.GetNodeCount() * sizeof(uint64_t));
-		dbo->Bind();
+		glActiveTexture(GL_TEXTURE0);
+		octdbo->SetData(octree.GetData(), octree.GetNodeCount() * sizeof(uint64_t));
+		octdbo->Bind();
+
+		glActiveTexture(GL_TEXTURE1);
+		auto& colorData = palette.GetColorData();
+		colordbo->SetData(colorData.data(), colorData.size() * sizeof(float));
+		colordbo->Bind();
 	}
 }

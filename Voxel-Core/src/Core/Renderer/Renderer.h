@@ -4,6 +4,7 @@
 #include "Core/Renderer/VertexArray.h"
 #include "Core/Renderer/Shader.h"
 #include "Core/Renderer/Octree/CompactVoxelOctree.h"
+#include "Util/Palette.h"
 
 namespace VoxelCore {
 
@@ -29,6 +30,7 @@ namespace VoxelCore {
 		static const int MaxFloats = MaxVertices * 9;
 
 		static const int MaxNodeCount = 8 * 8 * 8 * 8 * 8;
+		static const int MaxColorPaletteSize = 256;
 
 		static int IndicesCount;
 		static int DrawCalls;
@@ -42,7 +44,8 @@ namespace VoxelCore {
 		static std::shared_ptr<VertexArray> vao;
 		static std::shared_ptr<VertexBuffer> vbo;
 		static std::shared_ptr<IndexBuffer> ibo;
-		static std::shared_ptr<DataBuffer> dbo;
+		static std::shared_ptr<DataBuffer> octdbo;
+		static std::shared_ptr<DataBuffer> colordbo;
 		static std::shared_ptr<Shader> shader;
 
 		static bool m_ActiveScene;
@@ -62,7 +65,7 @@ namespace VoxelCore {
 		static void FlushData();
 
 		static void DrawQuad(const glm::vec3& pos);
-		static void DrawOctree(CompactVoxelOctree& octree);
+		static void DrawOctree(CompactVoxelOctree& octree, VoxelColorPalette& palette);
 	};
 
 }

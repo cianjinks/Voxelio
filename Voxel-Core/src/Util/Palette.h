@@ -16,8 +16,12 @@ namespace VoxelCore {
 	{
 	private:
 		std::vector<VoxelColor> m_Colors;
+		std::vector<float> m_ColorData;
+
 	public:
 		// For now this just wraps a vector but later it should contain some kind of ImGUI state for the color palette editor
 		std::vector<VoxelColor>& GetColors();
+		std::vector<float>& GetColorData();
+		void AddColor(VoxelColor color);
 	};
 }

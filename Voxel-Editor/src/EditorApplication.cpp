@@ -13,6 +13,9 @@ void EditorApplication::PreRender()
 	m_FBOData.Width = m_WindowWidth;
 	m_FBOData.Height = m_WindowHeight;
 	m_FBO = VoxelCore::FrameBuffer::Create(m_FBOData);
+
+	// Add Default Color to slot 1
+	m_Palette.AddColor(VoxelCore::VoxelColor("Default Color", 0.75f, 0.75f, 0.75f, 1.0f));
 }
 
 void EditorApplication::Render()
@@ -22,7 +25,7 @@ void EditorApplication::Render()
 		m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && // zero sized framebuffer is invalid
 		(data.Width != m_ViewportSize.x || data.Height != m_ViewportSize.y))
 	{
-		VX_CORE_INFO("Viewport Size: {0}, {1}", m_ViewportSize.x, m_ViewportSize.y);
+		VX_EDITOR_INFO("Viewport Size: {0}, {1}", m_ViewportSize.x, m_ViewportSize.y);
 		m_FBO->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 		m_CameraController.Resize(m_ViewportSize.x, m_ViewportSize.y);
 	}
@@ -37,7 +40,7 @@ void EditorApplication::Render()
 
 	VoxelCore::Renderer::BeginScene(m_CameraController);
 	VoxelCore::Renderer::DrawQuad(glm::vec3(0, 0, 0));
-	VoxelCore::Renderer::DrawOctree(m_Octree);
+	VoxelCore::Renderer::DrawOctree(m_Octree, m_Palette);
 	VoxelCore::Renderer::EndScene();
 	m_FBO->Unbind();
 
@@ -133,7 +136,7 @@ void EditorApplication::ImGuiRender()
 	if (ImGui::Button("Add Color"))
 	{
 		
-		m_Palette.GetColors().emplace_back(m_PaletteEditorColor);
+		m_Palette.AddColor(m_PaletteEditorColor);
 	}
 
 	ImGui::Separator();
@@ -141,7 +144,6 @@ void EditorApplication::ImGuiRender()
 
 	const float squareDim = 50.0f;
 	int squaresPerLine = (ImGui::GetWindowWidth() / squareDim) - 1;
-	VX_EDITOR_INFO("Current Color Selection: {}", m_CurrentSelectedColor.name);
 	auto colors = m_Palette.GetColors();
 	int count = 1;
 
@@ -154,6 +156,7 @@ void EditorApplication::ImGuiRender()
 			{
 				m_CurrentSelectedColor = colors[pc];
 				m_CurrentSelectedColorIndex = pc;
+				VX_EDITOR_INFO("Changed Selected Color to: {0} with index {1}", colors[pc].name, pc);
 			}
 			count = 0;
 		}
@@ -163,6 +166,7 @@ void EditorApplication::ImGuiRender()
 			{
 				m_CurrentSelectedColor = colors[pc];
 				m_CurrentSelectedColorIndex = pc;
+				VX_EDITOR_INFO("Changed Selected Color to : {0} with index {1}", colors[pc].name, pc);
 			}
 			ImGui::SameLine();
 		}
@@ -174,13 +178,36 @@ void EditorApplication::ImGuiRender()
 	// Tools
 	ImGui::Begin("Tools");
 
+	float toolsWidth = ImGui::GetWindowWidth();
+
 	ImGui::Text("Currently Selected Color: ");
 	ImGui::ColorButton(m_CurrentSelectedColor.name.c_str(), 
-		ImVec4(m_CurrentSelectedColor.color.r, m_CurrentSelectedColor.color.g, m_CurrentSelectedColor.color.b, m_CurrentSelectedColor.color.a), 0, ImVec2(80, 80));
-	ImGui::DragInt3("Selected Voxel", &m_SelectedVoxel.x, 1.0f, 0, std::pow(2, s_OctreeLevels) - 1);
+		ImVec4(m_CurrentSelectedColor.color.r, m_CurrentSelectedColor.color.g, m_CurrentSelectedColor.color.b, m_CurrentSelectedColor.color.a), 0, ImVec2(toolsWidth / 2, toolsWidth / 2));
+	ImGui::Text("Selected Voxel:");
+	ImGui::InputInt3("", &m_SelectedVoxel.x);
+
+	// Keep selected voxel in bounds
+	int upperVoxelBound = std::pow(2, s_OctreeLevels) - 1;
+	int lowerVoxelBound = 0;
+	for (int i = 0; i < 3; i++)
+	{
+		if (m_SelectedVoxel[i] > upperVoxelBound) { m_SelectedVoxel[i] = upperVoxelBound; }
+		if (m_SelectedVoxel[i] < lowerVoxelBound) { m_SelectedVoxel[i] = lowerVoxelBound; }
+	}
+
+	// Buttons for manipulating voxels
 	if (ImGui::Button("Apply Color"))
 	{
 		m_Octree.SetColorIndex(m_SelectedVoxel.x, m_SelectedVoxel.y, m_SelectedVoxel.z, (uint64_t)m_CurrentSelectedColorIndex);
+		VX_EDITOR_INFO("Selected Voxel: {0}, {1}, {2} Color Index: {3}", m_SelectedVoxel.x, m_SelectedVoxel.y, m_SelectedVoxel.z, (uint64_t)m_CurrentSelectedColorIndex);
+	}
+	if (ImGui::Button("Enable"))
+	{
+		m_Octree.Activate(m_SelectedVoxel.x, m_SelectedVoxel.y, m_SelectedVoxel.z);
+	}
+	if (ImGui::Button("Disable"))
+	{
+		m_Octree.Deactivate(m_SelectedVoxel.x, m_SelectedVoxel.y, m_SelectedVoxel.z);
 	}
 
 	ImGui::End();
