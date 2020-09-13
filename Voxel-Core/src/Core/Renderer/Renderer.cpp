@@ -57,6 +57,7 @@ namespace VoxelCore {
 		
 		m_VertexData = new std::vector<float>(RendererData::MaxVertices);
 
+		// HARDCODED API USAGE
 		glActiveTexture(GL_TEXTURE0);
 		octdbo = DataBuffer::Create(RendererData::MaxNodeCount * sizeof(uint64_t), DataBufferFormat::UINT2);
 		octdbo->Bind();
@@ -81,6 +82,9 @@ namespace VoxelCore {
 			shader->Bind();
 			shader->SetMat4("u_MVP", camera.GetMVPMatrix());
 			shader->SetFloat1("u_Time", (float)glfwGetTime());
+			// Set texture units of data buffers
+			shader->SetInt1("u_VoxelData", 0); 
+			shader->SetInt1("u_ColorData", 1);
 			m_ActiveScene = true;
 			RendererData::DrawCalls = 0;
 		}
@@ -136,6 +140,7 @@ namespace VoxelCore {
 
 	void Renderer::DrawOctree(CompactVoxelOctree& octree, VoxelColorPalette& palette)
 	{
+		// HARDCODED API USAGE
 		glActiveTexture(GL_TEXTURE0);
 		octdbo->SetData(octree.GetData(), octree.GetNodeCount() * sizeof(uint64_t));
 		octdbo->Bind();

@@ -15,7 +15,7 @@ void EditorApplication::PreRender()
 	m_FBO = VoxelCore::FrameBuffer::Create(m_FBOData);
 
 	// Add Default Color to slot 1
-	m_Palette.AddColor(VoxelCore::VoxelColor("Default Color", 0.75f, 0.75f, 0.75f, 1.0f));
+	m_Palette.AddColor(m_DefaultColor);
 }
 
 void EditorApplication::Render()
@@ -135,7 +135,6 @@ void EditorApplication::ImGuiRender()
 
 	if (ImGui::Button("Add Color"))
 	{
-		
 		m_Palette.AddColor(m_PaletteEditorColor);
 	}
 

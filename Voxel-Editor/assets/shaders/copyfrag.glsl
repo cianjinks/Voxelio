@@ -6,7 +6,7 @@ in mat4 v_MVP;
 
 uniform float u_Time;
 uniform usamplerBuffer u_VoxelData;
-uniform usamplerBuffer u_ColorData;
+uniform samplerBuffer u_ColorData;
 
 #define FLT_MAX 3.402823466e+38
 
@@ -97,6 +97,14 @@ vec4 rayTrace(Ray ray, out Hit hit) {
 
 		parent = texelFetch(u_VoxelData, int(parentptr)).r;
 		colorIndex = texelFetch(u_VoxelData, int(parentptr)).g;
+		if(colorIndex == 1)
+		{
+			return vec4(1.0f, 0.0f, 0.0f, 1.0f);
+		}
+		else if(colorIndex == 2)
+		{
+			return vec4(0.0f, 1.0f, 0.0f, 1.0f);
+		}
 
 		uint numBranches = 0;
 
@@ -146,12 +154,7 @@ vec4 rayTrace(Ray ray, out Hit hit) {
 		}
 		// Here we decide whether which hit to output:
 		if(aHit) {
-			if(colorIndex == 0) {
-				return texelFetch(u_ColorData, int(colorIndex)).rgba;
-			}
-			else {
-				return vec4(0.0f, 1.0f, 0.0f, 1.0f);
-			}
+			return texelFetch(u_ColorData, int(colorIndex)).rgba;
 		}
 	}
 
@@ -197,6 +200,5 @@ void main() {
 
 	Hit outHit;
 	vec4 color = rayTrace(ray, outHit);
-	//a_Color = calculateLighting(ray, outHit);
 	a_Color = color;
 }
