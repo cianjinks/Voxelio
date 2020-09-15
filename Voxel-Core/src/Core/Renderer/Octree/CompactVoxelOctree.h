@@ -9,36 +9,42 @@ namespace VoxelCore {
 	private:
 
 		// LAYOUT:
-		// Spare Index	Color Index  Voxel Index  Valid Mask  Leaf Mask
-		// 16bits		16bits		 16bits	      8bits		  8bits
+		// Color Index Data		Index	Valid Mask  Leaf Mask
+		// 96 bits				16bits	8bits		8bits
 
-		uint64_t m_Data;
+		// Every Color Index is 12 bits meaning we can store up to 4096
+
+		uint32_t m_Data;
+		uint32_t m_ColorIndex1;
+		uint32_t m_ColorIndex2;
+		uint32_t m_ColorIndex3;
+
 	public:
 		CompactNode();
-		CompactNode(uint64_t data);
+		CompactNode(uint32_t data);
 		~CompactNode();
 
-		void SetData(uint64_t data);
-		uint64_t GetData();
+		void SetData(uint32_t data);
+		uint32_t GetData();
 
-		void SetValidMaskBit(uint64_t index);
-		void ClearValidMaskBit(uint64_t index);
-		uint64_t GetValidMaskBit(uint64_t index);
+		void SetValidMaskBit(int index);
+		void ClearValidMaskBit(int index);
+		int GetValidMaskBit(int index);
 
-		void SetLeafMaskBit(uint64_t index);
-		void ClearLeafMaskBit(uint64_t index);
-		uint64_t GetLeafMaskBit(uint64_t index);
+		void SetLeafMaskBit(int index);
+		void ClearLeafMaskBit(int index);
+		int GetLeafMaskBit(int index);
 
 		bool HasBranch();
-		uint64_t GetBranchIndex(uint64_t index);
+		int GetBranchIndex(int index);
 
-		void SetIndex(uint64_t index);
-		uint64_t GetIndex();
+		void SetIndex(uint32_t index);
+		uint32_t GetIndex();
 
-		void SetColorIndex(uint64_t index);
-		uint64_t GetColorIndex();
+		void SetColorIndex(uint32_t voxelIndex, uint32_t colorIndex);
+		uint32_t GetColorIndex(uint32_t voxelIndex);
 
-		operator uint64_t() const { return m_Data; };
+		operator uint32_t() const { return m_Data; };
 	};
 
 	class CompactVoxelOctree
@@ -55,9 +61,9 @@ namespace VoxelCore {
 		void Deactivate(int x, int y, int z);
 		int Get(int x, int y, int z);
 
-		void SetColorIndex(int x, int y, int z, uint64_t colorIndex);
+		void SetColorIndex(int x, int y, int z, uint32_t colorIndex);
 
-		uint64_t* GetData();
+		uint32_t* GetData();
 		int GetNodeCount() const { return m_Nodes.size(); };
 
 		constexpr static int MAX_OCTREE_NODES = 8 * 8 * 8;

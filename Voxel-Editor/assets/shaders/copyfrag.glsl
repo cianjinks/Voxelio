@@ -28,6 +28,7 @@ struct Hit {
 	vec3 voxelpos;
 	vec3 normal;
 	float tenter;
+	uint childIndex;
 };
 
 struct OcStackElement {
@@ -70,6 +71,65 @@ vec2 rotate2d(vec2 v, float a) {
 	return vec2(v.x * cosA - v.y * sinA, v.y * cosA + v.x * sinA);	
 }
 
+vec4 getColor(uint voxelIndex, uint parentptr)
+{
+	uvec3 colorIndices = texelFetch(u_VoxelData, int(parentptr)).gba;
+	uint colorIndex = 0;
+
+	uint clearmask = 0x00000FFF;
+	switch (voxelIndex)
+	{
+		case 0:
+		{
+			colorIndex = colorIndices.x >> 24;
+		}
+		case 1:
+		{
+			colorIndex = (colorIndices.x >> 8) & clearmask;
+		}
+		case 2:
+		{
+			// Last 8 bits of m_ColorIndex1 are first 8 bits of color index
+			uint firstEight = (colorIndices.x & 0x000000FF) << 4;
+			// First 4 bits of m_ColorIndex2 are last 4 bits of color index
+			uint lastFour = (colorIndices.y & 0xF0000000) >> 28;
+
+			colorIndex = firstEight | lastFour;
+		}
+		case 3:
+		{
+			colorIndex = (colorIndices.y >> 16) & clearmask;
+		}
+		case 4:
+		{
+			colorIndex = (colorIndices.y >> 4) & clearmask;
+		}
+		case 5:
+		{
+			// Last 4 bits of m_ColorIndex2 are first 4 bits of color index
+			uint firstFour = (colorIndices.y & 0x0000000F) << 8;
+			// First 8 bits of m_ColorIndex3 are last 8 bits of color index
+			uint lastEight = (colorIndices.z & 0xFF000000) >> 24;
+
+			colorIndex = firstFour | lastEight;
+		}
+		case 6:
+		{
+			colorIndex = (colorIndices.z >> 12) & clearmask;
+		}
+		case 7:
+		{
+			colorIndex = colorIndices.z & clearmask;
+		}
+		default:
+		{
+			colorIndex = 0;
+		}
+
+	}
+	return texelFetch(u_ColorData, int(colorIndex)).rgba;
+}
+
 vec4 rayTrace(Ray ray, out Hit hit) {
 	
 	vec3 pos = vec3(0.0f);
@@ -86,7 +146,6 @@ vec4 rayTrace(Ray ray, out Hit hit) {
 	if(!AABBoxIntersect(minBox, maxBox, ray, rootHit)) return vec4(vec3(0.5f), 1.0f);
 
 	uint parent;
-	uint colorIndex;
 	uint parentptr = 0;
 	stack[0] = OcStackElement(parentptr, pos, scale*0.5f);
 
@@ -96,16 +155,6 @@ vec4 rayTrace(Ray ray, out Hit hit) {
 		scale = stack[stackptr].scale;
 
 		parent = texelFetch(u_VoxelData, int(parentptr)).r;
-		colorIndex = texelFetch(u_VoxelData, int(parentptr)).g;
-		if(colorIndex == 1)
-		{
-			return vec4(1.0f, 0.0f, 0.0f, 1.0f);
-		}
-		else if(colorIndex == 2)
-		{
-			return vec4(0.0f, 1.0f, 0.0f, 1.0f);
-		}
-
 		uint numBranches = 0;
 
 		// Info for checking closest visible voxel
@@ -138,6 +187,7 @@ vec4 rayTrace(Ray ray, out Hit hit) {
 							lowestDistance = dist;
 							lowestDistanceIdx = child;
 							hit = hits[child];
+							hit.childIndex = child;
 						}
 						aHit = true;
 					    //return vec4(1.0f,0.0f,0.0f,1.0f);
@@ -154,7 +204,7 @@ vec4 rayTrace(Ray ray, out Hit hit) {
 		}
 		// Here we decide whether which hit to output:
 		if(aHit) {
-			return texelFetch(u_ColorData, int(colorIndex)).rgba;
+			return getColor(hit.childIndex, parentptr);
 		}
 	}
 

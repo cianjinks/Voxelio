@@ -6,54 +6,56 @@ namespace VoxelCore {
 	CompactNode::CompactNode()
 		: m_Data(0) {}
 
-	CompactNode::CompactNode(uint64_t data)
+	CompactNode::CompactNode(uint32_t data)
 		: m_Data(data) {}
 
 	CompactNode::~CompactNode() {}
 
-	void CompactNode::SetData(uint64_t data) { m_Data = data; }
+	void CompactNode::SetData(uint32_t data) { m_Data = data; }
 
-	uint64_t CompactNode::GetData() { return m_Data; }
+	uint32_t CompactNode::GetData() { return m_Data; }
 
-	void CompactNode::SetValidMaskBit(uint64_t index)
+	void CompactNode::SetValidMaskBit(int index)
 	{
-		uint64_t bit = (uint64_t)0x1 << ((uint64_t)0x8 + index);
+		uint32_t bit = 1 << (8 + index);
 		m_Data |= bit;
 	}
 
-	void CompactNode::ClearValidMaskBit(uint64_t index)
+	void CompactNode::ClearValidMaskBit(int index)
 	{
-		uint64_t bit = (uint64_t)0x1 << ((uint64_t)0x8 + index);
+		uint32_t bit = 1 << (8 + index);
 		m_Data &= ~bit;
 	}
 
-	uint64_t CompactNode::GetValidMaskBit(uint64_t index)
+	int CompactNode::GetValidMaskBit(int index)
 	{
-		uint64_t bit = m_Data >> (0x8 + index);
-		return bit & (uint64_t)0x1;
+		uint32_t clearmask = 0xFFFFFFFE;
+		uint32_t bit = m_Data >> (8 + index);
+		return bit & ~clearmask;
 	}
 
-	void CompactNode::SetLeafMaskBit(uint64_t index)
+	void CompactNode::SetLeafMaskBit(int index)
 	{
-		uint64_t bit = (uint64_t)0x1 << index;
+		uint32_t bit = 1 << index;
 		m_Data |= bit;
 	}
-	void CompactNode::ClearLeafMaskBit(uint64_t index)
+	void CompactNode::ClearLeafMaskBit(int index)
 	{
-		uint64_t bit = (uint64_t)0x1 << index;
+		uint32_t bit = 1 << index;
 		m_Data &= ~bit;
 	}
 
-	uint64_t CompactNode::GetLeafMaskBit(uint64_t index)
+	int CompactNode::GetLeafMaskBit(int index)
 	{
-		uint64_t bit = m_Data >> index;
-		return bit & (uint64_t)0x1;
+		uint32_t clearmask = 0xFFFFFFFE;
+		uint32_t bit = m_Data >> index;
+		return bit & ~clearmask;
 	}
 
 	bool CompactNode::HasBranch()
 	{
-		uint64_t branchbits = m_Data & 0x000000FF;
-		uint64_t enabledbits = m_Data & 0x0000FF00;
+		uint32_t branchbits = m_Data & ~(0xFFFFFF00);
+		uint32_t enabledbits = m_Data & ~(0xFFFF00FF);
 		branchbits ^= 0x000000FF;
 		if (branchbits > 0)
 		{
@@ -67,7 +69,7 @@ namespace VoxelCore {
 	}
 
 	// Assumes the index is definitely a valid branch
-	uint64_t CompactNode::GetBranchIndex(uint64_t index)
+	int CompactNode::GetBranchIndex(int index)
 	{
 		int count = -1;
 		for (int i = 0; i <= index; i++)
@@ -80,32 +82,149 @@ namespace VoxelCore {
 		return count;
 	}
 
-	void CompactNode::SetIndex(uint64_t index)
+	void CompactNode::SetIndex(uint32_t index)
 	{
-		uint64_t aligned = index << 16;
-		uint64_t clearmask = 0xFFFFFFFF0000FFFF;
-		m_Data &= clearmask;
+		uint32_t aligned = index << 16;
+		uint32_t clearmask = 0xFFFF0000;
+		m_Data &= ~clearmask;
 		m_Data |= aligned;
 	}
 
-	uint64_t CompactNode::GetIndex()
+	uint32_t CompactNode::GetIndex()
 	{
-		uint64_t clearmask = 0xFFFF0000;
-		return (m_Data & clearmask) >> 16;
+		uint32_t clearmask = 0x0000FFFF;
+		return (m_Data & ~clearmask) >> 16;
 	}
 
-	void CompactNode::SetColorIndex(uint64_t index)
+	void CompactNode::SetColorIndex(uint32_t voxelIndex, uint32_t colorIndex)
 	{
-		uint64_t aligned = index << 32;
-		uint64_t clearmask = 0xFFFF0000FFFFFFFF;
-		m_Data &= clearmask;
-		m_Data |= aligned;
+		if (voxelIndex <= 7 || voxelIndex >= 0)
+		{
+			switch (voxelIndex)
+			{
+				case 0:
+				{
+					uint32_t aligned = colorIndex << 20;
+					m_ColorIndex1 &= 0x000FFFFF;
+					m_ColorIndex1 |= aligned;
+					break;
+				}
+				case 1:
+				{
+					uint32_t aligned = colorIndex << 8;
+					m_ColorIndex1 &= 0xFFF000FF;
+					m_ColorIndex1 |= aligned;
+					break;
+				}
+				case 2:
+				{
+					// First 8 bits of colorIndex go into m_ColorIndex1
+					uint32_t firstEight = colorIndex >> 4;
+					m_ColorIndex1 &= 0xFFFFFF00;
+					m_ColorIndex1 |= firstEight;
+
+					// Last 4 bits of colorIndex go into m_ColorIndex2
+					uint32_t lastFour = (colorIndex & 0x0000000F) << 28;
+					m_ColorIndex2 &= 0x0FFFFFFF;
+					m_ColorIndex2 |= lastFour;
+					break;
+				}
+				case 3:
+				{
+					uint32_t aligned = colorIndex << 16;
+					m_ColorIndex2 &= 0xF000FFFF;
+					m_ColorIndex2 |= aligned;
+					break;
+				}
+				case 4:
+				{
+					uint32_t aligned = colorIndex << 4;
+					m_ColorIndex2 &= 0xFFFF000F;
+					m_ColorIndex2 |= aligned;
+					break;
+				}
+				case 5:
+				{
+					// First 4 bits of colorIndex go into m_ColorIndex2
+					uint32_t firstFour = colorIndex >> 8;
+					m_ColorIndex2 &= 0xFFFFFFF0;
+					m_ColorIndex2 |= firstFour;
+
+					// Last 8 bits of colorIndex go into m_ColorIndex3
+					uint32_t lastEight = (colorIndex & 0x000000FF) << 24;
+					m_ColorIndex3 &= 0x00FFFFFF;
+					m_ColorIndex3 |= lastEight;
+					break;
+				}
+				case 6:
+				{
+					uint32_t aligned = colorIndex << 12;
+					m_ColorIndex3 &= 0xFF000FFF;
+					m_ColorIndex3 |= aligned;
+					break;
+				}
+				case 7:
+				{
+					uint32_t aligned = colorIndex << 0;
+					m_ColorIndex3 &= 0xFFFFF000;
+					m_ColorIndex3 |= aligned;
+					break;
+				}
+			}
+		}
 	}
 
-	uint64_t CompactNode::GetColorIndex()
+	uint32_t CompactNode::GetColorIndex(uint32_t voxelIndex)
 	{
-		uint64_t clearmask = 0x0000FFFF00000000;
-		return (m_Data & clearmask) >> 32;
+		uint32_t clearmask = 0x00000FFF;
+		if (voxelIndex <= 7 || voxelIndex >= 0)
+		{
+			switch (voxelIndex)
+			{
+				case 0:
+				{
+					return m_ColorIndex1 >> 24;
+				}
+				case 1:
+				{
+					return (m_ColorIndex1 >> 8) & clearmask;
+				}
+				case 2:
+				{
+					// Last 8 bits of m_ColorIndex1 are first 8 bits of color index
+					uint32_t firstEight = (m_ColorIndex1 & 0x000000FF) << 4;
+					// First 4 bits of m_ColorIndex2 are last 4 bits of color index
+					uint32_t lastFour = (m_ColorIndex2 & 0xF0000000) >> 28;
+
+					return firstEight | lastFour;
+				}
+				case 3:
+				{
+					return (m_ColorIndex2 >> 16) & clearmask;
+				}
+				case 4:
+				{
+					return (m_ColorIndex2 >> 4) & clearmask;
+				}
+				case 5:
+				{
+					// Last 4 bits of m_ColorIndex2 are first 4 bits of color index
+					uint32_t firstFour = (m_ColorIndex2 & 0x0000000F) << 8;
+					// First 8 bits of m_ColorIndex3 are last 8 bits of color index
+					uint32_t lastEight = (m_ColorIndex3 & 0xFF000000) >> 24;
+
+					return firstFour | lastEight;
+				}
+				case 6:
+				{
+					return (m_ColorIndex3 >> 12) & clearmask;
+				}
+				case 7:
+				{
+					return m_ColorIndex3 & clearmask;
+				}
+			}
+		}
 	}
 
 	// OCTREE
@@ -127,7 +246,7 @@ namespace VoxelCore {
 
 	CompactVoxelOctree::~CompactVoxelOctree()
 	{
-		
+
 	}
 
 	void CompactVoxelOctree::Activate(int x, int y, int z)
@@ -258,7 +377,7 @@ namespace VoxelCore {
 		}
 	}
 
-	void CompactVoxelOctree::SetColorIndex(int x, int y, int z, uint64_t colorIndex)
+	void CompactVoxelOctree::SetColorIndex(int x, int y, int z, uint32_t colorIndex)
 	{
 		int sizelength = std::pow(2, m_Levels);
 		// Makes sure index is in bounds (otherwise undefined behavior can occur)
@@ -287,9 +406,9 @@ namespace VoxelCore {
 					if (size == 1)
 					{
 						// Set the color index of this subnode if it is the final one
-						node->SetColorIndex(colorIndex);
+						node->SetColorIndex(index, colorIndex);
 						break;
-	}
+					}
 					else
 					{
 						// Turn the leaf into a branch if it is not the final one
@@ -348,9 +467,9 @@ namespace VoxelCore {
 	}
 #endif
 
-	uint64_t* CompactVoxelOctree::GetData()
+	uint32_t* CompactVoxelOctree::GetData()
 	{
-		// I'm not 100% if this returns a correct array. Perhaps I need to store a uint64_t array instead of a node array 
-		return (uint64_t*)m_Nodes.data();
+		// I'm not 100% if this returns a correct array. Perhaps I need to store a uint32_t array instead of a node array 
+		return (uint32_t*)m_Nodes.data();
 	}
 }
