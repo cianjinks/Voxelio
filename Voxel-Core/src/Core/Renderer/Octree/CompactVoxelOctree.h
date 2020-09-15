@@ -14,10 +14,10 @@ namespace VoxelCore {
 
 		// Every Color Index is 12 bits meaning we can store up to 4096
 
-		uint32_t m_Data;
-		uint32_t m_ColorIndex1;
-		uint32_t m_ColorIndex2;
-		uint32_t m_ColorIndex3;
+		uint32_t m_Data = 0;
+		uint32_t m_ColorIndex1 = 0;
+		uint32_t m_ColorIndex2 = 0;
+		uint32_t m_ColorIndex3 = 0;
 
 	public:
 		CompactNode();

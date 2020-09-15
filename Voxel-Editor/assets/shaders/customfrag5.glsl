@@ -6,6 +6,7 @@ in mat4 v_MVP;
 
 uniform float u_Time;
 uniform usamplerBuffer u_VoxelData;
+uniform samplerBuffer u_ColorData;
 
 // Sample the envmap in multiple places and pick the highest valued one. Not really physically accurate if not 1
 #define SKY_SAMPLES 1
@@ -89,7 +90,7 @@ uint GetBranchIndex(uint parent, uint idx) {
 }
 
 // The actual ray tracer, based on https://research.nvidia.com/publication/efficient-sparse-voxel-octrees
-bool trace(in vec3 ro, in vec3 rd, out vec2 t, out vec3 pos, out int iter, out float size, out vec3 normal) {
+bool trace(in vec3 ro, in vec3 rd, out vec2 t, out vec3 pos, out int iter, out float size, out vec3 normal, out uint didx, out uint parentptr) {
     stack_reset();
     
     //-- INITIALIZE --//
@@ -114,7 +115,7 @@ bool trace(in vec3 ro, in vec3 rd, out vec2 t, out vec3 pos, out int iter, out f
     // If the minimum is before the middle in this axis, we need to go to the first one (-rd)
     vec3 idx = mix(-sign(rd), sign(rd), lessThanEqual(tmid, vec3(t.x)));
     vec3 temp = idx + vec3(1.0f);
-    uint didx = 0u | uint(idx.x > 0.0) << 2 | uint(idx.y > 0.0) << 1 | uint(idx.z > 0.0);
+    didx = 0u | uint(idx.x > 0.0) << 2 | uint(idx.y > 0.0) << 1 | uint(idx.z > 0.0);
     scale = 1;
     size *= 0.5;
     pos += 0.5 * size * idx;
@@ -145,7 +146,8 @@ bool trace(in vec3 ro, in vec3 rd, out vec2 t, out vec3 pos, out int iter, out f
                 pos += 0.5 * size * idx;
 
                 // Get new parent:
-                parent = texelFetch(u_VoxelData, int((parent >> 16) + GetBranchIndex(parent, didx))).r;
+                parentptr = (parent >> 16) + GetBranchIndex(parent, didx);
+                parent = texelFetch(u_VoxelData, int(parentptr)).r;
 
                 continue;
             }
@@ -336,6 +338,74 @@ vec3 calculateLighting(vec3 ro, vec3 rd, vec3 normal, float tenter) {
 	//return vec4(1/hit.voxelpos, 1.0f);
 }
 
+vec3 getColor(uint voxelIndex, uint parentptr)
+{
+	uvec3 colorIndices = texelFetch(u_VoxelData, int(parentptr)).gba;
+	uint colorIndex = 0;
+
+	uint clearmask = 0x00000FFF;
+	switch (voxelIndex)
+	{
+		case 0:
+		{
+			colorIndex = colorIndices.x >> 20;
+			break;
+		}
+		case 1:
+		{
+			colorIndex = (colorIndices.x >> 8) & clearmask;
+			break;
+		}
+		case 2:
+		{
+			// Last 8 bits of m_ColorIndex1 are first 8 bits of color index
+			uint firstEight = (colorIndices.x & 0x000000FF) << 4;
+			// First 4 bits of m_ColorIndex2 are last 4 bits of color index
+			uint lastFour = (colorIndices.y & 0xF0000000) >> 28;
+
+			colorIndex = firstEight | lastFour;
+			break;
+		}
+		case 3:
+		{
+			colorIndex = (colorIndices.y >> 16) & clearmask;
+			break;
+		}
+		case 4:
+		{
+			colorIndex = (colorIndices.y >> 4) & clearmask;
+			break;
+		}
+		case 5:
+		{
+			// Last 4 bits of m_ColorIndex2 are first 4 bits of color index
+			uint firstFour = (colorIndices.y & 0x0000000F) << 8;
+			// First 8 bits of m_ColorIndex3 are last 8 bits of color index
+			uint lastEight = (colorIndices.z & 0xFF000000) >> 24;
+
+			colorIndex = firstFour | lastEight;
+			break;
+		}
+		case 6:
+		{
+			colorIndex = (colorIndices.z >> 12) & clearmask;
+			break;
+		}
+		case 7:
+		{
+			colorIndex = colorIndices.z & clearmask;
+			break;
+		}
+		default:
+		{
+			colorIndex = 0;
+			break;
+		}
+
+	}
+	return texelFetch(u_ColorData, int(colorIndex)).rgb;
+}
+
 void main() {
 
 	// Make cameraDir into a uniform
@@ -352,8 +422,11 @@ void main() {
     float size;
     int iter;
     vec3 normal;
+    uint didx;
+    uint parentptr;
     
-    vec3 col = trace(rayOrigin, rayDir, t, pos, iter, size, normal) ? shade(rayOrigin, rayDir, t, iter, pos) : vec3(0.5f);
+    //vec3 col = trace(rayOrigin, rayDir, t, pos, iter, size, normal, didx, parentptr) ? shade(rayOrigin, rayDir, t, iter, pos) : vec3(0.5f);
+    vec3 col = trace(rayOrigin, rayDir, t, pos, iter, size, normal, didx, parentptr) ? getColor(didx, parentptr) : vec3(0.5f);
     //vec3 col = trace(rayOrigin, rayDir, t, pos, iter, size, normal) ? calculateLighting(rayOrigin, rayDir, normal, t.x) : vec3(0.5f);
 
     a_Color = vec4(col,1.0);

@@ -27,7 +27,7 @@ private:
 	VoxelCore::VoxelColor m_DefaultColor = VoxelCore::VoxelColor("Default Color", 0.75f, 0.75f, 0.75f, 1.0f);
 	VoxelCore::VoxelColor m_PaletteEditorColor = VoxelCore::VoxelColor("Test Color", 0.0f, 0.0f, 0.0f, 1.0f);
 	VoxelCore::VoxelColor m_CurrentSelectedColor = m_DefaultColor;
-	int m_CurrentSelectedColorIndex = 1;
+	int m_CurrentSelectedColorIndex = 0;
 
 	// Tools UI
 	glm::ivec3 m_SelectedVoxel = glm::ivec3(0);

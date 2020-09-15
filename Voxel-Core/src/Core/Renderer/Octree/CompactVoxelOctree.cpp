@@ -4,10 +4,10 @@
 namespace VoxelCore {
 	// NODE
 	CompactNode::CompactNode()
-		: m_Data(0) {}
+		: m_Data(0), m_ColorIndex1(0), m_ColorIndex2(0), m_ColorIndex3(0) {}
 
 	CompactNode::CompactNode(uint32_t data)
-		: m_Data(data) {}
+		: m_Data(data), m_ColorIndex1(0), m_ColorIndex2(0), m_ColorIndex3(0) {}
 
 	CompactNode::~CompactNode() {}
 

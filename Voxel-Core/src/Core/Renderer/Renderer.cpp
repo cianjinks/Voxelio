@@ -52,14 +52,14 @@ namespace VoxelCore {
 		ibo->Bind();
 		vao->SetVertexBuffer(vbo);
 		vao->SetIndexBuffer(ibo);
-		shader = Shader::CreateBasicShader("Test Shader", "assets/shaders/testvert.glsl", "assets/shaders/copyfrag.glsl");
+		shader = Shader::CreateBasicShader("Test Shader", "assets/shaders/testvert.glsl", "assets/shaders/customfrag5.glsl");
 		shader->Bind();
 		
 		m_VertexData = new std::vector<float>(RendererData::MaxVertices);
 
 		// HARDCODED API USAGE
 		glActiveTexture(GL_TEXTURE0);
-		octdbo = DataBuffer::Create(RendererData::MaxNodeCount * sizeof(uint64_t), DataBufferFormat::UINT4);
+		octdbo = DataBuffer::Create(RendererData::MaxNodeCount * 4 * sizeof(uint32_t), DataBufferFormat::UINT4);
 		octdbo->Bind();
 		glActiveTexture(GL_TEXTURE1);
 		colordbo = DataBuffer::Create(RendererData::MaxColorPaletteSize * 4 * sizeof(float), DataBufferFormat::FLOAT4);

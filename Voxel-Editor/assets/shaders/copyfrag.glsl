@@ -28,7 +28,7 @@ struct Hit {
 	vec3 voxelpos;
 	vec3 normal;
 	float tenter;
-	uint childIndex;
+	vec4 color;
 };
 
 struct OcStackElement {
@@ -81,11 +81,13 @@ vec4 getColor(uint voxelIndex, uint parentptr)
 	{
 		case 0:
 		{
-			colorIndex = colorIndices.x >> 24;
+			colorIndex = colorIndices.x >> 20;
+			break;
 		}
 		case 1:
 		{
 			colorIndex = (colorIndices.x >> 8) & clearmask;
+			break;
 		}
 		case 2:
 		{
@@ -95,14 +97,17 @@ vec4 getColor(uint voxelIndex, uint parentptr)
 			uint lastFour = (colorIndices.y & 0xF0000000) >> 28;
 
 			colorIndex = firstEight | lastFour;
+			break;
 		}
 		case 3:
 		{
 			colorIndex = (colorIndices.y >> 16) & clearmask;
+			break;
 		}
 		case 4:
 		{
 			colorIndex = (colorIndices.y >> 4) & clearmask;
+			break;
 		}
 		case 5:
 		{
@@ -112,18 +117,22 @@ vec4 getColor(uint voxelIndex, uint parentptr)
 			uint lastEight = (colorIndices.z & 0xFF000000) >> 24;
 
 			colorIndex = firstFour | lastEight;
+			break;
 		}
 		case 6:
 		{
 			colorIndex = (colorIndices.z >> 12) & clearmask;
+			break;
 		}
 		case 7:
 		{
 			colorIndex = colorIndices.z & clearmask;
+			break;
 		}
 		default:
 		{
 			colorIndex = 0;
+			break;
 		}
 
 	}
@@ -182,12 +191,12 @@ vec4 rayTrace(Ray ray, out Hit hit) {
 						
 						// Check if this is the closest solid leaf voxel, if so set output hit to it
 						hits[child].voxelpos = new_center;
+						hits[child].color = getColor(child, parentptr);
 						float dist = distance(ray.origin, new_center);
 						if(dist < lowestDistance) {
 							lowestDistance = dist;
 							lowestDistanceIdx = child;
 							hit = hits[child];
-							hit.childIndex = child;
 						}
 						aHit = true;
 					    //return vec4(1.0f,0.0f,0.0f,1.0f);
@@ -204,7 +213,7 @@ vec4 rayTrace(Ray ray, out Hit hit) {
 		}
 		// Here we decide whether which hit to output:
 		if(aHit) {
-			return getColor(hit.childIndex, parentptr);
+			return hit.color;
 		}
 	}
 
