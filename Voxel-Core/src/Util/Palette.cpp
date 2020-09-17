@@ -3,6 +3,12 @@
 
 namespace VoxelCore {
 
+	VoxelColorPalette::VoxelColorPalette()
+	{
+		m_Colors.reserve(MAX_PALETTE_SIZE);
+		m_ColorData.reserve(MAX_PALETTE_SIZE * 4);
+	}
+
 	std::vector<VoxelColor>& VoxelColorPalette::GetColors()
 	{
 		return m_Colors;
@@ -13,23 +19,31 @@ namespace VoxelCore {
 		return m_ColorData;
 	}
 
-	void VoxelColorPalette::AddColor(VoxelColor color)
+	bool VoxelColorPalette::AddColor(VoxelColor color)
 	{
-		// Test color name dosent already exist (This would cause problems for ImGui)
-		int count = -1;
-		for (auto& c : m_Colors)
+		if (m_Colors.size() < MAX_PALETTE_SIZE)
 		{
-			if (c.name.substr(0, color.name.length()) == color.name)
+			// Test color name dosent already exist (This would cause problems for ImGui)
+			int count = -1;
+			for (auto& c : m_Colors)
 			{
-				count++;
+				if (c.name.substr(0, color.name.length()) == color.name)
+				{
+					count++;
+				}
 			}
-		}
-		if (count != -1) { color.name += std::to_string(count); }
+			if (count != -1) { color.name += std::to_string(count); }
 
-		m_Colors.emplace_back(color);
-		m_ColorData.emplace_back(color.color.r);
-		m_ColorData.emplace_back(color.color.g);
-		m_ColorData.emplace_back(color.color.b);
-		m_ColorData.emplace_back(color.color.a);
+			m_Colors.emplace_back(color);
+			m_ColorData.emplace_back(color.color.r);
+			m_ColorData.emplace_back(color.color.g);
+			m_ColorData.emplace_back(color.color.b);
+			m_ColorData.emplace_back(color.color.a);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 }

@@ -135,10 +135,17 @@ void EditorApplication::ImGuiRender()
 
 	if (ImGui::Button("Add Color"))
 	{
-		m_Palette.AddColor(m_PaletteEditorColor);
+		if (!m_Palette.AddColor(m_PaletteEditorColor))
+		{
+			m_PaletteFull = true;
+		}
 	}
 
 	ImGui::Separator();
+	if (m_PaletteFull)
+	{
+		ImGui::Text(("[WARNING] Palette FULL (" + std::to_string(VoxelCore::VoxelColorPalette::MAX_PALETTE_SIZE) + " colors)").c_str());
+	}
 	ImGui::Text("Color Palette: ");
 
 	const float squareDim = 50.0f;

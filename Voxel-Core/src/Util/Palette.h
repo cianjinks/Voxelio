@@ -20,8 +20,11 @@ namespace VoxelCore {
 
 	public:
 		// For now this just wraps a vector but later it should contain some kind of ImGUI state for the color palette editor
+		VoxelColorPalette();
 		std::vector<VoxelColor>& GetColors();
 		std::vector<float>& GetColorData();
-		void AddColor(VoxelColor color);
+		bool AddColor(VoxelColor color);
+
+		static constexpr int MAX_PALETTE_SIZE = 4096;
 	};
 }
