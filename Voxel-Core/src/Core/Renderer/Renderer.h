@@ -64,7 +64,7 @@ namespace VoxelCore {
 		static void EndScene();
 		static void FlushData();
 
-		static void DrawQuad(const glm::vec3& pos);
+		static void DrawQuad(const glm::vec3& pos, const float scale);
 		static void DrawOctree(CompactVoxelOctree& octree, VoxelColorPalette& palette);
 	};
 

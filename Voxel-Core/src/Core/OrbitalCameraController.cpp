@@ -102,6 +102,8 @@ namespace VoxelCore {
 		m_ViewMatrix = glm::lookAt(m_CameraPos, m_CameraPivot, m_CameraUp);
 		m_ProjectionMatrix = glm::perspective(glm::radians(m_CameraFOV), GetAspectRatio(), m_NearPlane, m_FarPlane);
 		m_MVPMatrix = m_ProjectionMatrix * m_ViewMatrix * glm::mat4(1.0f);
+
+		m_RotationMatrix = glm::yawPitchRoll(glm::radians(m_CameraYaw), -glm::radians(m_CameraPitch), 0.0f);
 	}
 
 	void OrbitalCameraController::CalculateCameraPos()

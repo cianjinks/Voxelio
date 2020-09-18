@@ -4,6 +4,7 @@
 #include "GLFW/glfw3.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/euler_angles.hpp>
 
 namespace VoxelCore {
 
@@ -32,6 +33,8 @@ namespace VoxelCore {
 		glm::mat4 m_ProjectionMatrix = glm::mat4(1.0f);
 		glm::mat4 m_MVPMatrix = glm::mat4(1.0f);
 
+		glm::mat4 m_RotationMatrix = glm::mat4(1.0f);
+
 	private:
 		void CalculateMatrices();
 		void CalculateCameraPos();
@@ -49,17 +52,21 @@ namespace VoxelCore {
 		void SetFOV(float fov) override { m_CameraFOV = fov; };
 		void SetNearPlane(float nearplane) override { m_NearPlane = nearplane; };
 		void SetFarPlane(float farplane) override { m_FarPlane = farplane; };
-		void SetPlans(float nearplane, float farplane) override { m_NearPlane = nearplane; m_FarPlane = farplane; };
+		void SetPlanes(float nearplane, float farplane) override { m_NearPlane = nearplane; m_FarPlane = farplane; };
 
 		float GetFOV() override { return m_CameraFOV; };
 		float GetNearPlane() override { return m_NearPlane; };
 		float GetFarPlane() override { return m_FarPlane; };
 
+		float GetCameraRadius() { return m_CameraRadius; };
+		float GetCameraYaw() { return m_CameraYaw; };
+		float GetCameraPitch() { return m_CameraPitch; };
 		glm::vec3& GetCameraPos() override { return m_CameraPos; };
 
 		glm::mat4& GetViewMatrix() override { return m_ViewMatrix; };
 		glm::mat4& GetProjectionMatrix() override { return m_ProjectionMatrix; };
 		glm::mat4& GetMVPMatrix() override { return m_MVPMatrix; };
+		glm::mat4& GetRotationMatrix() { return m_RotationMatrix; };
 		float GetAspectRatio() override { return m_WindowWidth / m_WindowHeight; };
 	};
 }

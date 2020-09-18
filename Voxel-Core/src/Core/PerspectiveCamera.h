@@ -17,7 +17,7 @@ namespace VoxelCore {
 		virtual void SetFOV(float fov) = 0;
 		virtual void SetNearPlane(float nearpane) = 0;
 		virtual void SetFarPlane(float farplane) = 0;
-		virtual void SetPlans(float nearplane, float farplane) = 0;
+		virtual void SetPlanes(float nearplane, float farplane) = 0;
 
 		virtual float GetFOV() = 0;
 		virtual float GetNearPlane() = 0;

@@ -52,7 +52,7 @@ namespace VoxelCore {
 		ibo->Bind();
 		vao->SetVertexBuffer(vbo);
 		vao->SetIndexBuffer(ibo);
-		shader = Shader::CreateBasicShader("Test Shader", "assets/shaders/testvert.glsl", "assets/shaders/customfrag5.glsl");
+		shader = Shader::CreateBasicShader("Test Shader", "assets/shaders/testvert.glsl", "assets/shaders/copyfrag.glsl");
 		shader->Bind();
 		
 		m_VertexData = new std::vector<float>(RendererData::MaxVertices);
@@ -81,6 +81,13 @@ namespace VoxelCore {
 			RendererData::IndicesCount = 0;
 			shader->Bind();
 			shader->SetMat4("u_MVP", camera.GetMVPMatrix());
+			// Test Camera Uniforms
+			shader->SetMat4("u_ViewMatrix", camera.GetViewMatrix());
+			shader->SetFloat1("u_CameraRadius", camera.GetCameraRadius() / 5);
+			shader->SetMat4("u_RotationMatrix", camera.GetRotationMatrix());
+			shader->SetFloat3("u_CameraPos", camera.GetCameraPos());
+
+			//
 			shader->SetFloat1("u_Time", (float)glfwGetTime());
 			// Set texture units of data buffers
 			shader->SetInt1("u_VoxelData", 0); 
@@ -122,7 +129,7 @@ namespace VoxelCore {
 		m_ActiveScene = true;
 	}
 
-	void Renderer::DrawQuad(const glm::vec3& pos)
+	void Renderer::DrawQuad(const glm::vec3& pos, const float scale)
 	{
 		if (RendererData::IndicesCount + 6 > RendererData::MaxIndices)
 		{
@@ -131,10 +138,10 @@ namespace VoxelCore {
 		RendererData::IndicesCount += 6;
 		m_VertexData->insert(m_VertexData->begin(), 
 		{
-			-0.5f + pos.x , -0.5f + pos.y,  0.5f + pos.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-			 0.5f + pos.x , -0.5f + pos.y,  0.5f + pos.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-			 0.5f + pos.x ,  0.5f + pos.y,  0.5f + pos.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-			-0.5f + pos.x ,  0.5f + pos.y,  0.5f + pos.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f
+			(scale * -1.0f) + pos.x , (scale * -1.0f) + pos.y,  0.5f + pos.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+			(scale *  1.0f) + pos.x , (scale * -1.0f) + pos.y,  0.5f + pos.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+			(scale *  1.0f) + pos.x , (scale *  1.0f) + pos.y,  0.5f + pos.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+			(scale * -1.0f) + pos.x , (scale *  1.0f) + pos.y,  0.5f + pos.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f
 		});
 	}
 

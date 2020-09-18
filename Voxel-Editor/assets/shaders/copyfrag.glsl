@@ -5,6 +5,13 @@ in vec4 v_Pos;
 in mat4 v_MVP;
 
 uniform float u_Time;
+// Camera
+uniform vec3 u_CameraPos;
+uniform float u_CameraRadius;
+uniform mat4 u_RotationMatrix;
+uniform mat4 u_MVP;
+uniform mat4 u_ViewMatrix;
+
 uniform usamplerBuffer u_VoxelData;
 uniform samplerBuffer u_ColorData;
 
@@ -63,12 +70,6 @@ bool AABBoxIntersect(const vec3 boxMin, const vec3 boxMax, const Ray ray, out Hi
 	hit.tenter = maxComponent;
 
 	return maxComponent <= minComponent;
-}
-
-vec2 rotate2d(vec2 v, float a) {
-	float sinA = sin(a);
-	float cosA = cos(a);
-	return vec2(v.x * cosA - v.y * sinA, v.y * cosA + v.x * sinA);	
 }
 
 vec4 getColor(uint voxelIndex, uint parentptr)
@@ -242,16 +243,33 @@ vec4 calculateLighting(Ray ray, Hit hit) {
 	//return vec4(1/hit.voxelpos, 1.0f);
 }
 
+vec2 rotate2d(vec2 v, float a) {
+	float sinA = sin(a);
+	float cosA = cos(a);
+	return vec2(v.x * cosA - v.y * sinA, v.y * cosA + v.x * sinA);	
+}
+
+vec3 calculateRayPos(vec3 position)
+{
+	return vec3(u_RotationMatrix * vec4(position, 1.0f));
+}
+
 void main() {
 
 	// Make cameraDir into a uniform
-	vec3 cameraDir = vec3(0.0f, 0.0f, 0.8f);
-	vec3 rayOrigin = vec3(0.0f, 0.0f, -4.5f);
-	vec3 rayDir = cameraDir + vec3(v_Pos);
+	//vec3 cameraDir = vec3(0.0f, 0.0f, 0.0f);
+	//vec3 rayOrigin = vec3(v_Pos) + vec3(0.0f, 0.0f, -4f);
+	//vec3 rayDir = vec3(0.0f, 0.0f, 0.0f
+	
+	vec3 cameraDir = vec3(0.0, 0.0, 0.0);
+    vec3 rayDir = vec3(v_Pos);//cameraDir + (v_Pos.x * cameraPlaneU) + (v_Pos.y * cameraPlaneV);
+	vec3 rayOrigin = vec3(0.0f, 0.0f, -u_CameraRadius);
 
-	rayOrigin.xz = rotate2d(rayOrigin.xz, u_Time);
-   	rayDir.xz = rotate2d(rayDir.xz, u_Time);
-    rayDir = normalize(rayDir);
+	//rayOrigin.xz = rotate2d(rayOrigin.xz, u_Time);
+   	//rayDir.xz = rotate2d(rayDir.xz, u_Time);
+	rayOrigin = calculateRayPos(rayOrigin);
+	rayDir = calculateRayPos(rayDir);
+    //rayDir = normalize(rayDir);
 
 	Ray ray;
 	ray.direction = rayDir;

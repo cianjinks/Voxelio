@@ -47,7 +47,7 @@ namespace VoxelCore {
 		void SetFOV(float fov) override { m_CameraFOV = fov; };
 		void SetNearPlane(float nearplane) override { m_NearPlane = nearplane; };
 		void SetFarPlane(float farplane) override { m_FarPlane = farplane; };
-		void SetPlans(float nearplane, float farplane) override { m_NearPlane = nearplane; m_FarPlane = farplane; };
+		void SetPlanes(float nearplane, float farplane) override { m_NearPlane = nearplane; m_FarPlane = farplane; };
 
 		float GetFOV() override { return m_CameraFOV; };
 		float GetNearPlane() override { return m_NearPlane; };

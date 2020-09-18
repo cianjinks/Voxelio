@@ -1,7 +1,5 @@
 #include "EditorApplication.h"
 
-int EditorApplication::s_OctreeLevels = 2;
-
 EditorApplication::EditorApplication()
 	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_CameraController(1280.0f, 720.0f, 2.0f), m_Octree(s_OctreeLevels) {}
 
@@ -16,6 +14,7 @@ void EditorApplication::PreRender()
 
 	// Add Default Color to slot 1
 	m_Palette.AddColor(m_DefaultColor);
+	m_Palette.AddColor(VoxelCore::VoxelColor("Default Color", 0.0f, 0.0f, 1.0f, 1.0f));
 }
 
 void EditorApplication::Render()
@@ -30,22 +29,27 @@ void EditorApplication::Render()
 		m_CameraController.Resize(m_ViewportSize.x, m_ViewportSize.y);
 	}
 
+	// Mouse selection and Camera Controller input
 	MouseSelection();
 	m_CameraController.HandleInput();
 
+	// Main Rendering
 	m_FBO->Bind();
 
 	glClearColor(173.0f / 255.0f, 216.0f / 255.0f, 230.0f / 255.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	VoxelCore::Renderer::BeginScene(m_CameraController);
-	VoxelCore::Renderer::DrawQuad(glm::vec3(0, 0, 0));
+	VoxelCore::Renderer::DrawQuad(glm::vec3(0, 0, 0), 1.0f);
 	VoxelCore::Renderer::DrawOctree(m_Octree, m_Palette);
 	VoxelCore::Renderer::EndScene();
 	m_FBO->Unbind();
 
+	// Clear Screen
 	glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// Tools Rendering (Shows preview of current tools action)
 }
 
 void EditorApplication::ImGuiRender()
@@ -216,6 +220,22 @@ void EditorApplication::ImGuiRender()
 		m_Octree.Deactivate(m_SelectedVoxel.x, m_SelectedVoxel.y, m_SelectedVoxel.z);
 	}
 
+	float toolWindowWidth = ImGui::GetWindowWidth();
+	float dim = (toolWindowWidth / 2) - (0.1 * toolWindowWidth);
+	if (ImGui::Button("Color Tool", ImVec2(dim, dim)))
+	{
+		// This colors voxels
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Erase Tool", ImVec2(dim, dim)))
+	{
+		// This tool erases voxels
+	}
+	if (ImGui::Button("Build Tool", ImVec2(dim, dim)))
+	{
+		// This tool adds new voxels
+	}
+
 	ImGui::End();
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
@@ -235,7 +255,7 @@ void EditorApplication::ImGuiRender()
 
 	ImGui::End();
 
-	//ImGui::ShowDemoWindow();
+	ImGui::ShowDemoWindow();
 }
 
 void EditorApplication::OnKeyPress(int key, int scancode, int action, int mods)
@@ -308,14 +328,50 @@ void EditorApplication::MouseSelection()
 {
 	float x = VoxelCore::Input::GetMouseX();
 	float y = VoxelCore::Input::GetMouseY();
-	glm::vec4 viewport = glm::vec4(0, 0, m_WindowWidth, m_WindowHeight);
 
+	glm::vec4 viewport = glm::vec4(0, 0, m_WindowWidth, m_WindowHeight);
+	
 	glm::vec3 startcoord = glm::unProject(glm::vec3(x, m_WindowHeight - y, m_CameraController.GetNearPlane()),
 		m_CameraController.GetViewMatrix(), m_CameraController.GetProjectionMatrix(), viewport);
-
+	
 	glm::vec3 endcoord = glm::unProject(glm::vec3(x, m_WindowHeight - y, m_CameraController.GetFarPlane()),
 		m_CameraController.GetViewMatrix(), m_CameraController.GetProjectionMatrix(), viewport);
-
+	
 	glm::vec3 raydir = startcoord - endcoord;
 	VoxelCore::Ray ray(startcoord, raydir);
+
+	//glm::vec2 v_Pos;
+	//if (x > m_WindowWidth / 2)
+	//{
+	//	v_Pos.x = (x / m_WindowWidth) / 2;
+	//}
+	//else
+	//{
+	//	v_Pos.x = -(x / m_WindowWidth) / 2;
+	//}
+	//
+	//y = m_WindowHeight - y;
+	//if (y > m_WindowHeight / 2)
+	//{
+	//	v_Pos.y = (y / m_WindowHeight) / 2;
+	//}
+	//else
+	//{
+	//	v_Pos.y = -(y / m_WindowHeight) / 2;
+	//}
+	//
+	//VoxelCore::Ray ray(glm::vec3(0.0f, 0.0f, -m_CameraController.GetCameraRadius()), v_Pos);
+
+	// Quick test for cube at index 0, 0, 0 with octree of resolution 2
+	glm::vec3 bmin = glm::vec3(-1.0f);
+	glm::vec3 bmax = glm::vec3(-0.5f);
+
+	if (VoxelCore::Ray::RayAABBCollision(ray, bmin, bmax))
+	{
+		m_Octree.SetColorIndex(0, 0, 0, 1);
+	}
+	else
+	{
+		m_Octree.SetColorIndex(0, 0, 0, 0);
+	}
 }

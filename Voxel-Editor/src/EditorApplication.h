@@ -16,7 +16,7 @@ private:
 
 	// Octree
 	VoxelCore::CompactVoxelOctree m_Octree;
-	static int s_OctreeLevels;
+	constexpr static int s_OctreeLevels = 2;
 
 	VoxelCore::FrameBufferData m_FBOData;
 	std::shared_ptr<VoxelCore::FrameBuffer> m_FBO;
