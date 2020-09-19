@@ -249,6 +249,12 @@ void EditorApplication::ImGuiRender()
 	ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 	m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
 
+	// Mouse position relative to the drawing of our framebuffer
+	ImVec2 mousePos = ImGui::GetMousePos();
+	ImVec2 cursorPos = ImGui::GetCursorPos();
+	ImVec2 windowPos = ImGui::GetWindowPos();
+	m_CursorPosImGui = { mousePos.x - windowPos.x - cursorPos.x, mousePos.y - windowPos.y - cursorPos.y };
+
 	uint64_t textureID = m_FBO->GetFrameBufferColorData();
 	ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 	ImGui::End();
@@ -327,41 +333,29 @@ void EditorApplication::OnResize(int width, int height)
 
 void EditorApplication::MouseSelection()
 {
-	float x = VoxelCore::Input::GetMouseX();
-	float y = VoxelCore::Input::GetMouseY();
+	// mouse x and y need to be relative to the window the framebuffer is being rendered to
+	float x = m_CursorPosImGui.x;
+	float y = m_CursorPosImGui.y;
+	float aspectRatio = (m_ViewportSize.x / m_ViewportSize.y);
 
-	glm::vec4 viewport = glm::vec4(0, 0, m_WindowWidth, m_WindowHeight);
-	
-	glm::vec3 startcoord = glm::unProject(glm::vec3(x, m_WindowHeight - y, m_OctreeCameraController.GetNearPlane()),
-		m_OctreeCameraController.GetViewMatrix(), m_OctreeCameraController.GetProjectionMatrix(), viewport);
-	
-	glm::vec3 endcoord = glm::unProject(glm::vec3(x, m_WindowHeight - y, m_OctreeCameraController.GetFarPlane()),
-		m_OctreeCameraController.GetViewMatrix(), m_OctreeCameraController.GetProjectionMatrix(), viewport);
-	
-	glm::vec3 raydir = startcoord - endcoord;
-	VoxelCore::Ray ray(startcoord, raydir);
+	// For some reason multiplying by the orthographic MVP matrix like in the shader dosen't work here (it produces a result which is slightly offset) so I instead manually convert the mouse 
+	// coordinates to the correct orthographic range (which is based on the aspect ratio). I'm not sure why it dosen't work as it should be doing the same math as within the shader.
+	// ndc is incorrect naming now but I'm going to leave it
+	glm::vec3 ndc = glm::vec3((2.0f * aspectRatio * x) / m_ViewportSize.x - aspectRatio, 1.0f - (2.0f * y) / m_ViewportSize.y, 0.0f);
 
-	//glm::vec2 v_Pos;
-	//if (x > m_WindowWidth / 2)
-	//{
-	//	v_Pos.x = (x / m_WindowWidth) / 2;
-	//}
-	//else
-	//{
-	//	v_Pos.x = -(x / m_WindowWidth) / 2;
-	//}
-	//
-	//y = m_WindowHeight - y;
-	//if (y > m_WindowHeight / 2)
-	//{
-	//	v_Pos.y = (y / m_WindowHeight) / 2;
-	//}
-	//else
-	//{
-	//	v_Pos.y = -(y / m_WindowHeight) / 2;
-	//}
-	//
-	//VoxelCore::Ray ray(glm::vec3(0.0f, 0.0f, -m_CameraController.GetCameraRadius()), v_Pos);
+	// Just like in the vertex shader I multiply the ndc by the orthographic MVP matrix
+	//glm::vec3 transformed = m_OctreeOrthoCamera.GetMVPMatrix() * glm::vec4(ndc, 1.0f);
+	//VX_EDITOR_INFO("Transformed X: {0}, Y: {1}, Z: {2}", transformed.x, transformed.y, transformed.z);
+
+	// Compute ray as in fragment shader
+	glm::vec3 cameraDir = glm::vec3(0.0, 0.0, -1.0);
+	glm::vec3 rayDir = cameraDir + ndc;
+	glm::vec3 rayOrigin = glm::vec3(0.0f, 0.0f, m_OctreeCameraController.GetCameraRadius());
+
+	rayOrigin = glm::vec3(glm::vec4(rayOrigin, 1.0f) * m_OctreeCameraController.GetViewMatrix());
+	rayDir = glm::vec3(glm::vec4(rayDir, 1.0f) * m_OctreeCameraController.GetViewMatrix());
+
+	VoxelCore::Ray ray(rayOrigin, rayDir);
 
 	// Quick test for cube at index 0, 0, 0 with octree of resolution 2
 	glm::vec3 bmin = glm::vec3(-1.0f);
@@ -369,10 +363,10 @@ void EditorApplication::MouseSelection()
 
 	if (VoxelCore::Ray::RayAABBCollision(ray, bmin, bmax))
 	{
-		//m_Octree.SetColorIndex(0, 0, 0, 1);
+		m_Octree.SetColorIndex(0, 0, 0, 1);
 	}
 	else
 	{
-		//m_Octree.SetColorIndex(0, 0, 0, 0);
+		m_Octree.SetColorIndex(0, 0, 0, 0);
 	}
 }

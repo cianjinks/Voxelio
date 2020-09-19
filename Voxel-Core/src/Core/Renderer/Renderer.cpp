@@ -80,8 +80,7 @@ namespace VoxelCore {
 			shader->Bind();
 			// Camera Uniforms
 			shader->SetMat4("u_OrthoMVP", orthoCamera.GetMVPMatrix());
-			shader->SetMat4("u_MVP", orbitalCamera.GetMVPMatrix());
-			shader->SetMat4("u_ViewMatrix", orbitalCamera.GetViewMatrix());
+			shader->SetMat4("u_PerspectiveViewMatrix", orbitalCamera.GetViewMatrix());
 			shader->SetFloat1("u_CameraRadius", orbitalCamera.GetCameraRadius());
 			// Time Uniform
 			shader->SetFloat1("u_Time", (float)glfwGetTime());
@@ -159,8 +158,8 @@ namespace VoxelCore {
 
 	void Renderer::DrawOctree(CompactVoxelOctree& octree, VoxelColorPalette& palette, float aspectRatio)
 	{
-		DrawQuad(glm::vec3(0, 0, 0), 1.0f);
-		//DrawRect(glm::vec3(-aspectRatio, -aspectRatio, 0.0f), 2 * aspectRatio, 2 * aspectRatio);
+		//DrawQuad(glm::vec3(0, 0, 0), 1.0f);
+		DrawRect(glm::vec3(-aspectRatio, -1.0f, 0.0f), 2 * aspectRatio, 2.0f);
 
 		// HARDCODED API USAGE
 		glActiveTexture(GL_TEXTURE0);

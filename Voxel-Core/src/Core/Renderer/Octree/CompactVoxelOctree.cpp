@@ -383,7 +383,7 @@ namespace VoxelCore {
 		// Makes sure index is in bounds (otherwise undefined behavior can occur)
 		if ((x < sizelength && x >= 0) && (y < sizelength && y >= 0) && (z < sizelength && z >= 0))
 		{
-			VX_CORE_INFO("[Set Color Index of Subnode] X: {0} Y {1} Z {2}", x, y, z);
+			//VX_CORE_INFO("[Set Color Index of Subnode] X: {0} Y {1} Z {2}", x, y, z);
 
 			CompactNode* node = &m_Nodes[0]; // Retrieve the root node
 			int size = std::pow(2, m_Levels - 1);

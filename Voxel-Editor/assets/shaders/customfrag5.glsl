@@ -4,7 +4,7 @@ layout(location = 0) out vec4 a_Color;
 in vec4 v_Pos;
 
 // Camera
-uniform mat4 u_MVP;
+uniform mat4 u_PerspectiveViewMatrix;
 uniform float u_CameraRadius;
 
 uniform float u_Time;
@@ -410,12 +410,12 @@ vec3 getColor(uint voxelIndex, uint parentptr)
 }
 
 void main() {
-	vec3 cameraDir = vec3(0.0, 0.0, 1.0);
+	vec3 cameraDir = vec3(0.0, 0.0, -1.0);
     vec3 rayDir = cameraDir + vec3(v_Pos);
-	vec3 rayOrigin = vec3(0.0f, 0.0f, -u_CameraRadius);
+	vec3 rayOrigin = vec3(0.0f, 0.0f, u_CameraRadius);
 
-	rayOrigin = vec3(vec4(rayOrigin, 1.0f) * u_MVP);
-   	rayDir = vec3(vec4(rayDir, 1.0f) * u_MVP);
+	rayOrigin = vec3(vec4(rayOrigin, 1.0f) * u_PerspectiveViewMatrix);
+   	rayDir = vec3(vec4(rayDir, 1.0f) * u_PerspectiveViewMatrix);
     rayDir = normalize(rayDir);
     
     vec2 t;

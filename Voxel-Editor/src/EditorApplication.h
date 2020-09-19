@@ -33,6 +33,7 @@ private:
 
 	// Tools UI
 	glm::ivec3 m_SelectedVoxel = glm::ivec3(0);
+	glm::vec2 m_CursorPosImGui = glm::vec2(0.0f);
 
 public:
 	EditorApplication();
