@@ -6,11 +6,8 @@ in mat4 v_MVP;
 
 uniform float u_Time;
 // Camera
-uniform vec3 u_CameraPos;
-uniform float u_CameraRadius;
-uniform mat4 u_RotationMatrix;
 uniform mat4 u_MVP;
-uniform mat4 u_ViewMatrix;
+uniform float u_CameraRadius;
 
 uniform usamplerBuffer u_VoxelData;
 uniform samplerBuffer u_ColorData;
@@ -251,19 +248,19 @@ vec2 rotate2d(vec2 v, float a) {
 
 vec3 calculateRayPos(vec3 position)
 {
-	return vec3(u_RotationMatrix * vec4(position, 1.0f));
+	return vec3(vec4(position, 1.0f) * u_MVP);
 }
 
 void main() {
 
 	// Make cameraDir into a uniform
-	//vec3 cameraDir = vec3(0.0f, 0.0f, 0.0f);
-	//vec3 rayOrigin = vec3(v_Pos) + vec3(0.0f, 0.0f, -4f);
-	//vec3 rayDir = vec3(0.0f, 0.0f, 0.0f
-	
-	vec3 cameraDir = vec3(0.0, 0.0, 0.0);
-    vec3 rayDir = vec3(v_Pos);//cameraDir + (v_Pos.x * cameraPlaneU) + (v_Pos.y * cameraPlaneV);
+	vec3 cameraDir = vec3(0.0, 0.0, 1.0);
+    vec3 rayDir = cameraDir + vec3(v_Pos);
 	vec3 rayOrigin = vec3(0.0f, 0.0f, -u_CameraRadius);
+	
+	//vec3 cameraDir = vec3(0.0, 0.0, 0.0);
+    //vec3 rayDir = vec3(v_Pos);//cameraDir + (v_Pos.x * cameraPlaneU) + (v_Pos.y * cameraPlaneV);
+	//vec3 rayOrigin = vec3(0.0f, 0.0f, -u_CameraRadius);
 
 	//rayOrigin.xz = rotate2d(rayOrigin.xz, u_Time);
    	//rayDir.xz = rotate2d(rayDir.xz, u_Time);

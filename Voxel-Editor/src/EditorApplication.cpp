@@ -1,7 +1,7 @@
 #include "EditorApplication.h"
 
 EditorApplication::EditorApplication()
-	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_CameraController(1280.0f, 720.0f, 2.0f), m_Octree(s_OctreeLevels) {}
+	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_CameraController(1280.0f, 720.0f, 5.0f), m_Octree(s_OctreeLevels) {}
 
 void EditorApplication::PreRender()
 {
@@ -368,10 +368,10 @@ void EditorApplication::MouseSelection()
 
 	if (VoxelCore::Ray::RayAABBCollision(ray, bmin, bmax))
 	{
-		m_Octree.SetColorIndex(0, 0, 0, 1);
+		//m_Octree.SetColorIndex(0, 0, 0, 1);
 	}
 	else
 	{
-		m_Octree.SetColorIndex(0, 0, 0, 0);
+		//m_Octree.SetColorIndex(0, 0, 0, 0);
 	}
 }

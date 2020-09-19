@@ -33,8 +33,6 @@ namespace VoxelCore {
 		glm::mat4 m_ProjectionMatrix = glm::mat4(1.0f);
 		glm::mat4 m_MVPMatrix = glm::mat4(1.0f);
 
-		glm::mat4 m_RotationMatrix = glm::mat4(1.0f);
-
 	private:
 		void CalculateMatrices();
 		void CalculateCameraPos();
@@ -66,7 +64,6 @@ namespace VoxelCore {
 		glm::mat4& GetViewMatrix() override { return m_ViewMatrix; };
 		glm::mat4& GetProjectionMatrix() override { return m_ProjectionMatrix; };
 		glm::mat4& GetMVPMatrix() override { return m_MVPMatrix; };
-		glm::mat4& GetRotationMatrix() { return m_RotationMatrix; };
 		float GetAspectRatio() override { return m_WindowWidth / m_WindowHeight; };
 	};
 }
