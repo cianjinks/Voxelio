@@ -12,7 +12,8 @@ public:
 
 private:
 	// Camera
-	VoxelCore::OrbitalCameraController m_CameraController;
+	VoxelCore::OrbitalCameraController m_OctreeCameraController;
+	VoxelCore::OrthographicCamera m_OctreeOrthoCamera;
 
 	// Octree
 	VoxelCore::CompactVoxelOctree m_Octree;

@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/PerspectiveCameraController.h"
 #include "Core/OrbitalCameraController.h"
+#include "Core/OrthographicCamera.h"
 #include "Core/Renderer/VertexArray.h"
 #include "Core/Renderer/Shader.h"
 #include "Core/Renderer/Octree/CompactVoxelOctree.h"
@@ -60,12 +61,14 @@ namespace VoxelCore {
 		static void Init();
 		static void Shutdown();
 		static void BeginScene(PerspectiveCameraController& camera);
-		static void BeginScene(OrbitalCameraController& camera);
+		// Specifically for Octree:
+		static void BeginScene(OrbitalCameraController& orbitalCamera, OrthographicCamera& orthoCamera);
 		static void EndScene();
 		static void FlushData();
 
 		static void DrawQuad(const glm::vec3& pos, const float scale);
-		static void DrawOctree(CompactVoxelOctree& octree, VoxelColorPalette& palette);
+		static void DrawRect(const glm::vec3& pos, const float width, const float height);
+		static void DrawOctree(CompactVoxelOctree& octree, VoxelColorPalette& palette, float aspectRatio);
 	};
 
 }

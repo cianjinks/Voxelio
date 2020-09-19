@@ -12,6 +12,7 @@
 #include "Core/PerspectiveCamera.h"
 #include "Core/PerspectiveCameraController.h"
 #include "Core/OrbitalCameraController.h"
+#include "Core/OrthographicCamera.h"
 
 // Util
 #include "Util/Ray.h"

@@ -2,7 +2,10 @@
 layout(location = 0) out vec4 a_Color;
 
 in vec4 v_Pos;
-in mat4 v_MVP;
+
+// Camera
+uniform mat4 u_MVP;
+uniform float u_CameraRadius;
 
 uniform float u_Time;
 uniform usamplerBuffer u_VoxelData;
@@ -407,14 +410,12 @@ vec3 getColor(uint voxelIndex, uint parentptr)
 }
 
 void main() {
+	vec3 cameraDir = vec3(0.0, 0.0, 1.0);
+    vec3 rayDir = cameraDir + vec3(v_Pos);
+	vec3 rayOrigin = vec3(0.0f, 0.0f, -u_CameraRadius);
 
-	// Make cameraDir into a uniform
-	vec3 cameraDir = vec3(0.0f, 0.0f, 0.8f);
-	vec3 rayOrigin = vec3(0.0f, 0.0f, -8f);
-	vec3 rayDir = cameraDir + vec3(v_Pos);
-
-	rayOrigin.xz = rotate2d(rayOrigin.xz, u_Time);
-   	rayDir.xz = rotate2d(rayDir.xz, u_Time);
+	rayOrigin = vec3(vec4(rayOrigin, 1.0f) * u_MVP);
+   	rayDir = vec3(vec4(rayDir, 1.0f) * u_MVP);
     rayDir = normalize(rayDir);
     
     vec2 t;

@@ -26,10 +26,8 @@ namespace VoxelCore {
 		vao->Bind();
 		vbo = VertexBuffer::Create(RendererData::MaxFloats * sizeof(float));
 		vbo->SetLayout({ 
-			BufferElement("a_Pos", BufferDataType::Float3, false),
-			BufferElement("a_Color", BufferDataType::Float3, false),
-			BufferElement("a_Normal", BufferDataType::Float3, false)
-			});
+			BufferElement("a_Pos", BufferDataType::Float3, false)
+		});
 		vbo->Bind();
 
 		// Generate Indices
@@ -74,15 +72,17 @@ namespace VoxelCore {
 		delete m_VertexData;
 	}
 
-	void Renderer::BeginScene(OrbitalCameraController& camera)
+	void Renderer::BeginScene(OrbitalCameraController& orbitalCamera, OrthographicCamera& orthoCamera)
 	{
 		if (!m_ActiveScene)
 		{
 			RendererData::IndicesCount = 0;
 			shader->Bind();
 			// Camera Uniforms
-			shader->SetMat4("u_MVP", camera.GetMVPMatrix());
-			shader->SetFloat1("u_CameraRadius", camera.GetCameraRadius());
+			shader->SetMat4("u_OrthoMVP", orthoCamera.GetMVPMatrix());
+			shader->SetMat4("u_MVP", orbitalCamera.GetMVPMatrix());
+			shader->SetMat4("u_ViewMatrix", orbitalCamera.GetViewMatrix());
+			shader->SetFloat1("u_CameraRadius", orbitalCamera.GetCameraRadius());
 			// Time Uniform
 			shader->SetFloat1("u_Time", (float)glfwGetTime());
 			// Set texture units of data buffers
@@ -134,15 +134,34 @@ namespace VoxelCore {
 		RendererData::IndicesCount += 6;
 		m_VertexData->insert(m_VertexData->begin(), 
 		{
-			(scale * -1.0f) + pos.x , (scale * -1.0f) + pos.y,  0.0f + pos.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-			(scale *  1.0f) + pos.x , (scale * -1.0f) + pos.y,  0.0f + pos.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-			(scale *  1.0f) + pos.x , (scale *  1.0f) + pos.y,  0.0f + pos.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-			(scale * -1.0f) + pos.x , (scale *  1.0f) + pos.y,  0.0f + pos.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f
+			(scale * -1.0f) + pos.x , (scale * -1.0f) + pos.y,  0.0f + pos.z,
+			(scale *  1.0f) + pos.x , (scale * -1.0f) + pos.y,  0.0f + pos.z,
+			(scale *  1.0f) + pos.x , (scale *  1.0f) + pos.y,  0.0f + pos.z,
+			(scale * -1.0f) + pos.x , (scale *  1.0f) + pos.y,  0.0f + pos.z
 		});
 	}
 
-	void Renderer::DrawOctree(CompactVoxelOctree& octree, VoxelColorPalette& palette)
+	void Renderer::DrawRect(const glm::vec3& pos, const float width, const float height)
 	{
+		if (RendererData::IndicesCount + 6 > RendererData::MaxIndices)
+		{
+			FlushData();
+		}
+		RendererData::IndicesCount += 6;
+		m_VertexData->insert(m_VertexData->begin(),
+			{
+				pos.x, pos.y, pos.z, // Bottom Left
+				pos.x + width, pos.y, pos.z, // Bottom Right
+				pos.x + width, pos.y + height, pos.z, // Top Right
+				pos.x, pos.y + height, pos.z // Top Left
+			});
+	}
+
+	void Renderer::DrawOctree(CompactVoxelOctree& octree, VoxelColorPalette& palette, float aspectRatio)
+	{
+		DrawQuad(glm::vec3(0, 0, 0), 1.0f);
+		//DrawRect(glm::vec3(-aspectRatio, -aspectRatio, 0.0f), 2 * aspectRatio, 2 * aspectRatio);
+
 		// HARDCODED API USAGE
 		glActiveTexture(GL_TEXTURE0);
 		octdbo->SetData(octree.GetData(), octree.GetNodeCount() * 4 * sizeof(uint32_t));

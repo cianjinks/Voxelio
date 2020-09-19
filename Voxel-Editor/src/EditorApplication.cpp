@@ -1,7 +1,7 @@
 #include "EditorApplication.h"
 
 EditorApplication::EditorApplication()
-	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_CameraController(1280.0f, 720.0f, 5.0f), m_Octree(s_OctreeLevels) {}
+	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_OctreeCameraController(1280.0f, 720.0f, 5.0f), m_OctreeOrthoCamera(1280.0f, 720.0f), m_Octree(s_OctreeLevels) {}
 
 void EditorApplication::PreRender()
 {
@@ -14,24 +14,26 @@ void EditorApplication::PreRender()
 
 	// Add Default Color to slot 1
 	m_Palette.AddColor(m_DefaultColor);
-	m_Palette.AddColor(VoxelCore::VoxelColor("Default Color", 0.0f, 0.0f, 1.0f, 1.0f));
+	m_Palette.AddColor(VoxelCore::VoxelColor("Blue Color", 0.0f, 0.0f, 1.0f, 1.0f));
 }
 
 void EditorApplication::Render()
 {
 	// Catch Resizes
 	if (VoxelCore::FrameBufferData data = m_FBO->GetFrameBufferData();
-		m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && // zero sized framebuffer is invalid
+		m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && // Zero size frambuffer is not valid 
 		(data.Width != m_ViewportSize.x || data.Height != m_ViewportSize.y))
 	{
 		VX_EDITOR_INFO("Viewport Size: {0}, {1}", m_ViewportSize.x, m_ViewportSize.y);
+
 		m_FBO->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-		m_CameraController.Resize(m_ViewportSize.x, m_ViewportSize.y);
+		m_OctreeCameraController.Resize(m_ViewportSize.x, m_ViewportSize.y);
+		m_OctreeOrthoCamera.Resize(m_ViewportSize.x, m_ViewportSize.y);
 	}
 
 	// Mouse selection and Camera Controller input
 	MouseSelection();
-	m_CameraController.HandleInput();
+	m_OctreeCameraController.HandleInput();
 
 	// Main Rendering
 	m_FBO->Bind();
@@ -39,9 +41,8 @@ void EditorApplication::Render()
 	glClearColor(173.0f / 255.0f, 216.0f / 255.0f, 230.0f / 255.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	VoxelCore::Renderer::BeginScene(m_CameraController);
-	VoxelCore::Renderer::DrawQuad(glm::vec3(0, 0, 0), 1.0f);
-	VoxelCore::Renderer::DrawOctree(m_Octree, m_Palette);
+	VoxelCore::Renderer::BeginScene(m_OctreeCameraController, m_OctreeOrthoCamera);
+	VoxelCore::Renderer::DrawOctree(m_Octree, m_Palette, m_OctreeOrthoCamera.GetAspectRatio());
 	VoxelCore::Renderer::EndScene();
 	m_FBO->Unbind();
 
@@ -297,12 +298,12 @@ void EditorApplication::OnKeyPress(int key, int scancode, int action, int mods)
 
 void EditorApplication::OnMouseMove(float xpos, float ypos)
 {
-	m_CameraController.OnMouseMove(xpos, ypos);
+	m_OctreeCameraController.OnMouseMove(xpos, ypos);
 }
 
 void EditorApplication::OnMouseScroll(float xoffset, float yoffset)
 {
-	m_CameraController.OnMouseScroll(xoffset, yoffset);
+	m_OctreeCameraController.OnMouseScroll(xoffset, yoffset);
 }
 
 void EditorApplication::OnMouseClick(int button, int action, int mods)
@@ -331,11 +332,11 @@ void EditorApplication::MouseSelection()
 
 	glm::vec4 viewport = glm::vec4(0, 0, m_WindowWidth, m_WindowHeight);
 	
-	glm::vec3 startcoord = glm::unProject(glm::vec3(x, m_WindowHeight - y, m_CameraController.GetNearPlane()),
-		m_CameraController.GetViewMatrix(), m_CameraController.GetProjectionMatrix(), viewport);
+	glm::vec3 startcoord = glm::unProject(glm::vec3(x, m_WindowHeight - y, m_OctreeCameraController.GetNearPlane()),
+		m_OctreeCameraController.GetViewMatrix(), m_OctreeCameraController.GetProjectionMatrix(), viewport);
 	
-	glm::vec3 endcoord = glm::unProject(glm::vec3(x, m_WindowHeight - y, m_CameraController.GetFarPlane()),
-		m_CameraController.GetViewMatrix(), m_CameraController.GetProjectionMatrix(), viewport);
+	glm::vec3 endcoord = glm::unProject(glm::vec3(x, m_WindowHeight - y, m_OctreeCameraController.GetFarPlane()),
+		m_OctreeCameraController.GetViewMatrix(), m_OctreeCameraController.GetProjectionMatrix(), viewport);
 	
 	glm::vec3 raydir = startcoord - endcoord;
 	VoxelCore::Ray ray(startcoord, raydir);

@@ -7,6 +7,7 @@ in mat4 v_MVP;
 uniform float u_Time;
 // Camera
 uniform mat4 u_MVP;
+uniform mat4 u_ViewMatrix;
 uniform float u_CameraRadius;
 
 uniform usamplerBuffer u_VoxelData;
@@ -248,15 +249,15 @@ vec2 rotate2d(vec2 v, float a) {
 
 vec3 calculateRayPos(vec3 position)
 {
-	return vec3(vec4(position, 1.0f) * u_MVP);
+	return vec3(vec4(position, 1.0f) * u_ViewMatrix);
 }
 
 void main() {
 
 	// Make cameraDir into a uniform
-	vec3 cameraDir = vec3(0.0, 0.0, 1.0);
+	vec3 cameraDir = vec3(0.0, 0.0, -1.0);
     vec3 rayDir = cameraDir + vec3(v_Pos);
-	vec3 rayOrigin = vec3(0.0f, 0.0f, -u_CameraRadius);
+	vec3 rayOrigin = vec3(0.0f, 0.0f, u_CameraRadius);
 	
 	//vec3 cameraDir = vec3(0.0, 0.0, 0.0);
     //vec3 rayDir = vec3(v_Pos);//cameraDir + (v_Pos.x * cameraPlaneU) + (v_Pos.y * cameraPlaneV);
