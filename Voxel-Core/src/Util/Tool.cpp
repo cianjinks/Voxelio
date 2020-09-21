@@ -3,13 +3,13 @@
 
 namespace VoxelCore {
 
-	void ToolHandler::ToolHover()
+	void ToolHandler::ToolHover(CompactVoxelOctree& octree, Ray ray)
 	{
 		switch (m_ActiveToolType)
 		{
 			case ToolType::ERASE:
 			{
-
+				octree.RayTrace(ray);
 			}
 			case ToolType::BUILD:
 			{

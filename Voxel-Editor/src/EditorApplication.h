@@ -32,6 +32,7 @@ private:
 	bool m_PaletteFull = false;
 
 	// Tools UI
+	VoxelCore::ToolHandler m_ToolHandler;
 	glm::ivec3 m_SelectedVoxel = glm::ivec3(0);
 	glm::vec2 m_CursorPosImGui = glm::vec2(0.0f);
 
@@ -53,7 +54,7 @@ public:
 	float GetWindowHeight() override { return m_WindowHeight; };
 	char* GetWindowName() override { return m_WindowName; };
 
-	void MouseSelection();
+	void ToolHandling();
 
 };
 

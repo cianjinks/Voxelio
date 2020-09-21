@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <cmath>
 #include <glm/glm.hpp>
+#include "Util/Ray.h"
 
 namespace VoxelCore {
 	class CompactNode
@@ -60,6 +61,7 @@ namespace VoxelCore {
 		void Activate(int x, int y, int z);
 		void Deactivate(int x, int y, int z);
 		int Get(int x, int y, int z);
+		void RayTrace(Ray ray);
 
 		void SetColorIndex(int x, int y, int z, uint32_t colorIndex);
 
@@ -67,5 +69,14 @@ namespace VoxelCore {
 		int GetNodeCount() const { return m_Nodes.size(); };
 
 		constexpr static int MAX_OCTREE_NODES = 8 * 8 * 8;
+
+
+	private:
+		// Utility functions:
+		glm::vec3 mix(glm::vec3& a, glm::vec3& b, glm::bvec3& t);
+		glm::bvec3 lessThanEqual(glm::vec3& a, glm::vec3& b);
+		glm::vec3 sign(glm::vec3& value);
+
+		int get2DIndex(glm::vec3 index);
 	};
 }

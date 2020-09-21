@@ -32,7 +32,6 @@ void EditorApplication::Render()
 	}
 
 	// Mouse selection and Camera Controller input
-	MouseSelection();
 	m_OctreeCameraController.HandleInput();
 
 	// Main Rendering
@@ -51,6 +50,7 @@ void EditorApplication::Render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Tools Rendering (Shows preview of current tools action)
+	ToolHandling();
 }
 
 void EditorApplication::ImGuiRender()
@@ -331,7 +331,7 @@ void EditorApplication::OnResize(int width, int height)
 	//m_FBO->Resize(width, height);
 }
 
-void EditorApplication::MouseSelection()
+void EditorApplication::ToolHandling()
 {
 	// mouse x and y need to be relative to the window the framebuffer is being rendered to
 	float x = m_CursorPosImGui.x;
@@ -355,18 +355,20 @@ void EditorApplication::MouseSelection()
 	rayOrigin = glm::vec3(glm::vec4(rayOrigin, 1.0f) * m_OctreeCameraController.GetViewMatrix());
 	rayDir = glm::vec3(glm::vec4(rayDir, 1.0f) * m_OctreeCameraController.GetViewMatrix());
 
-	VoxelCore::Ray ray(rayOrigin, rayDir);
+	m_ToolHandler.ToolHover(m_Octree, VoxelCore::Ray(rayOrigin, rayDir));
+
+	//VoxelCore::Ray ray(rayOrigin, rayDir);
 
 	// Quick test for cube at index 0, 0, 0 with octree of resolution 2
-	glm::vec3 bmin = glm::vec3(-1.0f);
-	glm::vec3 bmax = glm::vec3(-0.5f);
-
-	if (VoxelCore::Ray::RayAABBCollision(ray, bmin, bmax))
-	{
-		m_Octree.SetColorIndex(0, 0, 0, 1);
-	}
-	else
-	{
-		m_Octree.SetColorIndex(0, 0, 0, 0);
-	}
+	//glm::vec3 bmin = glm::vec3(-1.0f);
+	//glm::vec3 bmax = glm::vec3(-0.5f);
+	//
+	//if (VoxelCore::Ray::RayAABBCollision(ray, bmin, bmax))
+	//{
+	//	m_Octree.SetColorIndex(0, 0, 0, 1);
+	//}
+	//else
+	//{
+	//	m_Octree.SetColorIndex(0, 0, 0, 0);
+	//}
 }

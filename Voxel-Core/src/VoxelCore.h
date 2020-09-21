@@ -17,6 +17,7 @@
 // Util
 #include "Util/Ray.h"
 #include "Util/Palette.h"
+#include "Util/Tool.h"
 
 // Renderer
 #include "Core/Renderer/Renderer.h"

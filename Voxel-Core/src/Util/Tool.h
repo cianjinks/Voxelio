@@ -1,4 +1,6 @@
 #pragma once
+#include "Core/Renderer/Octree/CompactVoxelOctree.h"
+#include "Util/Ray.h"
 
 namespace VoxelCore {
 
@@ -15,7 +17,7 @@ namespace VoxelCore {
 		ToolType m_ActiveToolType = ToolType::ERASE;
 
 	public:
-		void ToolHover();
+		void ToolHover(CompactVoxelOctree& octree, Ray ray);
 		void ToolLeftClick();
 
 		void SetActiveTool(ToolType tool) { m_ActiveToolType = tool; };

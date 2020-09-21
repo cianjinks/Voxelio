@@ -440,6 +440,45 @@ namespace VoxelCore {
 		}
 	}
 
+	void CompactVoxelOctree::RayTrace(Ray ray)
+	{
+		glm::vec3 pos = glm::vec3(0.0f);
+		float size = 1.0f;
+		
+		RayHit hit = Ray::RayAABBCollision(ray, pos, size);
+
+		if (!hit.Collision)
+		{
+			return;
+		}
+
+		// Inital push (Obtains the index, position and scale of the first octant voxel upon entering the cube)
+		glm::vec3 index = mix(-sign(ray.Direction), sign(ray.Direction), lessThanEqual(hit.tmid, glm::vec3(hit.t.x)));
+		size *= 0.5;
+		pos += size * index;
+
+		// Retrieve this initial octant voxel
+		CompactNode* node = &m_Nodes[0]; // Root
+		int childIndex = get2DIndex(index);
+		VX_CORE_INFO("Child Index: {0}", childIndex);
+
+		// while(true) for now but we may want some way to make sure it always breaks
+		while (true)
+		{
+			// Check if the voxel exists
+			if (node->GetValidMaskBit(childIndex) == 1)
+			{
+				// If it is a leaf and exists it means we have hit a solid voxel
+				if (node->GetLeafMaskBit(childIndex) == 1)
+				{
+					node->SetColorIndex(childIndex, 1);
+					VX_CORE_INFO("Ray Trace color index set");
+				}
+			}
+			break;
+		}
+	}
+
 #if 0
 	int CompactVoxelOctree::Get(int x, int y, int z)
 	{
@@ -471,5 +510,61 @@ namespace VoxelCore {
 	{
 		// I'm not 100% if this returns a correct array. Perhaps I need to store a uint32_t array instead of a node array 
 		return (uint32_t*)m_Nodes.data();
+	}
+
+	// Utility Functions:
+	glm::vec3 CompactVoxelOctree::mix(glm::vec3& x, glm::vec3& y, glm::bvec3& a)
+	{
+		glm::vec3 result;
+		for (int i = 0; i < 3; i++)
+		{
+			if (a[i])
+			{
+				result[i] = y[i];
+			}
+			else
+			{
+				result[i] = x[i];
+			}
+		}
+		return result;
+	}
+
+	glm::bvec3 CompactVoxelOctree::lessThanEqual(glm::vec3& a, glm::vec3& b)
+	{
+		return glm::bvec3(a.x <= b.x, a.y <= b.y, a.z <= b.z);
+	}
+
+	glm::vec3 CompactVoxelOctree::sign(glm::vec3& value)
+	{
+		glm::vec3 result;
+		for (int i = 0; i < 3; i++)
+		{
+			if (value[i] > 0.0f)
+			{
+				result[i] = 1.0f;
+			}
+			else if (value[i] < 0.0f)
+			{
+				result[i] = -1.0f;
+			}
+			else
+			{
+				result[i] = 0.0f;
+			}
+		}
+		return result;
+	}
+
+	int CompactVoxelOctree::get2DIndex(glm::vec3 index)
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			if (index[i] == -1.0f)
+			{
+				index[i] = 0.0f;
+			}
+		}
+		return int(index.x + (2 * index.y) + (4 * index.z));
 	}
 }
