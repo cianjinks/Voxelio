@@ -228,8 +228,8 @@ namespace VoxelCore {
 	}
 
 	// OCTREE
-	CompactVoxelOctree::CompactVoxelOctree(int levels)
-		: m_Levels(levels)
+	CompactVoxelOctree::CompactVoxelOctree()
+		: m_Levels(s_OctreeLevels)
 	{
 		const int count = std::pow(8, m_Levels);
 
@@ -444,8 +444,13 @@ namespace VoxelCore {
 	{
 		glm::vec3 pos = glm::vec3(0.0f);
 		float size = 1.0f;
-		
+		bool canPush = true;
+
+		// Initialize stack
+		std::stack<OctreeStackElement> OctreeStack;
+
 		RayHit hit = Ray::RayAABBCollision(ray, pos, size);
+		float h = hit.t.x;
 
 		if (!hit.Collision)
 		{
@@ -458,13 +463,16 @@ namespace VoxelCore {
 		pos += size * index;
 
 		// Retrieve this initial octant voxel
-		CompactNode* node = &m_Nodes[0]; // Root
 		int childIndex = get2DIndex(index);
+		CompactNode* node = &m_Nodes[0]; // Root
 		VX_CORE_INFO("Child Index: {0}", childIndex);
 
 		// while(true) for now but we may want some way to make sure it always breaks
 		while (true)
 		{
+			// Run another collision test for new octant
+			hit = Ray::RayAABBCollision(ray, pos, size);
+
 			// Check if the voxel exists
 			if (node->GetValidMaskBit(childIndex) == 1)
 			{
@@ -473,10 +481,58 @@ namespace VoxelCore {
 				{
 					node->SetColorIndex(childIndex, 1);
 					VX_CORE_INFO("Ray Trace color index set");
+					return;
 				}
+				else if (canPush)
+				{
+					// PUSH
+					if (hit.t.y < h)
+					{
+						OctreeStack.push(OctreeStackElement(node, pos, size, index, h));
+					}
+					h = hit.t.y;
+
+					index = mix(-sign(ray.Direction), sign(ray.Direction), lessThanEqual(hit.tmid, glm::vec3(hit.t.x)));
+					size *= 0.5;
+					pos += size * index;
+
+					// Retrieve next node from the array
+					int childIndex = get2DIndex(index);
+					node = &m_Nodes[(size_t)node->GetIndex() + (size_t)node->GetBranchIndex(childIndex)];
+					continue;
+				}
+
 			}
-			break;
+
+			// ADVANCE
+			glm::vec3 oldIndex = index;
+			index = mix(index, sign(ray.Direction), equal(hit.tmax, glm::vec3(hit.t.y)));
+			pos += mix(glm::vec3(0), sign(ray.Direction), notEqual(oldIndex, index)) * size;
+
+			// Here I need to somehow retrieve the advanced node
+
+			if (index == oldIndex)
+			{
+				// POP
+				if (OctreeStack.size() <= 0)
+				{ 
+					// Didn't hit anything along this ray
+					return;
+				}
+
+				OctreeStackElement element = OctreeStack.top(); 
+				OctreeStack.pop();
+				node = element.node;
+				pos = element.position;
+				size = element.size;
+				index = element.index;
+				h = element.h;
+
+				canPush = false;
+			}
+			else { canPush = true; }
 		}
+		return;
 	}
 
 #if 0
@@ -533,6 +589,16 @@ namespace VoxelCore {
 	glm::bvec3 CompactVoxelOctree::lessThanEqual(glm::vec3& a, glm::vec3& b)
 	{
 		return glm::bvec3(a.x <= b.x, a.y <= b.y, a.z <= b.z);
+	}
+
+	glm::bvec3 CompactVoxelOctree::equal(glm::vec3& a, glm::vec3& b)
+	{
+		return glm::bvec3(a.x == b.x, a.y == b.y, a.z == b.z);
+	}
+
+	glm::bvec3 CompactVoxelOctree::notEqual(glm::vec3& a, glm::vec3& b)
+	{
+		return glm::bvec3(a.x != b.x, a.y != b.y, a.z != b.z);
 	}
 
 	glm::vec3 CompactVoxelOctree::sign(glm::vec3& value)

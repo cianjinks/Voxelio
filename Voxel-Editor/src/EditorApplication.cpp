@@ -1,7 +1,7 @@
 #include "EditorApplication.h"
 
 EditorApplication::EditorApplication()
-	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_OctreeCameraController(1280.0f, 720.0f, 5.0f), m_OctreeOrthoCamera(1280.0f, 720.0f), m_Octree(s_OctreeLevels) {}
+	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_OctreeCameraController(1280.0f, 720.0f, 5.0f), m_OctreeOrthoCamera(1280.0f, 720.0f) {}
 
 void EditorApplication::PreRender()
 {
@@ -198,7 +198,7 @@ void EditorApplication::ImGuiRender()
 	ImGui::InputInt3("", &m_SelectedVoxel.x);
 
 	// Keep selected voxel in bounds
-	int upperVoxelBound = std::pow(2, s_OctreeLevels) - 1;
+	int upperVoxelBound = std::pow(2, m_Octree.s_OctreeLevels) - 1;
 	int lowerVoxelBound = 0;
 	for (int i = 0; i < 3; i++)
 	{

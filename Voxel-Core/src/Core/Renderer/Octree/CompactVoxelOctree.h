@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <cmath>
+#include <stack>
 #include <glm/glm.hpp>
 #include "Util/Ray.h"
 
@@ -55,7 +56,7 @@ namespace VoxelCore {
 		int m_Levels;
 
 	public:
-		CompactVoxelOctree(int levels);
+		CompactVoxelOctree();
 		~CompactVoxelOctree();
 
 		void Activate(int x, int y, int z);
@@ -69,14 +70,28 @@ namespace VoxelCore {
 		int GetNodeCount() const { return m_Nodes.size(); };
 
 		constexpr static int MAX_OCTREE_NODES = 8 * 8 * 8;
-
+		constexpr static int s_OctreeLevels = 2;
 
 	private:
 		// Utility functions:
 		glm::vec3 mix(glm::vec3& a, glm::vec3& b, glm::bvec3& t);
 		glm::bvec3 lessThanEqual(glm::vec3& a, glm::vec3& b);
+		glm::bvec3 equal(glm::vec3& a, glm::vec3& b);
+		glm::bvec3 notEqual(glm::vec3& a, glm::vec3& b);
 		glm::vec3 sign(glm::vec3& value);
 
 		int get2DIndex(glm::vec3 index);
+	};
+
+	struct OctreeStackElement
+	{
+		CompactNode* node;
+		glm::vec3 position;
+		float size;
+		glm::vec3 index;
+		float h;
+
+		OctreeStackElement(CompactNode* node, glm::vec3 pos, float size, glm::vec3 index, float h)
+			: node(node), position(pos), size(size), index(index), h(h) {}
 	};
 }
