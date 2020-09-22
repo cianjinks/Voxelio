@@ -26,7 +26,7 @@ uniform samplerBuffer u_ColorData;
 #define MARCH 0
 
 // The size of the scene. Don't change unless you change the distance function
-const float root_size = 3.;
+const float root_size = 2;
 // The resolution, in octree levels. Feel free to play around with this one
 const int levels = 8;
 

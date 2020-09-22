@@ -53,7 +53,9 @@ namespace VoxelCore {
 	{
 	private:
 		std::vector<CompactNode> m_Nodes;
-		int m_Levels;
+
+		CompactNode* m_LastNodeHit = nullptr;
+		int m_LastChildIndex = -1;
 
 	public:
 		CompactVoxelOctree();
@@ -69,8 +71,8 @@ namespace VoxelCore {
 		uint32_t* GetData();
 		int GetNodeCount() const { return m_Nodes.size(); };
 
-		constexpr static int MAX_OCTREE_NODES = 8 * 8 * 8;
 		constexpr static int s_OctreeLevels = 2;
+		int MAX_OCTREE_NODES;
 
 	private:
 		// Utility functions:
