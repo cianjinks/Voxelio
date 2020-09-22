@@ -521,8 +521,6 @@ namespace VoxelCore {
 
 			childIndex = get2DIndex(index);
 
-			// Here I need to somehow retrieve the advanced node
-
 			if (index == oldIndex)
 			{
 				// POP

@@ -2,7 +2,6 @@
 layout(location = 0) out vec4 a_Color;
 
 in vec4 v_Pos;
-in mat4 v_MVP;
 
 uniform float u_Time;
 // Camera

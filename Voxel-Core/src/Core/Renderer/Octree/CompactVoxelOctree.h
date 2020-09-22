@@ -71,7 +71,7 @@ namespace VoxelCore {
 		uint32_t* GetData();
 		int GetNodeCount() const { return m_Nodes.size(); };
 
-		constexpr static int s_OctreeLevels = 2;
+		constexpr static int s_OctreeLevels = 3;
 		int MAX_OCTREE_NODES;
 
 	private:

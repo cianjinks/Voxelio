@@ -50,7 +50,7 @@ namespace VoxelCore {
 		ibo->Bind();
 		vao->SetVertexBuffer(vbo);
 		vao->SetIndexBuffer(ibo);
-		shader = Shader::CreateBasicShader("Test Shader", "assets/shaders/testvert.glsl", "assets/shaders/copyfrag.glsl");
+		shader = Shader::CreateBasicShader("Test Shader", "assets/shaders/testvert.glsl", "assets/shaders/finalfrag.glsl");
 		shader->Bind();
 		
 		m_VertexData = new std::vector<float>(RendererData::MaxVertices);
@@ -158,7 +158,7 @@ namespace VoxelCore {
 
 	void Renderer::DrawOctree(CompactVoxelOctree& octree, VoxelColorPalette& palette, float aspectRatio)
 	{
-		//DrawQuad(glm::vec3(0, 0, 0), 1.0f);
+		shader->SetInt1("u_MaxOctreeNodes", octree.MAX_OCTREE_NODES);
 		DrawRect(glm::vec3(-aspectRatio, -1.0f, 0.0f), 2 * aspectRatio, 2.0f);
 
 		// HARDCODED API USAGE
