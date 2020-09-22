@@ -219,9 +219,9 @@ vec4 rayTrace(Ray ray)
 				pos += size * index;
 
 				// Retrieve next node from the array
-				childIndex = get2DIndex(index);
-				parentptr = (node >> 16) + GetBranchIndex(node, childIndex);
+				parentptr = (node >> 16) + childIndex;//GetBranchIndex(node, childIndex);
 				node = texelFetch(u_VoxelData, int(parentptr)).r;
+				childIndex = get2DIndex(index);
 				continue;
 			}
 		}

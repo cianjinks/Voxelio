@@ -270,6 +270,8 @@ void EditorApplication::OnKeyPress(int key, int scancode, int action, int mods)
 	if (key == GLFW_KEY_X && action == GLFW_PRESS)
 	{
 		m_Octree.Deactivate(0, 0, 0);
+		m_Octree.Deactivate(1, 0, 0);
+		m_Octree.Deactivate(2, 0, 0);
 	}
 
 	if (key == GLFW_KEY_Z && action == GLFW_PRESS)
@@ -321,6 +323,11 @@ void EditorApplication::OnMouseClick(int button, int action, int mods)
 		}
 		else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
 			VoxelCore::Input::SetInputMode(GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		}
+
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+		{
+			ToolHandling();
 		}
 	//}
 }

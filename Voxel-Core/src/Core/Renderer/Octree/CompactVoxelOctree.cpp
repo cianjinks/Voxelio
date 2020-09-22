@@ -268,7 +268,7 @@ namespace VoxelCore {
 				// Check if subnode at index is a branch or a leaf
 				if (node->GetValidMaskBit(index) == 1 && node->GetLeafMaskBit(index) == 0) // This would mean it is a branch
 				{
-					node = &m_Nodes[(size_t)node->GetIndex() + (size_t)node->GetBranchIndex(index)];
+					node = &m_Nodes[(size_t)node->GetIndex() + (size_t)index];
 					x -= size * (x / size);
 					y -= size * (y / size);
 					z -= size * (z / size);
@@ -296,14 +296,14 @@ namespace VoxelCore {
 						if (branch)
 						{
 							// In this case I think it will ruin all other nodes index (solved via a freelist or padding as done below)
-							m_Nodes[(size_t)node->GetIndex() + (size_t)node->GetBranchIndex(index)] = 0x0000FFFF;
+							m_Nodes[(size_t)node->GetIndex() + (size_t)index] = 0x0000FFFF;
 						}
 						else
 						{
 							node->SetIndex(m_Nodes.size());
 							m_Nodes.emplace_back(0x0000FFFF);
 							// Add 7 spaces of padding for future branches:
-							m_Nodes.insert(m_Nodes.end(), { 0, 0, 0, 0, 0, 0, 0 });
+							m_Nodes.insert(m_Nodes.end(), { 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF });
 						}
 					}
 				}
@@ -332,7 +332,7 @@ namespace VoxelCore {
 				// Check if subnode at index is a branch or a leaf
 				if (node->GetValidMaskBit(index) == 1 && node->GetLeafMaskBit(index) == 0) // This would mean it is a branch
 				{
-					node = &m_Nodes[(size_t)node->GetIndex() + (size_t)node->GetBranchIndex(index)];
+					node = &m_Nodes[(size_t)node->GetIndex() + (size_t)index];//(size_t)node->GetBranchIndex(index)];
 					x -= size * (x / size);
 					y -= size * (y / size);
 					z -= size * (z / size);
@@ -360,14 +360,14 @@ namespace VoxelCore {
 						if (branch)
 						{
 							// In this case I think it will ruin all other nodes index (solved via a freelist or padding as done below)
-							m_Nodes[(size_t)node->GetIndex() + (size_t)node->GetBranchIndex(index)] = 0x0000FFFF;
+							m_Nodes[(size_t)node->GetIndex() + (size_t)index] = 0x0000FFFF;
 						}
 						else
 						{
 							node->SetIndex(m_Nodes.size());
 							m_Nodes.emplace_back(0x0000FFFF);
 							// Add 7 spaces of padding for future branches:
-							m_Nodes.insert(m_Nodes.end(), { 0, 0, 0, 0, 0, 0, 0 });
+							m_Nodes.insert(m_Nodes.end(), { 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF });
 						}
 					}
 				}
@@ -396,7 +396,7 @@ namespace VoxelCore {
 				// Check if subnode at index is a branch or a leaf
 				if (node->GetValidMaskBit(index) == 1 && node->GetLeafMaskBit(index) == 0) // This would mean it is a branch
 				{
-					node = &m_Nodes[(size_t)node->GetIndex() + (size_t)node->GetBranchIndex(index)];
+					node = &m_Nodes[(size_t)node->GetIndex() + (size_t)index];
 					x -= size * (x / size);
 					y -= size * (y / size);
 					z -= size * (z / size);
@@ -423,14 +423,14 @@ namespace VoxelCore {
 						if (branch)
 						{
 							// In this case I think it will ruin all other nodes index (solved via a freelist or padding as done below)
-							m_Nodes[(size_t)node->GetIndex() + (size_t)node->GetBranchIndex(index)] = 0x0000FFFF;
+							m_Nodes[(size_t)node->GetIndex() + (size_t)index] = 0x0000FFFF;
 						}
 						else
 						{
 							node->SetIndex(m_Nodes.size());
 							m_Nodes.emplace_back(0x0000FFFF);
 							// Add 7 spaces of padding for future branches:
-							m_Nodes.insert(m_Nodes.end(), { 0, 0, 0, 0, 0, 0, 0 });
+							m_Nodes.insert(m_Nodes.end(), { 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF });
 						}
 					}
 				}
@@ -442,7 +442,7 @@ namespace VoxelCore {
 		}
 	}
 
-	void CompactVoxelOctree::RayTrace(Ray ray)
+	/**void CompactVoxelOctree::RayTrace(Ray ray)
 	{
 		glm::vec3 pos = glm::vec3(0.0f);
 		float size = 1.0f;
@@ -465,8 +465,11 @@ namespace VoxelCore {
 		pos += size * index;
 
 		// Retrieve this initial octant voxel
+		//CompactNode* node = &m_Nodes[0]; // Root
+		int parentptr = 0; // Root
 		int childIndex = get2DIndex(index);
-		CompactNode* node = &m_Nodes[0]; // Root
+		CompactNode* node = &m_Nodes[(size_t)parentptr];
+
 		VX_CORE_INFO("Child Index: {0}", childIndex);
 
 		// while(true) for now but we may want some way to make sure it always breaks
@@ -506,9 +509,11 @@ namespace VoxelCore {
 					size *= 0.5;
 					pos += size * index;
 
-					// Retrieve next node from the array
+					// Retrieve next octant
+					parentptr = node->GetIndex() + childIndex;
+					node = &m_Nodes[(size_t)parentptr];
 					childIndex = get2DIndex(index);
-					node = &m_Nodes[(size_t)node->GetIndex() + (size_t)node->GetBranchIndex(childIndex)];
+
 					continue;
 				}
 
@@ -541,6 +546,109 @@ namespace VoxelCore {
 				canPush = false;
 			}
 			else { canPush = true; }
+		}
+		return;
+	}**/
+
+	void CompactVoxelOctree::RayTrace(Ray ray)
+	{
+		glm::vec3 pos = glm::vec3(0.0f);
+		float size = 1.0f;
+		bool canPush = true;
+
+		// Initialize stack
+		OctreeStackElement OctreeStack[64];
+		int stackptr = 0;
+
+		RayHit hit = Ray::RayAABBCollision(ray, pos, size);
+		float h = hit.t.y;
+
+		if (!hit.Collision)
+		{
+			return;
+		}
+
+		// Inital push (Obtains the index, position and scale of the first octant voxel upon entering the cube)
+		glm::vec3 index = mix(-sign(ray.Direction), sign(ray.Direction), lessThanEqual(hit.tmid, glm::vec3(hit.t.x)));
+		size *= 0.5;
+		pos += size * index;
+
+		// Retrieve this initial octant voxel
+		int childIndex = get2DIndex(index);
+		uint32_t parentptr = 0;
+		CompactNode* node = &m_Nodes[parentptr]; // Root
+
+		// while(true) for now but we may want some way to make sure it always breaks
+		while (true)
+		{
+			// Run another collision test for new octant
+			hit = Ray::RayAABBCollision(ray, pos, size);
+
+			// Check if the voxel exists
+			if (node->GetValidMaskBit(childIndex) == 1)
+			{
+				// If it is a leaf and exists it means we have hit a voxel
+				if (node->GetLeafMaskBit(childIndex) == 1)
+				{
+					// This is just a test for hovering voxels for now
+					if ((node != m_LastNodeHit || childIndex != m_LastChildIndex) && (m_LastNodeHit != nullptr))
+					{
+						m_LastNodeHit->SetColorIndex(m_LastChildIndex, 0);
+					}
+					node->SetColorIndex(childIndex, 1);
+					//VX_CORE_INFO("Ray Trace color index set");
+					m_LastNodeHit = node;
+					m_LastChildIndex = childIndex;
+					return;
+				}
+				else if (canPush)
+				{
+					// PUSH
+					if (hit.t.y < h)
+					{
+						OctreeStack[stackptr++] = OctreeStackElement(node, pos, size, index, h);
+					}
+					h = hit.t.y;
+
+					index = mix(-sign(ray.Direction), sign(ray.Direction), lessThanEqual(hit.tmid, glm::vec3(hit.t.x)));
+					size *= 0.5;
+					pos += size * index;
+
+					// Retrieve next node from the array
+					parentptr = node->GetIndex() + childIndex;//node->GetBranchIndex(childIndex);
+					node = &m_Nodes[parentptr];
+					childIndex = get2DIndex(index);
+					continue;
+				}
+			}
+
+			// ADVANCE
+			glm::vec3 oldIndex = index;
+			index = mix(index, sign(ray.Direction), equal(hit.tmax, glm::vec3(hit.t.y)));
+			pos += mix(glm::vec3(0), sign(ray.Direction), notEqual(oldIndex, index)) * (2.0f * size);
+
+			childIndex = get2DIndex(index);
+
+			if (index == oldIndex)
+			{
+				// POP
+				if (stackptr <= 0)
+				{
+					// Didn't hit anything along this ray
+					return;
+				}
+
+				OctreeStackElement element = OctreeStack[--stackptr];
+				node = element.node;
+				pos = element.position;
+				size = element.size;
+				index = element.index;
+				h = element.h;
+
+				canPush = false;
+			}
+			else { canPush = true; }
+
 		}
 		return;
 	}

@@ -87,12 +87,13 @@ namespace VoxelCore {
 
 	struct OctreeStackElement
 	{
-		CompactNode* node;
-		glm::vec3 position;
-		float size;
-		glm::vec3 index;
-		float h;
+		CompactNode* node = nullptr;
+		glm::vec3 position = glm::vec3(0);
+		float size = 0;
+		glm::vec3 index = glm::vec3(0);
+		float h = 0;
 
+		OctreeStackElement() {}
 		OctreeStackElement(CompactNode* node, glm::vec3 pos, float size, glm::vec3 index, float h)
 			: node(node), position(pos), size(size), index(index), h(h) {}
 	};
