@@ -280,31 +280,17 @@ void EditorApplication::OnKeyPress(int key, int scancode, int action, int mods)
 
 	if (key == GLFW_KEY_Z && action == GLFW_PRESS)
 	{
-		m_Octree.Deactivate(0, 0, 1); 
-	}
-
-	if (key == GLFW_KEY_C && action == GLFW_PRESS)
-	{
-		m_Octree.Deactivate(0, 1, 0);
-	}
-
-	if (key == GLFW_KEY_V && action == GLFW_PRESS)
-	{
-		m_Octree.Deactivate(0, 1, 1);
-	}
-
-	if (key == GLFW_KEY_B && action == GLFW_PRESS)
-	{
-		m_Octree.Deactivate(3, 3, 2);
-	}
-
-	if (key == GLFW_KEY_N && action == GLFW_PRESS) {
-		m_Octree.Deactivate(3, 3, 3);
-	}
-
-	if (key == GLFW_KEY_R && action == GLFW_PRESS)
-	{
-		m_Octree.SetColorIndex(3, 3, 3, 0x1);
+		// Test bind
+		for (int i = 0; i < 8; i++)
+		{
+			m_Octree.Deactivate(i, i, i);
+		}
+		m_Octree.Deactivate(0, 0, 7);
+		m_Octree.Deactivate(0, 7, 0);
+		m_Octree.Deactivate(0, 7, 7);
+		m_Octree.Deactivate(7, 0, 0);
+		m_Octree.Deactivate(7, 0, 7);
+		m_Octree.Deactivate(7, 7, 0);
 	}
 }
 

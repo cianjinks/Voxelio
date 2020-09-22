@@ -557,8 +557,7 @@ namespace VoxelCore {
 		bool canPush = true;
 
 		// Initialize stack
-		OctreeStackElement OctreeStack[64];
-		int stackptr = 0;
+		std::stack<OctreeStackElement> OctreeStack;
 
 		RayHit hit = Ray::RayAABBCollision(ray, pos, size);
 		float h = hit.t.y;
@@ -597,7 +596,7 @@ namespace VoxelCore {
 					// PUSH
 					if (hit.t.y < h)
 					{
-						OctreeStack[stackptr++] = OctreeStackElement(node, pos, size, index, h);
+						OctreeStack.push(OctreeStackElement(node, pos, size, index, h));
 					}
 					h = hit.t.y;
 
@@ -623,13 +622,14 @@ namespace VoxelCore {
 			if (index == oldIndex)
 			{
 				// POP
-				if (stackptr <= 0)
+				if (OctreeStack.size() <= 0)
 				{
 					// Didn't hit anything along this ray
 					return RayTraceHit();
 				}
 
-				OctreeStackElement element = OctreeStack[--stackptr];
+				OctreeStackElement element = OctreeStack.top();
+				OctreeStack.pop();
 				node = element.node;
 				pos = element.position;
 				size = element.size;

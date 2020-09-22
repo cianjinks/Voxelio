@@ -30,6 +30,7 @@ struct RayHit
 	bool Collision;
 	vec2 t;
 	vec3 tmid, tmax;
+	vec3 normal;
 };
 
 int get2DIndex(vec3 index)
@@ -152,6 +153,9 @@ RayHit RayAABBCollision(in Ray ray, in vec3 position, in float scale)
 
 		hit.tmid = (position - ray.Origin) * invRaydir;
 
+		// Normal Calculation
+		hit.normal = -sign(ray.Direction) * step(tmin.yzx, tmin.xyz) * step(tmin.zxy, tmin.xyz);
+
 		float maxComponent = max(max(tmin.x, tmin.y), tmin.z);
 		float minComponent = min(min(tmax.x, tmax.y), tmax.z);
 
@@ -160,6 +164,47 @@ RayHit RayAABBCollision(in Ray ray, in vec3 position, in float scale)
 		hit.tmax = tmax;
 
 		return hit;
+}
+
+vec4 shading(in RayHit hit, vec4 color)
+{
+	//if(hit.normal.x < 0 || hit.normal.y < 0 || hit.normal.z < 0)
+	//{
+	//	return vec4(vec3(color * 0.75), 1.0f);
+	//}
+	//return color;
+
+	if(hit.normal.z > 0)
+	{
+		// Front Face:
+		return vec4(vec3(color * 0.93), 1.0f);
+	}
+	if(hit.normal.x > 0)
+	{
+		// Right Face:
+		return vec4(vec3(color * 0.84), 1.0f);
+	}
+	if(hit.normal.y > 0)
+	{
+		// Top Face:
+		return vec4(vec3(color * 1.03), 1.0f);
+	}
+	if(hit.normal.x <= 0)
+	{
+		// Left Face:
+		return vec4(vec3(color * 0.7), 1.0f);
+	}
+	if(hit.normal.z <= 0)
+	{
+		// Back Face
+		return vec4(vec3(color * 0.78), 1.0f);
+	}
+	if(hit.normal.y <= 0)
+	{
+		// Bottom Face
+		return vec4(vec3(color * 0.86), 1.0f);
+	}
+	return color;
 }
 
 vec4 rayTrace(Ray ray)
@@ -203,7 +248,7 @@ vec4 rayTrace(Ray ray)
 			if(GetLeafMaskBit(node, childIndex) == 1)
 			{
 				//return vec4(0.75f, 0.75f, 0.75f, 1.0f);
-				return getColor(uint(childIndex), parentptr);
+				return shading(hit, getColor(uint(childIndex), parentptr));
 			}
 			else if(canPush)
 			{
