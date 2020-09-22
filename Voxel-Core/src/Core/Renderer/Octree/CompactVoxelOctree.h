@@ -49,13 +49,20 @@ namespace VoxelCore {
 		operator uint32_t() const { return m_Data; };
 	};
 
+	struct RayTraceHit
+	{
+		CompactNode* node = nullptr;
+		int childIndex = -1;
+
+		RayTraceHit() {}
+		RayTraceHit(CompactNode* node, int childIndex)
+			: node(node), childIndex(childIndex) {}
+	};
+
 	class CompactVoxelOctree
 	{
 	private:
 		std::vector<CompactNode> m_Nodes;
-
-		CompactNode* m_LastNodeHit = nullptr;
-		int m_LastChildIndex = -1;
 
 	public:
 		CompactVoxelOctree();
@@ -64,7 +71,7 @@ namespace VoxelCore {
 		void Activate(int x, int y, int z);
 		void Deactivate(int x, int y, int z);
 		int Get(int x, int y, int z);
-		void RayTrace(Ray ray);
+		RayTraceHit RayTrace(Ray ray);
 
 		void SetColorIndex(int x, int y, int z, uint32_t colorIndex);
 

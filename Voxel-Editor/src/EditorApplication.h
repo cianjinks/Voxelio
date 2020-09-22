@@ -53,7 +53,7 @@ public:
 	float GetWindowHeight() override { return m_WindowHeight; };
 	char* GetWindowName() override { return m_WindowName; };
 
-	void ToolHandling();
+	VoxelCore::Ray GenerateMouseRay();
 
 };
 

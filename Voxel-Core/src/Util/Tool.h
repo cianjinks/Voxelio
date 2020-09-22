@@ -16,9 +16,14 @@ namespace VoxelCore {
 	private:
 		ToolType m_ActiveToolType = ToolType::ERASE;
 
+		CompactNode* m_LastNodeHit = nullptr;
+		int m_LastChildIndex = -1;
+		bool m_LeftClickColored = false;
+		int m_LastNodeColorIndex = -1;
+
 	public:
-		void ToolHover(CompactVoxelOctree& octree, Ray ray);
-		void ToolLeftClick();
+		void ToolHover(CompactVoxelOctree& octree, Ray ray, int currentSelectedColorIndex);
+		void ToolLeftClick(CompactVoxelOctree& octree, Ray ray, int currentSelectedColorIndex);
 
 		void SetActiveTool(ToolType tool) { m_ActiveToolType = tool; };
 		ToolType GetActiveTool() { return m_ActiveToolType; };

@@ -14,7 +14,7 @@ void EditorApplication::PreRender()
 
 	// Add Default Color to slot 1
 	m_Palette.AddColor(m_DefaultColor);
-	m_Palette.AddColor(VoxelCore::VoxelColor("Blue Color", 0.0f, 0.0f, 1.0f, 1.0f));
+	m_Palette.AddColor(VoxelCore::VoxelColor("Selection Color", 1.0f, 1.0f, 0.0f, 1.0f));
 }
 
 void EditorApplication::Render()
@@ -50,7 +50,8 @@ void EditorApplication::Render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Tools Rendering (Shows preview of current tools action)
-	ToolHandling();
+	m_ToolHandler.ToolHover(m_Octree, GenerateMouseRay(), m_CurrentSelectedColorIndex);
+
 }
 
 void EditorApplication::ImGuiRender()
@@ -226,15 +227,18 @@ void EditorApplication::ImGuiRender()
 	if (ImGui::Button("Color Tool", ImVec2(dim, dim)))
 	{
 		// This colors voxels
+		m_ToolHandler.SetActiveTool(VoxelCore::ToolType::COLOR);
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Erase Tool", ImVec2(dim, dim)))
 	{
 		// This tool erases voxels
+		m_ToolHandler.SetActiveTool(VoxelCore::ToolType::ERASE);
 	}
 	if (ImGui::Button("Build Tool", ImVec2(dim, dim)))
 	{
 		// This tool adds new voxels
+		m_ToolHandler.SetActiveTool(VoxelCore::ToolType::BUILD);
 	}
 
 	ImGui::End();
@@ -327,7 +331,9 @@ void EditorApplication::OnMouseClick(int button, int action, int mods)
 
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 		{
-			ToolHandling();
+			// I could probably just save the mouse ray from the render loop for this
+			m_ToolHandler.ToolLeftClick(m_Octree, GenerateMouseRay(), m_CurrentSelectedColorIndex);
+
 		}
 	//}
 }
@@ -338,7 +344,7 @@ void EditorApplication::OnResize(int width, int height)
 	//m_FBO->Resize(width, height);
 }
 
-void EditorApplication::ToolHandling()
+VoxelCore::Ray EditorApplication::GenerateMouseRay()
 {
 	// mouse x and y need to be relative to the window the framebuffer is being rendered to
 	float x = m_CursorPosImGui.x;
@@ -362,20 +368,5 @@ void EditorApplication::ToolHandling()
 	rayOrigin = glm::vec3(glm::vec4(rayOrigin, 1.0f) * m_OctreeCameraController.GetViewMatrix());
 	rayDir = glm::vec3(glm::vec4(rayDir, 1.0f) * m_OctreeCameraController.GetViewMatrix());
 
-	m_ToolHandler.ToolHover(m_Octree, VoxelCore::Ray(rayOrigin, rayDir));
-
-	//VoxelCore::Ray ray(rayOrigin, rayDir);
-
-	// Quick test for cube at index 0, 0, 0 with octree of resolution 2
-	//glm::vec3 bmin = glm::vec3(-1.0f);
-	//glm::vec3 bmax = glm::vec3(-0.5f);
-	//
-	//if (VoxelCore::Ray::RayAABBCollision(ray, bmin, bmax))
-	//{
-	//	m_Octree.SetColorIndex(0, 0, 0, 1);
-	//}
-	//else
-	//{
-	//	m_Octree.SetColorIndex(0, 0, 0, 0);
-	//}
+	return VoxelCore::Ray(rayOrigin, rayDir);
 }

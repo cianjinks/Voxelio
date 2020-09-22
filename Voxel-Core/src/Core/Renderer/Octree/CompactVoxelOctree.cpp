@@ -550,7 +550,7 @@ namespace VoxelCore {
 		return;
 	}**/
 
-	void CompactVoxelOctree::RayTrace(Ray ray)
+	RayTraceHit CompactVoxelOctree::RayTrace(Ray ray)
 	{
 		glm::vec3 pos = glm::vec3(0.0f);
 		float size = 1.0f;
@@ -565,7 +565,7 @@ namespace VoxelCore {
 
 		if (!hit.Collision)
 		{
-			return;
+			return RayTraceHit();
 		}
 
 		// Inital push (Obtains the index, position and scale of the first octant voxel upon entering the cube)
@@ -590,16 +590,7 @@ namespace VoxelCore {
 				// If it is a leaf and exists it means we have hit a voxel
 				if (node->GetLeafMaskBit(childIndex) == 1)
 				{
-					// This is just a test for hovering voxels for now
-					if ((node != m_LastNodeHit || childIndex != m_LastChildIndex) && (m_LastNodeHit != nullptr))
-					{
-						m_LastNodeHit->SetColorIndex(m_LastChildIndex, 0);
-					}
-					node->SetColorIndex(childIndex, 1);
-					//VX_CORE_INFO("Ray Trace color index set");
-					m_LastNodeHit = node;
-					m_LastChildIndex = childIndex;
-					return;
+					return RayTraceHit(node, childIndex);
 				}
 				else if (canPush)
 				{
@@ -635,7 +626,7 @@ namespace VoxelCore {
 				if (stackptr <= 0)
 				{
 					// Didn't hit anything along this ray
-					return;
+					return RayTraceHit();
 				}
 
 				OctreeStackElement element = OctreeStack[--stackptr];
@@ -650,7 +641,7 @@ namespace VoxelCore {
 			else { canPush = true; }
 
 		}
-		return;
+		return RayTraceHit();
 	}
 
 #if 0
