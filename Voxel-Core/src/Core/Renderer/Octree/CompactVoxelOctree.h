@@ -68,6 +68,8 @@ namespace VoxelCore {
 		CompactVoxelOctree();
 		~CompactVoxelOctree();
 
+		void GenerateOctree();
+
 		void Activate(int x, int y, int z);
 		void Deactivate(int x, int y, int z);
 		int Get(int x, int y, int z);
@@ -78,8 +80,8 @@ namespace VoxelCore {
 		uint32_t* GetData();
 		int GetNodeCount() const { return m_Nodes.size(); };
 
-		constexpr static int s_OctreeLevels = 3;
-		int MAX_OCTREE_NODES;
+		constexpr static int s_OctreeLevels = 6;
+		static int MAX_OCTREE_NODES;
 
 	private:
 		// Utility functions:

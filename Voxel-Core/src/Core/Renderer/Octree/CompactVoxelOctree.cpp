@@ -227,28 +227,52 @@ namespace VoxelCore {
 		}
 	}
 
+	int CompactVoxelOctree::MAX_OCTREE_NODES = std::pow(8, s_OctreeLevels);
+
 	// OCTREE
 	CompactVoxelOctree::CompactVoxelOctree()
 	{
 		// 3 is for cubing it
-		MAX_OCTREE_NODES = (int)std::pow(8, s_OctreeLevels);
 		m_Nodes.reserve(MAX_OCTREE_NODES);
 		m_Nodes.emplace_back(0x0001FFFF);
-		//for (int x = 0; x < 4; x++)
-		//{
-		//	for (int y = 0; y < 4; y++)
-		//	{
-		//		for (int z = 0; z < 4; z++)
-		//		{
-		//			Activate(x, y, z);
-		//		}
-		//	}
-		//}
+		int dim = (int)std::pow(2, s_OctreeLevels);
+		for (int x = 0; x < dim; x++)
+		{
+			for (int y = 0; y < dim; y++)
+			{
+				for (int z = 0; z < dim; z++)
+				{
+					Activate(x, y, z);
+				}
+			}
+		}
+		GenerateOctree();
 	}
 
 	CompactVoxelOctree::~CompactVoxelOctree()
 	{
 
+	}
+
+	void CompactVoxelOctree::GenerateOctree()
+	{
+		//if (s_OctreeLevels > 1)
+		//{
+		//	m_Nodes[0] = 0x0000FF00;
+		//}
+		//
+		//int offset = 1;
+		//int limit = 8;
+		//for (int i = 1; i < s_OctreeLevels - 1; i++)
+		//{
+		//	for (int j = 1; j <= limit; j++)
+		//	{
+		//		m_Nodes.emplace_back(((offset + (j * limit)) << 16) | 0x0000FF00);
+		//	}
+		//	offset += limit;
+		//	limit = limit * 8;
+		//}
+		//m_Nodes.insert(m_Nodes.end(), std::pow(8, s_OctreeLevels-1), 0x0000FFFF);
 	}
 
 	void CompactVoxelOctree::Activate(int x, int y, int z)
@@ -301,9 +325,7 @@ namespace VoxelCore {
 						else
 						{
 							node->SetIndex(m_Nodes.size());
-							m_Nodes.emplace_back(0x0000FFFF);
-							// Add 7 spaces of padding for future branches:
-							m_Nodes.insert(m_Nodes.end(), { 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF });
+							m_Nodes.insert(m_Nodes.end(), { 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF });
 						}
 					}
 				}
@@ -365,9 +387,7 @@ namespace VoxelCore {
 						else
 						{
 							node->SetIndex(m_Nodes.size());
-							m_Nodes.emplace_back(0x0000FFFF);
-							// Add 7 spaces of padding for future branches:
-							m_Nodes.insert(m_Nodes.end(), { 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF });
+							m_Nodes.insert(m_Nodes.end(), { 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF });
 						}
 					}
 				}
@@ -428,9 +448,7 @@ namespace VoxelCore {
 						else
 						{
 							node->SetIndex(m_Nodes.size());
-							m_Nodes.emplace_back(0x0000FFFF);
-							// Add 7 spaces of padding for future branches:
-							m_Nodes.insert(m_Nodes.end(), { 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF });
+							m_Nodes.insert(m_Nodes.end(), { 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF });
 						}
 					}
 				}
@@ -441,114 +459,6 @@ namespace VoxelCore {
 			VX_CORE_CRITICAL("Octree Index {0}, {1}, {2} is out of bounds", x, y, z);
 		}
 	}
-
-	/**void CompactVoxelOctree::RayTrace(Ray ray)
-	{
-		glm::vec3 pos = glm::vec3(0.0f);
-		float size = 1.0f;
-		bool canPush = true;
-
-		// Initialize stack
-		std::stack<OctreeStackElement> OctreeStack;
-
-		RayHit hit = Ray::RayAABBCollision(ray, pos, size);
-		float h = hit.t.y;
-
-		if (!hit.Collision)
-		{
-			return;
-		}
-
-		// Inital push (Obtains the index, position and scale of the first octant voxel upon entering the cube)
-		glm::vec3 index = mix(-sign(ray.Direction), sign(ray.Direction), lessThanEqual(hit.tmid, glm::vec3(hit.t.x)));
-		size *= 0.5;
-		pos += size * index;
-
-		// Retrieve this initial octant voxel
-		//CompactNode* node = &m_Nodes[0]; // Root
-		int parentptr = 0; // Root
-		int childIndex = get2DIndex(index);
-		CompactNode* node = &m_Nodes[(size_t)parentptr];
-
-		VX_CORE_INFO("Child Index: {0}", childIndex);
-
-		// while(true) for now but we may want some way to make sure it always breaks
-		while (true)
-		{
-			// Run another collision test for new octant
-			hit = Ray::RayAABBCollision(ray, pos, size);
-
-			// Check if the voxel exists
-			if (node->GetValidMaskBit(childIndex) == 1)
-			{
-				// If it is a leaf and exists it means we have hit a solid voxel
-				if (node->GetLeafMaskBit(childIndex) == 1)
-				{
-					
-					// This is just a test for hovering voxels for now
-					if ((node != m_LastNodeHit || childIndex != m_LastChildIndex) && (m_LastNodeHit != nullptr))
-					{
-						m_LastNodeHit->SetColorIndex(m_LastChildIndex, 0);
-					}
-					node->SetColorIndex(childIndex, 1);
-					VX_CORE_INFO("Ray Trace color index set");
-					m_LastNodeHit = node;
-					m_LastChildIndex = childIndex;
-					return;
-				}
-				else if (canPush)
-				{
-					// PUSH
-					if (hit.t.y < h)
-					{
-						OctreeStack.push(OctreeStackElement(node, pos, size, index, h));
-					}
-					h = hit.t.y;
-
-					index = mix(-sign(ray.Direction), sign(ray.Direction), lessThanEqual(hit.tmid, glm::vec3(hit.t.x)));
-					size *= 0.5;
-					pos += size * index;
-
-					// Retrieve next octant
-					parentptr = node->GetIndex() + childIndex;
-					node = &m_Nodes[(size_t)parentptr];
-					childIndex = get2DIndex(index);
-
-					continue;
-				}
-
-			}
-
-			// ADVANCE
-			glm::vec3 oldIndex = index;
-			index = mix(index, sign(ray.Direction), equal(hit.tmax, glm::vec3(hit.t.y)));
-			pos += mix(glm::vec3(0), sign(ray.Direction), notEqual(oldIndex, index)) * (2.0f * size);
-
-			childIndex = get2DIndex(index);
-
-			if (index == oldIndex)
-			{
-				// POP
-				if (OctreeStack.size() <= 0)
-				{ 
-					// Didn't hit anything along this ray
-					return;
-				}
-
-				OctreeStackElement element = OctreeStack.top(); 
-				OctreeStack.pop();
-				node = element.node;
-				pos = element.position;
-				size = element.size;
-				index = element.index;
-				h = element.h;
-
-				canPush = false;
-			}
-			else { canPush = true; }
-		}
-		return;
-	}**/
 
 	RayTraceHit CompactVoxelOctree::RayTrace(Ray ray)
 	{

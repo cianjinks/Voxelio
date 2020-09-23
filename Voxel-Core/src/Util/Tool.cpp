@@ -11,10 +11,15 @@ namespace VoxelCore {
 			{
 				RayTraceHit hit = octree.RayTrace(ray);
 				// If the mouse has changed nodes
-				if ((hit.node != m_LastNodeHit || hit.childIndex != m_LastChildIndex) && (m_LastNodeHit != nullptr))
+				if ((hit.node != m_LastNodeHit || hit.childIndex != m_LastChildIndex))
 				{
-					// Set color index of previous node back to grey
-					m_LastNodeHit->SetColorIndex(m_LastChildIndex, 0);
+					// Set color index of previous node back to its original color
+					if (m_LastNodeHit != nullptr)
+					{
+						m_LastNodeHit->SetColorIndex(m_LastChildIndex, m_LastNodeColorIndex);
+					}
+					// Save the color of this new node
+					m_LastNodeColorIndex = hit.node->GetColorIndex(hit.childIndex);
 				}
 				// If the new node is valid
 				if (hit.node != nullptr)
@@ -34,23 +39,23 @@ namespace VoxelCore {
 			case ToolType::COLOR:
 			{
 				RayTraceHit hit = octree.RayTrace(ray);
-				// If mouse has changed nodes
-				if ((hit.node != m_LastNodeHit || hit.childIndex != m_LastChildIndex) && (m_LastNodeHit != nullptr))
+				// If the mouse has changed nodes
+				if ((hit.node != m_LastNodeHit || hit.childIndex != m_LastChildIndex))
 				{
-					// If the user has not clicked to color the previous node
-					if (!m_LeftClickColored)
+					// Set color index of previous node back to its original color
+					if (m_LastNodeHit != nullptr && !m_LeftClickColored)
 					{
-						// Set it back to the grey color
-						m_LastNodeHit->SetColorIndex(m_LastChildIndex, 0);
+						m_LastNodeHit->SetColorIndex(m_LastChildIndex, m_LastNodeColorIndex);
 					}
-					// For the new node, set this to false
+					// Save the color of this new node
+					m_LastNodeColorIndex = hit.node->GetColorIndex(hit.childIndex);
+					// Reset bool to say we haven't colored this voxel yet
 					m_LeftClickColored = false;
 				}
-
 				// If the new node is valid
 				if (hit.node != nullptr)
 				{
-					// Hightlight it using the selection color
+					// Highlight it using the currently selected color 
 					hit.node->SetColorIndex(hit.childIndex, currentSelectedColorIndex);
 				}
 				m_LastNodeHit = hit.node;
@@ -92,6 +97,10 @@ namespace VoxelCore {
 				}
 				// Make sure the hover function knows it has been colored
 				m_LeftClickColored = true;
+
+				m_LastNodeHit = hit.node;
+				m_LastChildIndex = hit.childIndex;
+				m_LastNodeColorIndex = hit.node->GetColorIndex(hit.childIndex);
 				break;
 			}
 		}

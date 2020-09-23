@@ -189,17 +189,17 @@ vec4 shading(in RayHit hit, vec4 color)
 		// Top Face:
 		return vec4(vec3(color * 1.03), 1.0f);
 	}
-	if(hit.normal.x <= 0)
+	if(hit.normal.x < 0)
 	{
 		// Left Face:
 		return vec4(vec3(color * 0.7), 1.0f);
 	}
-	if(hit.normal.z <= 0)
+	if(hit.normal.z < 0)
 	{
 		// Back Face
 		return vec4(vec3(color * 0.78), 1.0f);
 	}
-	if(hit.normal.y <= 0)
+	if(hit.normal.y < 0)
 	{
 		// Bottom Face
 		return vec4(vec3(color * 0.86), 1.0f);

@@ -30,8 +30,7 @@ namespace VoxelCore {
 		static const int MaxIndices = MaxFaces * 6;
 		static const int MaxFloats = MaxVertices * 9;
 
-		static const int MaxNodeCount = 8 * 8 * 8 * 8 * 8;
-		static const int MaxColorPaletteSize = 256;
+		static const int MaxColorPaletteSize = 4096;
 
 		static int IndicesCount;
 		static int DrawCalls;

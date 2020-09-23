@@ -57,7 +57,7 @@ namespace VoxelCore {
 
 		// HARDCODED API USAGE
 		glActiveTexture(GL_TEXTURE0);
-		octdbo = DataBuffer::Create(RendererData::MaxNodeCount * 4 * sizeof(uint32_t), DataBufferFormat::UINT4);
+		octdbo = DataBuffer::Create(CompactVoxelOctree::MAX_OCTREE_NODES * 4 * sizeof(uint32_t), DataBufferFormat::UINT4);
 		octdbo->Bind();
 		glActiveTexture(GL_TEXTURE1);
 		colordbo = DataBuffer::Create(RendererData::MaxColorPaletteSize * 4 * sizeof(float), DataBufferFormat::FLOAT4);
