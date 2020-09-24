@@ -29,6 +29,9 @@ namespace VoxelCore {
 		void SetData(uint32_t data);
 		uint32_t GetData();
 
+		void Activate(int index);
+		void Deactivate(int index);
+
 		void SetValidMaskBit(int index);
 		void ClearValidMaskBit(int index);
 		int GetValidMaskBit(int index);
@@ -53,11 +56,13 @@ namespace VoxelCore {
 	{
 		CompactNode* node = nullptr;
 		int childIndex = -1;
-		int parentPointer = -1;
+		
+		CompactNode* previousNode = nullptr;
+		int previousCidx = -1;
 
 		RayTraceHit() {}
-		RayTraceHit(CompactNode* node, int childIndex, int parentPointer)
-			: node(node), childIndex(childIndex), parentPointer(parentPointer) {}
+		RayTraceHit(CompactNode* node, int childIndex, CompactNode* previousNode, int previousCidx)
+			: node(node), childIndex(childIndex), previousNode(previousNode), previousCidx(previousCidx) {}
 	};
 
 	class CompactVoxelOctree
@@ -74,6 +79,7 @@ namespace VoxelCore {
 		void Activate(int x, int y, int z);
 		void Deactivate(int x, int y, int z);
 		int Get(int x, int y, int z);
+
 		RayTraceHit RayTrace(Ray ray);
 
 		void SetColorIndex(int x, int y, int z, uint32_t colorIndex);
@@ -84,6 +90,8 @@ namespace VoxelCore {
 		constexpr static int s_OctreeLevels = 3;
 		static int MAX_OCTREE_NODES;
 
+		int get2DIndex(glm::vec3 index);
+
 	private:
 		// Utility functions:
 		glm::vec3 mix(glm::vec3& a, glm::vec3& b, glm::bvec3& t);
@@ -91,8 +99,6 @@ namespace VoxelCore {
 		glm::bvec3 equal(glm::vec3& a, glm::vec3& b);
 		glm::bvec3 notEqual(glm::vec3& a, glm::vec3& b);
 		glm::vec3 sign(glm::vec3& value);
-
-		int get2DIndex(glm::vec3 index);
 	};
 
 	struct OctreeStackElement

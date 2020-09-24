@@ -11,7 +11,7 @@ namespace VoxelCore {
 			{
 				RayTraceHit hit = octree.RayTrace(ray);
 				// If the mouse has changed nodes
-				if ((hit.parentPointer != m_LastNodePointer || (hit.parentPointer == m_LastNodePointer && hit.childIndex != m_LastChildIndex)))
+				if ((hit.node != m_LastNodeHit || (hit.node == m_LastNodeHit && hit.childIndex != m_LastChildIndex)))
 				{
 					// Set color index of previous node back to its original color
 					if (m_LastNodeHit != nullptr)
@@ -29,23 +29,43 @@ namespace VoxelCore {
 				}
 				m_LastNodeHit = hit.node;
 				m_LastChildIndex = hit.childIndex;
-				m_LastNodePointer = hit.parentPointer;
 				break;
 			}
 			case ToolType::BUILD:
 			{
-
+				RayTraceHit hit = octree.RayTrace(ray);
+				// If the mouse has changed nodes
+				if ((hit.node != m_LastNodeHit || (hit.node == m_LastNodeHit && hit.childIndex != m_LastChildIndex)))
+				{
+					// Set color index of previous node back to its original color
+					if (m_LastNodeHit != nullptr)
+					{
+						m_LastNodeHit->SetColorIndex(m_LastChildIndex, m_LastNodeColorIndex);
+					}
+					// Save the color of this new node
+					m_LastNodeColorIndex = hit.node->GetColorIndex(hit.childIndex);
+				}
+				// If the new node is valid
+				if (hit.node != nullptr)
+				{
+					// Highlight it using the Selection Color
+					hit.node->SetColorIndex(hit.childIndex, 1);
+				}
+				m_LastNodeHit = hit.node;
+				m_LastChildIndex = hit.childIndex;
+				m_PreviousNode = hit.previousNode;
+				m_PreviousChildIndex = hit.previousCidx;
 				break;
 			}
 			case ToolType::COLOR:
 			{
 				if (m_LastNodeHit != nullptr)
 				{
-					VX_CORE_INFO("LastNodeHit: {}, LastChild: {}, LastPointer: {}, LastColor: {}", m_LastNodeHit->GetData(), m_LastChildIndex, m_LastNodePointer, m_LastNodeColorIndex);
+					VX_CORE_INFO("LastNodeHit: {}, LastChild: {}, LastColor: {}", m_LastNodeHit->GetData(), m_LastChildIndex, m_LastNodeColorIndex);
 				}
 				RayTraceHit hit = octree.RayTrace(ray);
 				// If the mouse has changed nodes
-				if ((hit.parentPointer != m_LastNodePointer || (hit.parentPointer == m_LastNodePointer && hit.childIndex != m_LastChildIndex)))
+				if ((hit.node != m_LastNodeHit || (hit.node == m_LastNodeHit && hit.childIndex != m_LastChildIndex)))
 				{
 					// Set color index of previous node back to its original color
 					if (m_LastNodeHit != nullptr && !m_LeftClickColored)
@@ -65,7 +85,6 @@ namespace VoxelCore {
 				}
 				m_LastNodeHit = hit.node;
 				m_LastChildIndex = hit.childIndex;
-				m_LastNodePointer = hit.parentPointer;
 				break;
 			}
 		}
@@ -89,7 +108,15 @@ namespace VoxelCore {
 			}
 			case ToolType::BUILD:
 			{
-
+				if (m_LastNodeHit != nullptr && m_PreviousNode != nullptr)
+				{
+					if (m_PreviousNode->GetIndex() == 0)
+					{
+						m_PreviousNode->Activate(m_PreviousChildIndex);
+						m_PreviousNode->SetColorIndex(m_PreviousChildIndex, 1);
+					}
+					VX_CORE_INFO("Previous NOde: {}", m_PreviousNode->GetData());
+				}
 				break;
 			}
 			case ToolType::COLOR:

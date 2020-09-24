@@ -15,6 +15,18 @@ namespace VoxelCore {
 
 	uint32_t CompactNode::GetData() { return m_Data; }
 
+	void CompactNode::Activate(int index)
+	{
+		SetLeafMaskBit(index);
+		SetValidMaskBit(index);
+	}
+
+	void CompactNode::Deactivate(int index)
+	{
+		ClearLeafMaskBit(index);
+		ClearValidMaskBit(index);
+	}
+
 	void CompactNode::SetValidMaskBit(int index)
 	{
 		uint32_t bit = 1 << (8 + index);
@@ -303,9 +315,8 @@ namespace VoxelCore {
 					// If it's not a branch we need to check if this is the final subnode and thus supposed leaf
 					if (size == 1)
 					{
-						// Deactivate the subnode if it is the final one
-						node->SetLeafMaskBit(index);
-						node->SetValidMaskBit(index);
+						// Actiavte the subnode if it is the final one
+						node->Activate(index);
 						break;
 					}
 					else
@@ -366,8 +377,7 @@ namespace VoxelCore {
 					if (size == 1)
 					{
 						// Deactivate the subnode if it is the final one
-						node->ClearLeafMaskBit(index);
-						node->ClearValidMaskBit(index);
+						node->Deactivate(index);
 						break;
 					}
 					else
@@ -460,6 +470,7 @@ namespace VoxelCore {
 		}
 	}
 
+	// Loosely based on https://www.shadertoy.com/view/3d2XRd
 	RayTraceHit CompactVoxelOctree::RayTrace(Ray ray)
 	{
 		glm::vec3 pos = glm::vec3(0.0f);
@@ -487,6 +498,13 @@ namespace VoxelCore {
 		uint32_t parentptr = 0;
 		CompactNode* node = &m_Nodes[parentptr]; // Root
 
+		// Variables to store the previous octant the ray intersected (for build tool hover)
+		int previousCidx = childIndex;
+		CompactNode* previousNode = node;
+		bool hasAdvanced = false;
+		glm::vec3 previousPos = glm::vec3(0.0f);
+		float previousSize = 1.0f;
+
 		// while(true) for now but we may want some way to make sure it always breaks
 		while (true)
 		{
@@ -499,7 +517,26 @@ namespace VoxelCore {
 				// If it is a leaf and exists it means we have hit a voxel
 				if (node->GetLeafMaskBit(childIndex) == 1)
 				{
-					return RayTraceHit(node, childIndex, parentptr);
+					if (!hasAdvanced)
+					{
+						previousNode = node;
+						previousCidx = childIndex;
+					}
+
+					//while (previousNode->GetIndex() != 0)
+					//{
+					//	hit = Ray::RayAABBCollision(ray, previousPos, previousSize);
+					//
+					//	index = mix(-sign(ray.Direction), sign(ray.Direction), lessThanEqual(hit.tmid, glm::vec3(hit.t.x)));
+					//	previousSize *= 0.5;
+					//	previousPos += previousSize * index;
+					//
+					//	// Retrieve next node from the array
+					//	previousNode = &m_Nodes[(size_t)previousNode->GetIndex() + (size_t)previousCidx];
+					//	previousCidx = get2DIndex(index);
+					//}
+
+					return RayTraceHit(node, childIndex, previousNode, previousCidx);
 				}
 				else if (canPush)
 				{
@@ -518,11 +555,19 @@ namespace VoxelCore {
 					parentptr = node->GetIndex() + childIndex;//node->GetBranchIndex(childIndex);
 					node = &m_Nodes[parentptr];
 					childIndex = get2DIndex(index);
+
 					continue;
 				}
 			}
 
+			// Save the current node
+			previousNode = node;
+			previousCidx = childIndex;
+			previousPos = pos;
+			previousSize = size;
+
 			// ADVANCE
+			hasAdvanced = true;
 			glm::vec3 oldIndex = index;
 			index = mix(index, sign(ray.Direction), equal(hit.tmax, glm::vec3(hit.t.y)));
 			pos += mix(glm::vec3(0), sign(ray.Direction), notEqual(oldIndex, index)) * (2.0f * size);
