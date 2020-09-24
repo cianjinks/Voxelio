@@ -21,9 +21,9 @@ namespace VoxelCore {
 		bool m_LeftClickColored = false;
 		int m_LastNodeColorIndex = 0;
 
-		CompactNode* m_PreviousNode = nullptr;
-		int m_PreviousChildIndex = -1;
-		bool m_PreviousActive = false;
+		glm::ivec3 m_LastNodeIndex = glm::ivec3(-1);
+		glm::ivec3 m_LastPreviousNodeIndex = glm::ivec3(-1);
+
 
 	public:
 		void ToolHover(CompactVoxelOctree& octree, Ray ray, int currentSelectedColorIndex);

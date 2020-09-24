@@ -53,8 +53,8 @@ namespace VoxelCore {
 				}
 				m_LastNodeHit = hit.node;
 				m_LastChildIndex = hit.childIndex;
-				m_PreviousNode = hit.previousNode;
-				m_PreviousChildIndex = hit.previousCidx;
+				m_LastNodeIndex = hit.nodeIndex;
+				m_LastPreviousNodeIndex = hit.previousNodeIndex;
 				break;
 			}
 			case ToolType::COLOR:
@@ -108,14 +108,16 @@ namespace VoxelCore {
 			}
 			case ToolType::BUILD:
 			{
-				if (m_LastNodeHit != nullptr && m_PreviousNode != nullptr)
+				if (m_LastNodeHit != nullptr)
 				{
-					if (m_PreviousNode->GetIndex() == 0)
+					// Make sure the index of the voxel we wish to place is valid (this is actually already done by CompactVoxelOctree::Activate
+					//if ((m_LastPreviousNodeIndex.x < octree.m_Dimension && m_LastPreviousNodeIndex.x >= 0) 
+					//	&& (m_LastPreviousNodeIndex.y < octree.m_Dimension && m_LastPreviousNodeIndex.y >= 0) 
+					//	&& (m_LastPreviousNodeIndex.z < octree.m_Dimension && m_LastPreviousNodeIndex.z >= 0))
 					{
-						m_PreviousNode->Activate(m_PreviousChildIndex);
-						m_PreviousNode->SetColorIndex(m_PreviousChildIndex, 1);
+						octree.Activate(m_LastPreviousNodeIndex.x, m_LastPreviousNodeIndex.y, m_LastPreviousNodeIndex.z);
+						octree.SetColorIndex(m_LastPreviousNodeIndex.x, m_LastPreviousNodeIndex.y, m_LastPreviousNodeIndex.z, 0);
 					}
-					VX_CORE_INFO("Previous NOde: {}", m_PreviousNode->GetData());
 				}
 				break;
 			}

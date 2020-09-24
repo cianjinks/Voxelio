@@ -56,13 +56,12 @@ namespace VoxelCore {
 	{
 		CompactNode* node = nullptr;
 		int childIndex = -1;
-		
-		CompactNode* previousNode = nullptr;
-		int previousCidx = -1;
+		glm::ivec3 nodeIndex = glm::ivec3(0);
+		glm::ivec3 previousNodeIndex = glm::ivec3(0);
 
 		RayTraceHit() {}
-		RayTraceHit(CompactNode* node, int childIndex, CompactNode* previousNode, int previousCidx)
-			: node(node), childIndex(childIndex), previousNode(previousNode), previousCidx(previousCidx) {}
+		RayTraceHit(CompactNode* node, int childIndex, glm::ivec3 nodeIndex, glm::ivec3 previousNodeIndex)
+			: node(node), childIndex(childIndex), nodeIndex(nodeIndex), previousNodeIndex(previousNodeIndex) {}
 	};
 
 	class CompactVoxelOctree
@@ -91,14 +90,11 @@ namespace VoxelCore {
 		static int MAX_OCTREE_NODES;
 
 		int get2DIndex(glm::vec3 index);
-
+		
 	private:
-		// Utility functions:
-		glm::vec3 mix(glm::vec3& a, glm::vec3& b, glm::bvec3& t);
-		glm::bvec3 lessThanEqual(glm::vec3& a, glm::vec3& b);
-		glm::bvec3 equal(glm::vec3& a, glm::vec3& b);
-		glm::bvec3 notEqual(glm::vec3& a, glm::vec3& b);
-		glm::vec3 sign(glm::vec3& value);
+
+	public:
+		int m_Dimension;
 	};
 
 	struct OctreeStackElement
