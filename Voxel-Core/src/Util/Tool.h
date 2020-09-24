@@ -17,9 +17,10 @@ namespace VoxelCore {
 		ToolType m_ActiveToolType = ToolType::ERASE;
 
 		CompactNode* m_LastNodeHit = nullptr;
+		int m_LastNodePointer = -1;
 		int m_LastChildIndex = -1;
 		bool m_LeftClickColored = false;
-		int m_LastNodeColorIndex = -1;
+		int m_LastNodeColorIndex = 0;
 
 	public:
 		void ToolHover(CompactVoxelOctree& octree, Ray ray, int currentSelectedColorIndex);

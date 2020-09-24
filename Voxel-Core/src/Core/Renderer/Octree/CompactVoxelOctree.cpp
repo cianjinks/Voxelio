@@ -183,7 +183,7 @@ namespace VoxelCore {
 			{
 				case 0:
 				{
-					return m_ColorIndex1 >> 24;
+					return m_ColorIndex1 >> 20;
 				}
 				case 1:
 				{
@@ -235,6 +235,16 @@ namespace VoxelCore {
 		// 3 is for cubing it
 		m_Nodes.reserve(MAX_OCTREE_NODES);
 		m_Nodes.emplace_back(0x0001FFFF);
+		GenerateOctree();
+	}
+
+	CompactVoxelOctree::~CompactVoxelOctree()
+	{
+
+	}
+
+	void CompactVoxelOctree::GenerateOctree()
+	{
 		int dim = (int)std::pow(2, s_OctreeLevels);
 		for (int x = 0; x < dim; x++)
 		{
@@ -246,16 +256,6 @@ namespace VoxelCore {
 				}
 			}
 		}
-		GenerateOctree();
-	}
-
-	CompactVoxelOctree::~CompactVoxelOctree()
-	{
-
-	}
-
-	void CompactVoxelOctree::GenerateOctree()
-	{
 		//if (s_OctreeLevels > 1)
 		//{
 		//	m_Nodes[0] = 0x0000FF00;
@@ -281,7 +281,7 @@ namespace VoxelCore {
 		// Makes sure index is in bounds (otherwise undefined behavior can occur)
 		if ((x < sizelength && x >= 0) && (y < sizelength && y >= 0) && (z < sizelength && z >= 0))
 		{
-			VX_CORE_INFO("[Activate Subnode] X: {0} Y {1} Z {2}", x, y, z);
+			//VX_CORE_INFO("[Activate Subnode] X: {0} Y {1} Z {2}", x, y, z);
 
 			CompactNode* node = &m_Nodes[0]; // Retrieve the root node
 			int size = std::pow(2, s_OctreeLevels - 1);
@@ -499,7 +499,7 @@ namespace VoxelCore {
 				// If it is a leaf and exists it means we have hit a voxel
 				if (node->GetLeafMaskBit(childIndex) == 1)
 				{
-					return RayTraceHit(node, childIndex);
+					return RayTraceHit(node, childIndex, parentptr);
 				}
 				else if (canPush)
 				{

@@ -53,10 +53,11 @@ namespace VoxelCore {
 	{
 		CompactNode* node = nullptr;
 		int childIndex = -1;
+		int parentPointer = -1;
 
 		RayTraceHit() {}
-		RayTraceHit(CompactNode* node, int childIndex)
-			: node(node), childIndex(childIndex) {}
+		RayTraceHit(CompactNode* node, int childIndex, int parentPointer)
+			: node(node), childIndex(childIndex), parentPointer(parentPointer) {}
 	};
 
 	class CompactVoxelOctree
@@ -80,7 +81,7 @@ namespace VoxelCore {
 		uint32_t* GetData();
 		int GetNodeCount() const { return m_Nodes.size(); };
 
-		constexpr static int s_OctreeLevels = 6;
+		constexpr static int s_OctreeLevels = 3;
 		static int MAX_OCTREE_NODES;
 
 	private:

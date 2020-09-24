@@ -61,24 +61,24 @@ namespace VoxelCore {
 
 	void OrbitalCameraController::HandleInput()
 	{
-		if (Input::IsKeyPressed(GLFW_KEY_W)) {
-			// Dosen't work correctly
-			m_CameraPos += m_CameraUp * m_CameraSpeed;
-			m_CameraPivot += m_CameraUp * m_CameraSpeed;
-		}
-		if (Input::IsKeyPressed(GLFW_KEY_S)) {
-			// Dosen't work correctly
-			m_CameraPos -= m_CameraUp * m_CameraSpeed;
-			m_CameraPivot -= m_CameraUp * m_CameraSpeed;
-		}
-		if (Input::IsKeyPressed(GLFW_KEY_A)) {
-			m_CameraPos -= glm::normalize(glm::cross(m_CameraPivot - m_CameraPos, m_CameraUp)) * m_CameraSpeed;
-			m_CameraPivot -= glm::normalize(glm::cross(m_CameraPivot - m_CameraPos, m_CameraUp)) * m_CameraSpeed;
-		}
-		if (Input::IsKeyPressed(GLFW_KEY_D)) {
-			m_CameraPos += glm::normalize(glm::cross(m_CameraPivot - m_CameraPos, m_CameraUp)) * m_CameraSpeed;
-			m_CameraPivot += glm::normalize(glm::cross(m_CameraPivot - m_CameraPos, m_CameraUp)) * m_CameraSpeed;
-		}
+		//if (Input::IsKeyPressed(GLFW_KEY_W)) {
+		//	// Dosen't work correctly
+		//	m_CameraPos += m_CameraUp * m_CameraSpeed;
+		//	m_CameraPivot += m_CameraUp * m_CameraSpeed;
+		//}
+		//if (Input::IsKeyPressed(GLFW_KEY_S)) {
+		//	// Dosen't work correctly
+		//	m_CameraPos -= m_CameraUp * m_CameraSpeed;
+		//	m_CameraPivot -= m_CameraUp * m_CameraSpeed;
+		//}
+		//if (Input::IsKeyPressed(GLFW_KEY_A)) {
+		//	m_CameraPos -= glm::normalize(glm::cross(m_CameraPivot - m_CameraPos, m_CameraUp)) * m_CameraSpeed;
+		//	m_CameraPivot -= glm::normalize(glm::cross(m_CameraPivot - m_CameraPos, m_CameraUp)) * m_CameraSpeed;
+		//}
+		//if (Input::IsKeyPressed(GLFW_KEY_D)) {
+		//	m_CameraPos += glm::normalize(glm::cross(m_CameraPivot - m_CameraPos, m_CameraUp)) * m_CameraSpeed;
+		//	m_CameraPivot += glm::normalize(glm::cross(m_CameraPivot - m_CameraPos, m_CameraUp)) * m_CameraSpeed;
+		//}
 
 		if (Input::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
 		{
