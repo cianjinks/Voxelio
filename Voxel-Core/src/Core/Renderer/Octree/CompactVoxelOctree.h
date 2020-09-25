@@ -86,7 +86,7 @@ namespace VoxelCore {
 		uint32_t* GetData();
 		int GetNodeCount() const { return m_Nodes.size(); };
 
-		constexpr static int s_OctreeLevels = 3;
+		constexpr static int s_OctreeLevels = 4;
 		static int MAX_OCTREE_NODES;
 
 		int get2DIndex(glm::vec3 index);
