@@ -3,6 +3,7 @@
 #include "examples/imgui_impl_opengl3.h"
 #include "examples/imgui_impl_glfw.h"
 #include "misc/cpp/imgui_stdlib.h"
+#include "imgui-filebrowser.h"
 
 namespace VoxelCore {
 

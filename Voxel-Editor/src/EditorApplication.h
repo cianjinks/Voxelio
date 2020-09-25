@@ -35,6 +35,14 @@ private:
 	glm::ivec3 m_SelectedVoxel = glm::ivec3(0);
 	glm::vec2 m_CursorPosImGui = glm::vec2(0.0f);
 
+	// Model Saving / Loading
+	static bool s_LoadModel;
+	static bool s_SaveModel;
+	ImGui::FileBrowser m_FileBrowser;
+
+	void SaveToFile(std::string& filePath);
+	void LoadFromFile(std::string& filePath);
+
 public:
 	EditorApplication();
 	virtual ~EditorApplication() = default;

@@ -1,5 +1,8 @@
 #include "EditorApplication.h"
 
+bool EditorApplication::s_LoadModel = false;
+bool EditorApplication::s_SaveModel = false;
+
 EditorApplication::EditorApplication()
 	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_OctreeCameraController(1280.0f, 720.0f, 5.0f), m_OctreeOrthoCamera(1280.0f, 720.0f) {}
 
@@ -56,20 +59,6 @@ void EditorApplication::Render()
 
 void EditorApplication::ImGuiRender()
 {
-	/**ImGui::SetNextWindowPos(ImVec2(25, 25));
-	ImGui::Begin("Info: ");
-	ImGui::Text(("Frame Time: " + std::to_string(VoxelCore::Timestep::GetDeltaTimeMS()) + "ms | " + std::to_string((int)(1 / VoxelCore::Timestep::GetDeltaTime())) + "fps").c_str());
-	ImGui::Text(("Vendor: " + std::string((char*)glGetString(GL_VENDOR))).c_str());
-	ImGui::Text(("Renderer: " + std::string((char*)glGetString(GL_RENDERER))).c_str());
-	ImGui::Text(("Version: " + std::string((char*)glGetString(GL_VERSION))).c_str());
-	ImGui::Text("Renderer Data: ");
-	ImGui::Text(("Draw Calls: " + std::to_string(VoxelCore::RendererData::DrawCalls)).c_str());
-
-	uint32_t textureID = m_FBO->GetFrameBufferColorData();
-	ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_WindowWidth, m_WindowHeight }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-
-	ImGui::End();**/
-
 	// Note: Switch this to true to enable dockspace
 	static bool dockspaceOpen = true;
 	static bool opt_fullscreen_persistant = true;
@@ -120,10 +109,43 @@ void EditorApplication::ImGuiRender()
 		if (ImGui::BeginMenu("Menu"))
 		{
 			// Here we actually build out this option
+			ImGui::MenuItem("Save Model", NULL, &s_SaveModel);
+			ImGui::MenuItem("Load Model", NULL, &s_LoadModel);
 			ImGui::EndMenu();
 		}
 		ImGui::EndMenuBar();
 	}
+
+	// Saving / Loading Models
+	if (s_SaveModel)
+	{
+		m_FileBrowser.flags_ |= ImGuiFileBrowserFlags_EnterNewFilename;
+		m_FileBrowser.Open();
+	}
+
+	if (s_LoadModel)
+	{
+		m_FileBrowser.flags_ = 0;
+		m_FileBrowser.Open();
+	}
+
+	m_FileBrowser.Display();
+	if (m_FileBrowser.HasSelected())
+	{
+		if (s_SaveModel)
+		{
+			SaveToFile(m_FileBrowser.GetSelected().string());
+		}
+		if (s_LoadModel)
+		{
+			LoadFromFile(m_FileBrowser.GetSelected().string());
+		}
+		m_FileBrowser.ClearSelected();
+	}
+	s_SaveModel = false;
+	s_LoadModel = false;
+
+	// Info Panel
 
 	ImGui::Begin("Info: ");
 	ImGui::Text(("Frame Time: " + std::to_string(VoxelCore::Timestep::GetDeltaTimeMS()) + "ms | " + std::to_string((int)(1 / VoxelCore::Timestep::GetDeltaTime())) + "fps").c_str());
@@ -355,4 +377,14 @@ VoxelCore::Ray EditorApplication::GenerateMouseRay()
 	rayDir = glm::vec3(glm::vec4(rayDir, 1.0f) * m_OctreeCameraController.GetViewMatrix());
 
 	return VoxelCore::Ray(rayOrigin, rayDir);
+}
+
+void EditorApplication::SaveToFile(std::string& filePath)
+{
+	
+}
+
+void EditorApplication::LoadFromFile(std::string& filePath)
+{
+
 }
