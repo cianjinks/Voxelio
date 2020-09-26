@@ -1,5 +1,6 @@
 #include "EditorApplication.h"
 
+bool EditorApplication::s_NewModel = false;
 bool EditorApplication::s_LoadModel = false;
 bool EditorApplication::s_CloseLoadModel = false;
 bool EditorApplication::s_SaveModel = false;
@@ -109,6 +110,7 @@ void EditorApplication::ImGuiRender()
 		if (ImGui::BeginMenu("Menu"))
 		{
 			// Here we actually build out this option
+			ImGui::MenuItem("New Model", NULL, &s_NewModel);
 			ImGui::MenuItem("Save Model", NULL, &s_SaveModel);
 			ImGui::MenuItem("Load Model", NULL, &s_LoadModel);
 			ImGui::EndMenu();
@@ -116,6 +118,12 @@ void EditorApplication::ImGuiRender()
 		ImGui::EndMenuBar();
 	}
 
+	// New Model
+	if (s_NewModel)
+	{
+		m_Octree.ReloadOctree();
+		s_NewModel = false;
+	}
 
 	// Saving / Loading Models
 	if (s_SaveModel)

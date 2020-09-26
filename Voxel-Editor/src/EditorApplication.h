@@ -36,6 +36,7 @@ private:
 
 	// Model Saving / Loading
 	ImGui::FileBrowser m_FileBrowser;
+	static bool s_NewModel;
 	static bool s_LoadModel;
 	static bool s_CloseLoadModel;
 	static bool s_SaveModel;

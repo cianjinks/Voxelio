@@ -244,9 +244,6 @@ namespace VoxelCore {
 	// OCTREE
 	CompactVoxelOctree::CompactVoxelOctree()
 	{
-		// 3 is for cubing it
-		m_Nodes.reserve(MAX_OCTREE_NODES);
-		m_Nodes.emplace_back(0x0001FFFF);
 		GenerateOctree();
 	}
 
@@ -257,6 +254,8 @@ namespace VoxelCore {
 
 	void CompactVoxelOctree::GenerateOctree()
 	{
+		m_Nodes.reserve(MAX_OCTREE_NODES);
+		m_Nodes.emplace_back(0x0001FFFF);
 		m_Dimension = (int)std::pow(2, s_OctreeLevels);
 		for (int x = 0; x < m_Dimension; x++)
 		{
@@ -291,6 +290,12 @@ namespace VoxelCore {
 	{
 		m_Nodes.clear();
 		m_Nodes.resize(size);
+	}
+
+	void CompactVoxelOctree::ReloadOctree()
+	{
+		m_Nodes.clear();
+		GenerateOctree();
 	}
 
 	void CompactVoxelOctree::Activate(int x, int y, int z)
