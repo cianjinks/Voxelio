@@ -1,7 +1,9 @@
 #include "EditorApplication.h"
 
 bool EditorApplication::s_LoadModel = false;
+bool EditorApplication::s_CloseLoadModel = false;
 bool EditorApplication::s_SaveModel = false;
+bool EditorApplication::s_CloseSaveModel = false;
 
 EditorApplication::EditorApplication()
 	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_OctreeCameraController(1280.0f, 720.0f, 5.0f), m_OctreeOrthoCamera(1280.0f, 720.0f) {}
@@ -15,9 +17,7 @@ void EditorApplication::PreRender()
 	m_FBOData.Height = m_WindowHeight;
 	m_FBO = VoxelCore::FrameBuffer::Create(m_FBOData);
 
-	// Add Default Color to slot 1
-	m_Palette.AddColor(m_DefaultColor);
-	m_Palette.AddColor(VoxelCore::VoxelColor("Selection Color", 1.0f, 1.0f, 0.0f, 1.0f));
+	m_FileBrowser.SetTypeFilters({".vio"});
 }
 
 void EditorApplication::Render()
@@ -116,34 +116,40 @@ void EditorApplication::ImGuiRender()
 		ImGui::EndMenuBar();
 	}
 
+
 	// Saving / Loading Models
 	if (s_SaveModel)
 	{
+		s_CloseSaveModel = s_SaveModel;
 		m_FileBrowser.flags_ |= ImGuiFileBrowserFlags_EnterNewFilename;
 		m_FileBrowser.Open();
+		s_SaveModel = false;
 	}
 
 	if (s_LoadModel)
 	{
+		s_CloseLoadModel = s_LoadModel;
 		m_FileBrowser.flags_ = 0;
 		m_FileBrowser.Open();
+		s_LoadModel = false;
 	}
 
 	m_FileBrowser.Display();
 	if (m_FileBrowser.HasSelected())
 	{
-		if (s_SaveModel)
+		if (s_CloseSaveModel)
 		{
 			SaveToFile(m_FileBrowser.GetSelected().string());
+			s_CloseSaveModel = false;
 		}
-		if (s_LoadModel)
+		if (s_CloseLoadModel)
 		{
 			LoadFromFile(m_FileBrowser.GetSelected().string());
+			s_CloseLoadModel = false;
 		}
 		m_FileBrowser.ClearSelected();
 	}
-	s_SaveModel = false;
-	s_LoadModel = false;
+
 
 	// Info Panel
 
@@ -381,10 +387,26 @@ VoxelCore::Ray EditorApplication::GenerateMouseRay()
 
 void EditorApplication::SaveToFile(std::string& filePath)
 {
-	
+	filePath.append(".vio");
+	VX_CORE_INFO("[SAVE] File Path: {}", filePath);
+	std::ofstream file;
+	file.open(filePath, std::ios_base::binary);
+	size_t fileSize = sizeof(uint32_t) * 4 * m_Octree.GetNodeCount();
+	file.write(reinterpret_cast<char*>(m_Octree.GetData()), fileSize);
+	file.close();
 }
 
 void EditorApplication::LoadFromFile(std::string& filePath)
 {
+	VX_CORE_INFO("[LOAD] File Path: {}", filePath);
+	std::ifstream file;
+	file.open(filePath, std::ios_base::binary);
 
+	file.seekg(0, std::ios::end);
+	size_t fileSize = file.tellg();
+	file.seekg(0, std::ios::beg);
+
+	m_Octree.ReplaceOctree(fileSize / (sizeof(uint32_t) * 4));
+	file.read(reinterpret_cast<char*>(m_Octree.GetData()), fileSize);
+	file.close();
 }

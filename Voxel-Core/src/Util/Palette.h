@@ -19,6 +19,12 @@ namespace VoxelCore {
 		std::vector<float> m_ColorData;
 
 	public:
+		VoxelColor m_DefaultColor = VoxelColor("Default Color", 0.75f, 0.75f, 0.75f, 1.0f);
+		VoxelColor m_SelectionColor = VoxelColor("Selection Color", 1.0f, 1.0f, 0.0f, 1.0f);
+
+	private:
+
+	public:
 		// For now this just wraps a vector but later it should contain some kind of ImGUI state for the color palette editor
 		VoxelColorPalette();
 		std::vector<VoxelColor>& GetColors();

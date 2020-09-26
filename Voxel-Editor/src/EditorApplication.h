@@ -24,9 +24,8 @@ private:
 
 	// Palette Editor UI
 	VoxelCore::VoxelColorPalette m_Palette;
-	VoxelCore::VoxelColor m_DefaultColor = VoxelCore::VoxelColor("Default Color", 0.75f, 0.75f, 0.75f, 1.0f);
-	VoxelCore::VoxelColor m_PaletteEditorColor = VoxelCore::VoxelColor("Test Color", 0.0f, 0.0f, 0.0f, 1.0f);
-	VoxelCore::VoxelColor m_CurrentSelectedColor = m_DefaultColor;
+	VoxelCore::VoxelColor m_PaletteEditorColor = m_Palette.m_DefaultColor;
+	VoxelCore::VoxelColor m_CurrentSelectedColor = m_Palette.m_DefaultColor;
 	int m_CurrentSelectedColorIndex = 0;
 	bool m_PaletteFull = false;
 
@@ -36,9 +35,11 @@ private:
 	glm::vec2 m_CursorPosImGui = glm::vec2(0.0f);
 
 	// Model Saving / Loading
-	static bool s_LoadModel;
-	static bool s_SaveModel;
 	ImGui::FileBrowser m_FileBrowser;
+	static bool s_LoadModel;
+	static bool s_CloseLoadModel;
+	static bool s_SaveModel;
+	static bool s_CloseSaveModel;
 
 	void SaveToFile(std::string& filePath);
 	void LoadFromFile(std::string& filePath);

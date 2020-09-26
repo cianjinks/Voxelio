@@ -7,6 +7,10 @@ namespace VoxelCore {
 	{
 		m_Colors.reserve(MAX_PALETTE_SIZE);
 		m_ColorData.reserve(MAX_PALETTE_SIZE * 4);
+
+		// Add Default Color and Selection Color
+		AddColor(m_DefaultColor);
+		AddColor(m_SelectionColor);
 	}
 
 	std::vector<VoxelColor>& VoxelColorPalette::GetColors()
