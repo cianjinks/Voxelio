@@ -7,6 +7,8 @@ bool EditorApplication::s_SaveModel = false;
 bool EditorApplication::s_CloseSaveModel = false;
 bool EditorApplication::s_PaletteLoad = false;
 bool EditorApplication::s_PaletteSave = false;
+std::string EditorApplication::s_ProjectFileExtension = ".vio";
+std::string EditorApplication::s_PaletteFileExtension = ".viop";
 
 EditorApplication::EditorApplication()
 	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_OctreeCameraController(1280.0f, 720.0f, 5.0f), m_OctreeOrthoCamera(1280.0f, 720.0f) {}
@@ -437,7 +439,10 @@ void EditorApplication::SaveToFile(std::string& filePath)
 
 	uint64_t fileptr = 0;
 	// Open File
-	filePath.append(".vio");
+	if (filePath.substr(filePath.length() - s_ProjectFileExtension.length(), filePath.length()) != s_ProjectFileExtension)
+	{
+		filePath.append(s_ProjectFileExtension);
+	}
 	VX_CORE_INFO("[SAVE] File Path: {}", filePath);
 	std::ofstream file;
 	file.open(filePath, std::ios_base::binary);
@@ -525,7 +530,10 @@ void EditorApplication::LoadFromFile(std::string& filePath)
 
 void EditorApplication::SavePaletteToFile(std::string& filePath)
 {
-	filePath.append(".viop");
+	if (filePath.substr(filePath.length() - s_PaletteFileExtension.length(), filePath.length()) != s_PaletteFileExtension)
+	{
+		filePath.append(s_PaletteFileExtension);
+	}
 	VX_CORE_INFO("[PALETTE SAVE] File Path: {}", filePath);
 	std::ofstream file;
 	file.open(filePath, std::ios_base::binary);

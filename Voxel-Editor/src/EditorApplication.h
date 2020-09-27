@@ -36,6 +36,7 @@ private:
 
 	// Model Saving / Loading
 	ImGui::FileBrowser m_FileBrowser;
+	static std::string s_ProjectFileExtension;
 	static bool s_NewModel;
 	static bool s_LoadModel;
 	static bool s_CloseLoadModel;
@@ -47,6 +48,7 @@ private:
 
 	// Palette Loading / Saving
 	ImGui::FileBrowser m_PaletteFileBrowser;
+	static std::string s_PaletteFileExtension;
 	static bool s_PaletteLoad;
 	static bool s_PaletteSave;
 
