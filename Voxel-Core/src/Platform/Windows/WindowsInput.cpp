@@ -30,6 +30,11 @@ namespace VoxelCore {
 		return glm::vec2((float)cursorPos.x, (float)cursorPos.y);
 	}
 
+	void Input::SetMousePosition(glm::dvec2& pos)
+	{
+		glfwSetCursorPos((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow(), pos.x, pos.y);
+	}
+
 	float Input::GetMouseX()
 	{
 		return GetMousePosition().x;

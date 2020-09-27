@@ -267,23 +267,6 @@ namespace VoxelCore {
 				}
 			}
 		}
-		//if (s_OctreeLevels > 1)
-		//{
-		//	m_Nodes[0] = 0x0000FF00;
-		//}
-		//
-		//int offset = 1;
-		//int limit = 8;
-		//for (int i = 1; i < s_OctreeLevels - 1; i++)
-		//{
-		//	for (int j = 1; j <= limit; j++)
-		//	{
-		//		m_Nodes.emplace_back(((offset + (j * limit)) << 16) | 0x0000FF00);
-		//	}
-		//	offset += limit;
-		//	limit = limit * 8;
-		//}
-		//m_Nodes.insert(m_Nodes.end(), std::pow(8, s_OctreeLevels-1), 0x0000FFFF);
 	}
 
 	void CompactVoxelOctree::Replace(size_t size)

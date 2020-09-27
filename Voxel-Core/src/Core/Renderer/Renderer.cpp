@@ -158,7 +158,6 @@ namespace VoxelCore {
 
 	void Renderer::DrawOctree(CompactVoxelOctree& octree, VoxelColorPalette& palette, float aspectRatio)
 	{
-		shader->SetInt1("u_MaxOctreeNodes", octree.MAX_OCTREE_NODES);
 		DrawRect(glm::vec3(-aspectRatio, -1.0f, 0.0f), 2 * aspectRatio, 2.0f);
 
 		// HARDCODED API USAGE

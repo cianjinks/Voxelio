@@ -22,8 +22,8 @@ void EditorApplication::PreRender()
 	m_FBOData.Height = m_WindowHeight;
 	m_FBO = VoxelCore::FrameBuffer::Create(m_FBOData);
 
-	m_FileBrowser.SetTypeFilters({".vio"});
-	m_PaletteFileBrowser.SetTypeFilters({".viop"});
+	m_FileBrowser.SetTypeFilters({s_ProjectFileExtension.c_str()});
+	m_PaletteFileBrowser.SetTypeFilters({s_PaletteFileExtension.c_str()});
 }
 
 void EditorApplication::Render()
@@ -59,8 +59,15 @@ void EditorApplication::Render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Tools Rendering (Shows preview of current tools action)
-	m_ToolHandler.ToolHover(m_Octree, GenerateMouseRay(), m_CurrentSelectedColorIndex);
+	if (VoxelCore::Input::GetInputMode(GLFW_CURSOR) == GLFW_CURSOR_NORMAL) {
+		m_ToolHandler.ToolHover(m_Octree, GenerateMouseRay(), m_CurrentSelectedColorIndex);
+	}
 
+	// Update whether mouse is in viewport
+	int grabOffset = 4;
+	if (m_CursorPosImGui.x > grabOffset && m_CursorPosImGui.x < m_ViewportWindowDim.x - grabOffset && m_CursorPosImGui.y > grabOffset && m_CursorPosImGui.y < m_ViewportWindowDim.y - grabOffset)
+	{ m_MouseInViewport = true; }
+	else { m_MouseInViewport = false; }
 }
 
 void EditorApplication::ImGuiRender()
@@ -246,7 +253,7 @@ void EditorApplication::ImGuiRender()
 		}
 		else
 		{
-			if(ImGui::ColorButton(std::to_string(pc).c_str(), ImVec4(colors[pc].r, colors[pc].g, colors[pc].b, colors[pc].a), 0, ImVec2(50, 50)))
+			if (ImGui::ColorButton(std::to_string(pc).c_str(), ImVec4(colors[pc].r, colors[pc].g, colors[pc].b, colors[pc].a), 0, ImVec2(50, 50)))
 			{
 				m_CurrentSelectedColor = colors[pc];
 				m_CurrentSelectedColorIndex = pc;
@@ -256,7 +263,7 @@ void EditorApplication::ImGuiRender()
 		}
 		count++;
 	}
-	
+
 	ImGui::End();
 
 	// Tools
@@ -265,7 +272,7 @@ void EditorApplication::ImGuiRender()
 	float toolsWidth = ImGui::GetWindowWidth();
 
 	ImGui::Text("Currently Selected Color: ");
-	ImGui::ColorButton("", 
+	ImGui::ColorButton("",
 		ImVec4(m_CurrentSelectedColor.r, m_CurrentSelectedColor.g, m_CurrentSelectedColor.b, m_CurrentSelectedColor.a), 0, ImVec2(toolsWidth / 2, toolsWidth / 2));
 	ImGui::Text("Selected Voxel:");
 	ImGui::InputInt3("", &m_SelectedVoxel.x);
@@ -330,6 +337,7 @@ void EditorApplication::ImGuiRender()
 	ImVec2 cursorPos = ImGui::GetCursorPos();
 	ImVec2 windowPos = ImGui::GetWindowPos();
 	m_CursorPosImGui = { mousePos.x - windowPos.x - cursorPos.x, mousePos.y - windowPos.y - cursorPos.y };
+	m_ViewportWindowDim = { ImGui::GetWindowWidth() - cursorPos.x, ImGui::GetWindowHeight() - cursorPos.y };
 
 	uint64_t textureID = m_FBO->GetFrameBufferColorData();
 	ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
@@ -343,26 +351,9 @@ void EditorApplication::ImGuiRender()
 
 void EditorApplication::OnKeyPress(int key, int scancode, int action, int mods)
 {
-	if (key == GLFW_KEY_X && action == GLFW_PRESS)
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 	{
-		m_Octree.Deactivate(0, 0, 0);
-		m_Octree.Deactivate(1, 0, 0);
-		m_Octree.Deactivate(2, 0, 0);
-	}
-
-	if (key == GLFW_KEY_Z && action == GLFW_PRESS)
-	{
-		// Test bind
-		for (int i = 0; i < 8; i++)
-		{
-			m_Octree.Deactivate(i, i, i);
-		}
-		m_Octree.Deactivate(0, 0, 7);
-		m_Octree.Deactivate(0, 7, 0);
-		m_Octree.Deactivate(0, 7, 7);
-		m_Octree.Deactivate(7, 0, 0);
-		m_Octree.Deactivate(7, 0, 7);
-		m_Octree.Deactivate(7, 7, 0);
+		
 	}
 }
 
@@ -378,22 +369,21 @@ void EditorApplication::OnMouseScroll(float xoffset, float yoffset)
 
 void EditorApplication::OnMouseClick(int button, int action, int mods)
 {
-	ImGuiIO& io = ImGui::GetIO();
-	//if (!io.WantCaptureMouse) {
+	// Check if mouse is over viewport ( the grabOffset accomodates for grabbing the edge of the window)
+	if (m_MouseInViewport) {
 		if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
 			VoxelCore::Input::SetInputMode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		}
-		else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
-			VoxelCore::Input::SetInputMode(GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		}
 
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 		{
 			// I could probably just save the mouse ray from the render loop for this
 			m_ToolHandler.ToolLeftClick(m_Octree, GenerateMouseRay(), m_CurrentSelectedColorIndex);
-
 		}
-	//}
+	}
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
+		VoxelCore::Input::SetInputMode(GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
 }
 
 void EditorApplication::OnResize(int width, int height)

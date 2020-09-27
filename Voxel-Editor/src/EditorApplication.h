@@ -14,6 +14,7 @@ private:
 	// Camera
 	VoxelCore::OrbitalCameraController m_OctreeCameraController;
 	VoxelCore::OrthographicCamera m_OctreeOrthoCamera;
+	bool m_MouseInViewport = false;
 
 	// Octree
 	VoxelCore::CompactVoxelOctree m_Octree;
@@ -33,6 +34,9 @@ private:
 	VoxelCore::ToolHandler m_ToolHandler;
 	glm::ivec3 m_SelectedVoxel = glm::ivec3(0);
 	glm::vec2 m_CursorPosImGui = glm::vec2(0.0f);
+
+	// Viewport Info
+	ImVec2 m_ViewportWindowDim = ImVec2(0, 0);
 
 	// Model Saving / Loading
 	ImGui::FileBrowser m_FileBrowser;

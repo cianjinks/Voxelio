@@ -4,7 +4,6 @@ layout(location = 0) out vec4 a_Color;
 in vec4 v_Pos;
 
 uniform float u_Time;
-uniform int u_MaxOctreeNodes;
 uniform mat4 u_PerspectiveViewMatrix;
 uniform float u_CameraRadius;
 
@@ -214,7 +213,7 @@ vec4 rayTrace(Ray ray)
 	bool canPush = true;
 
 	// Initialize stack
-	OctreeStackElement OctreeStack[64];
+	OctreeStackElement OctreeStack[128];
 	int stackptr = 0;
 
 	RayHit hit = RayAABBCollision(ray, pos, size);

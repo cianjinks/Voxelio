@@ -12,7 +12,7 @@ namespace VoxelCore {
 
 	void OrbitalCameraController::OnMouseScroll(float xoffset, float yoffset) 
 	{
-		const float sensitivity = 0.5f;
+		const float sensitivity = m_CameraRadius / 10;
 		yoffset *= sensitivity;
 		
 		VX_CORE_INFO("Y Offset {:.3f}", yoffset);
@@ -23,7 +23,7 @@ namespace VoxelCore {
 
 	void OrbitalCameraController::OnMouseMove(float xpos, float ypos)
 	{
-		if (VoxelCore::Input::GetInputMode(GLFW_CURSOR) == GLFW_CURSOR_DISABLED) {
+		if (Input::GetInputMode(GLFW_CURSOR) == GLFW_CURSOR_DISABLED) {
 			if (m_InitialMouseMovement)
 			{
 				m_MouseX = xpos;
@@ -31,12 +31,13 @@ namespace VoxelCore {
 				m_InitialMouseMovement = false;
 			}
 
+
 			float xoffset = xpos - m_MouseX;
 			float yoffset = m_MouseY - ypos; // Y coordinate is top to bottom in glfw
 			m_MouseX = xpos;
 			m_MouseY = ypos;
 
-			const float sensitivity = 0.15f;
+			const float sensitivity = 0.02f * m_CameraRadius;
 			xoffset *= sensitivity;
 			yoffset *= sensitivity;
 

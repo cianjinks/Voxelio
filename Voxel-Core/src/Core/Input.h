@@ -11,6 +11,7 @@ namespace VoxelCore {
 		static bool IsKeyPressed(int key);
 		static bool IsMousePressed(int mouseButton);
 		static glm::vec2 GetMousePosition();
+		static void SetMousePosition(glm::dvec2& pos);
 		static float GetMouseX();
 		static float GetMouseY();
 
