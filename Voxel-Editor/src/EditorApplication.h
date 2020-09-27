@@ -24,8 +24,8 @@ private:
 
 	// Palette Editor UI
 	VoxelCore::VoxelColorPalette m_Palette;
-	VoxelCore::VoxelColor m_PaletteEditorColor = m_Palette.m_DefaultColor;
-	VoxelCore::VoxelColor m_CurrentSelectedColor = m_Palette.m_DefaultColor;
+	glm::vec4 m_PaletteEditorColor = m_Palette.m_DefaultColor;
+	glm::vec4 m_CurrentSelectedColor = m_Palette.m_DefaultColor;
 	int m_CurrentSelectedColorIndex = 0;
 	bool m_PaletteFull = false;
 
@@ -44,6 +44,14 @@ private:
 
 	void SaveToFile(std::string& filePath);
 	void LoadFromFile(std::string& filePath);
+
+	// Palette Loading / Saving
+	ImGui::FileBrowser m_PaletteFileBrowser;
+	static bool s_PaletteLoad;
+	static bool s_PaletteSave;
+
+	void SavePaletteToFile(std::string& filePath);
+	void LoadPaletteFromFile(std::string& filePath);
 
 public:
 	EditorApplication();

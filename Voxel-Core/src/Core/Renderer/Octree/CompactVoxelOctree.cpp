@@ -286,13 +286,13 @@ namespace VoxelCore {
 		//m_Nodes.insert(m_Nodes.end(), std::pow(8, s_OctreeLevels-1), 0x0000FFFF);
 	}
 
-	void CompactVoxelOctree::ReplaceOctree(size_t size)
+	void CompactVoxelOctree::Replace(size_t size)
 	{
 		m_Nodes.clear();
 		m_Nodes.resize(size);
 	}
 
-	void CompactVoxelOctree::ReloadOctree()
+	void CompactVoxelOctree::Reload()
 	{
 		m_Nodes.clear();
 		GenerateOctree();

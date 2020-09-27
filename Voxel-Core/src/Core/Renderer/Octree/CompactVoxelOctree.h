@@ -74,8 +74,8 @@ namespace VoxelCore {
 		~CompactVoxelOctree();
 
 		void GenerateOctree();
-		void ReplaceOctree(size_t size);
-		void ReloadOctree();
+		void Replace(size_t size);
+		void Reload();
 
 		void Activate(int x, int y, int z);
 		void Deactivate(int x, int y, int z);

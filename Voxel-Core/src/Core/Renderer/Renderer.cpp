@@ -167,8 +167,8 @@ namespace VoxelCore {
 		octdbo->Bind();
 
 		glActiveTexture(GL_TEXTURE1);
-		auto& colorData = palette.GetColorData();
-		colordbo->SetData(colorData.data(), colorData.size() * sizeof(float));
+		auto& colorData = palette.GetColors();
+		colordbo->SetData(colorData.data(), colorData.size() * 4 * sizeof(float));
 		colordbo->Bind();
 	}
 }

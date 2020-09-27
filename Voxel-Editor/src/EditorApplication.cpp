@@ -5,6 +5,8 @@ bool EditorApplication::s_LoadModel = false;
 bool EditorApplication::s_CloseLoadModel = false;
 bool EditorApplication::s_SaveModel = false;
 bool EditorApplication::s_CloseSaveModel = false;
+bool EditorApplication::s_PaletteLoad = false;
+bool EditorApplication::s_PaletteSave = false;
 
 EditorApplication::EditorApplication()
 	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_OctreeCameraController(1280.0f, 720.0f, 5.0f), m_OctreeOrthoCamera(1280.0f, 720.0f) {}
@@ -19,6 +21,7 @@ void EditorApplication::PreRender()
 	m_FBO = VoxelCore::FrameBuffer::Create(m_FBOData);
 
 	m_FileBrowser.SetTypeFilters({".vio"});
+	m_PaletteFileBrowser.SetTypeFilters({".viop"});
 }
 
 void EditorApplication::Render()
@@ -110,9 +113,9 @@ void EditorApplication::ImGuiRender()
 		if (ImGui::BeginMenu("Menu"))
 		{
 			// Here we actually build out this option
-			ImGui::MenuItem("New Model", NULL, &s_NewModel);
-			ImGui::MenuItem("Save Model", NULL, &s_SaveModel);
-			ImGui::MenuItem("Load Model", NULL, &s_LoadModel);
+			ImGui::MenuItem("New Project", NULL, &s_NewModel);
+			ImGui::MenuItem("Save Project", NULL, &s_SaveModel);
+			ImGui::MenuItem("Load Project", NULL, &s_LoadModel);
 			ImGui::EndMenu();
 		}
 		ImGui::EndMenuBar();
@@ -121,7 +124,8 @@ void EditorApplication::ImGuiRender()
 	// New Model
 	if (s_NewModel)
 	{
-		m_Octree.ReloadOctree();
+		m_Octree.Reload();
+		m_Palette.Reload();
 		s_NewModel = false;
 	}
 
@@ -172,8 +176,7 @@ void EditorApplication::ImGuiRender()
 
 	// Palette Editor
 	ImGui::Begin("Palette Editor");
-	ImGui::InputText("Name", &m_PaletteEditorColor.name, 0);
-	ImGui::ColorPicker4("", &m_PaletteEditorColor.color.x, 0);
+	ImGui::ColorPicker4("", &m_PaletteEditorColor.r, 0);
 
 	if (ImGui::Button("Add Color"))
 	{
@@ -181,6 +184,37 @@ void EditorApplication::ImGuiRender()
 		{
 			m_PaletteFull = true;
 		}
+	}
+
+	// Load and Save Palette Buttons
+	if (ImGui::Button("Load Palette"))
+	{
+		m_PaletteFileBrowser.flags_ = 0;
+		m_PaletteFileBrowser.Open();
+		s_PaletteLoad = true;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Save Palette"))
+	{
+		m_PaletteFileBrowser.flags_ |= ImGuiFileBrowserFlags_EnterNewFilename;
+		m_PaletteFileBrowser.Open();
+		s_PaletteSave = true;
+	}
+
+	m_PaletteFileBrowser.Display();
+	if (m_PaletteFileBrowser.HasSelected())
+	{
+		if (s_PaletteLoad)
+		{
+			LoadPaletteFromFile(m_PaletteFileBrowser.GetSelected().string());
+			s_PaletteLoad = false;
+		}
+		if (s_PaletteSave)
+		{
+			SavePaletteToFile(m_PaletteFileBrowser.GetSelected().string());
+			s_PaletteSave = false;
+		}
+		m_PaletteFileBrowser.ClearSelected();
 	}
 
 	ImGui::Separator();
@@ -200,21 +234,21 @@ void EditorApplication::ImGuiRender()
 
 		if (count == squaresPerLine)
 		{
-			if (ImGui::ColorButton(colors[pc].name.c_str(), ImVec4(colors[pc].color.r, colors[pc].color.g, colors[pc].color.b, colors[pc].color.a), 0, ImVec2(50, 50)))
+			if (ImGui::ColorButton(std::to_string(pc).c_str(), ImVec4(colors[pc].r, colors[pc].g, colors[pc].b, colors[pc].a), 0, ImVec2(50, 50)))
 			{
 				m_CurrentSelectedColor = colors[pc];
 				m_CurrentSelectedColorIndex = pc;
-				VX_EDITOR_INFO("Changed Selected Color to: {0} with index {1}", colors[pc].name, pc);
+				VX_EDITOR_INFO("Changed Selected Color to Index: {}", pc);
 			}
 			count = 0;
 		}
 		else
 		{
-			if(ImGui::ColorButton(colors[pc].name.c_str(), ImVec4(colors[pc].color.r, colors[pc].color.g, colors[pc].color.b, colors[pc].color.a), 0, ImVec2(50, 50)))
+			if(ImGui::ColorButton(std::to_string(pc).c_str(), ImVec4(colors[pc].r, colors[pc].g, colors[pc].b, colors[pc].a), 0, ImVec2(50, 50)))
 			{
 				m_CurrentSelectedColor = colors[pc];
 				m_CurrentSelectedColorIndex = pc;
-				VX_EDITOR_INFO("Changed Selected Color to : {0} with index {1}", colors[pc].name, pc);
+				VX_EDITOR_INFO("Changed Selected Color to Index: {}", pc);
 			}
 			ImGui::SameLine();
 		}
@@ -229,8 +263,8 @@ void EditorApplication::ImGuiRender()
 	float toolsWidth = ImGui::GetWindowWidth();
 
 	ImGui::Text("Currently Selected Color: ");
-	ImGui::ColorButton(m_CurrentSelectedColor.name.c_str(), 
-		ImVec4(m_CurrentSelectedColor.color.r, m_CurrentSelectedColor.color.g, m_CurrentSelectedColor.color.b, m_CurrentSelectedColor.color.a), 0, ImVec2(toolsWidth / 2, toolsWidth / 2));
+	ImGui::ColorButton("", 
+		ImVec4(m_CurrentSelectedColor.r, m_CurrentSelectedColor.g, m_CurrentSelectedColor.b, m_CurrentSelectedColor.a), 0, ImVec2(toolsWidth / 2, toolsWidth / 2));
 	ImGui::Text("Selected Voxel:");
 	ImGui::InputInt3("", &m_SelectedVoxel.x);
 
@@ -302,7 +336,7 @@ void EditorApplication::ImGuiRender()
 
 	ImGui::End();
 
-	ImGui::ShowDemoWindow();
+	//ImGui::ShowDemoWindow();
 }
 
 void EditorApplication::OnKeyPress(int key, int scancode, int action, int mods)
@@ -420,13 +454,13 @@ void EditorApplication::SaveToFile(std::string& filePath)
 	file.seekp(fileptr);
 
 	// 8 Bytes: Size of Color Palette Data in Bytes
-	size_t paletteSize = sizeof(float) * m_Palette.GetColorData().size();
+	size_t paletteSize = sizeof(float) * 4 * m_Palette.GetColors().size();
 	file.write(reinterpret_cast<char*>(&paletteSize), 8);
 	fileptr += 8;
 	file.seekp(fileptr);
 
 	// x Bytes: Color Palette Data
-	file.write(reinterpret_cast<char*>(m_Palette.GetColorData().data()), paletteSize);
+	file.write(reinterpret_cast<char*>(m_Palette.GetColors().data()), paletteSize);
 	fileptr += paletteSize;
 	file.seekp(fileptr);
 
@@ -446,6 +480,7 @@ void EditorApplication::LoadFromFile(std::string& filePath)
 {
 	uint64_t fileptr = 0;
 	// Open File 
+	VX_CORE_INFO("[SAVE] File Path: {}", filePath);
 	std::ifstream file;
 	file.open(filePath, std::ios_base::binary);
 
@@ -456,7 +491,7 @@ void EditorApplication::LoadFromFile(std::string& filePath)
 	file.seekg(fileptr);
 
 	// x Bytes: Octree Data
-	m_Octree.ReplaceOctree(fileSize / (sizeof(uint32_t) * 4));
+	m_Octree.Replace(fileSize / (sizeof(uint32_t) * 4));
 	file.read(reinterpret_cast<char*>(m_Octree.GetData()), fileSize);
 	fileptr += fileSize;
 	file.seekg(fileptr);
@@ -468,8 +503,8 @@ void EditorApplication::LoadFromFile(std::string& filePath)
 	file.seekg(fileptr);
 
 	// x Bytes: Color Palette Data
-	m_Palette.ReplacePalette(paletteSize / sizeof(float));
-	file.read(reinterpret_cast<char*>(m_Palette.GetColorData().data()), paletteSize);
+	m_Palette.Replace(paletteSize / (sizeof(float) * 4));
+	file.read(reinterpret_cast<char*>(m_Palette.GetColors().data()), paletteSize);
 	fileptr += paletteSize;
 	file.seekg(fileptr);
 
@@ -486,4 +521,34 @@ void EditorApplication::LoadFromFile(std::string& filePath)
 	//m_Octree.ReplaceOctree(fileSize / (sizeof(uint32_t) * 4));
 	//file.read(reinterpret_cast<char*>(m_Octree.GetData()), fileSize);
 	//file.close();
+}
+
+void EditorApplication::SavePaletteToFile(std::string& filePath)
+{
+	filePath.append(".viop");
+	VX_CORE_INFO("[PALETTE SAVE] File Path: {}", filePath);
+	std::ofstream file;
+	file.open(filePath, std::ios_base::binary);
+
+	size_t paletteSize = sizeof(float) * 4 * m_Palette.GetColors().size();
+	file.write(reinterpret_cast<char*>(&paletteSize), 8);
+	file.seekp(8);
+	file.write(reinterpret_cast<char*>(m_Palette.GetColors().data()), paletteSize);
+
+	file.close();
+}
+
+void EditorApplication::LoadPaletteFromFile(std::string& filePath)
+{
+	VX_CORE_INFO("[PALETTE LOAD] File Path: {}", filePath);
+	std::ifstream file;
+	file.open(filePath, std::ios_base::binary);
+
+	size_t paletteSize = 0;
+	file.read(reinterpret_cast<char*>(&paletteSize), 8);
+	file.seekg(8);
+	m_Palette.Replace(paletteSize / (sizeof(float) * 4));
+	file.read(reinterpret_cast<char*>(m_Palette.GetColors().data()), paletteSize);
+
+	file.close();
 }
