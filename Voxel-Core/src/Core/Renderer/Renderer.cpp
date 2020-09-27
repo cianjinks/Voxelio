@@ -2,6 +2,7 @@
 #include "Renderer.h"
 
 #include <glad/glad.h>
+#include "RendererCommand.h"
 
 namespace VoxelCore {
 
@@ -55,11 +56,10 @@ namespace VoxelCore {
 		
 		m_VertexData = new std::vector<float>(RendererData::MaxVertices);
 
-		// HARDCODED API USAGE
-		glActiveTexture(GL_TEXTURE0);
+		RendererCommand::ActiveTexture(0);
 		octdbo = DataBuffer::Create(CompactVoxelOctree::MAX_OCTREE_NODES * 4 * sizeof(uint32_t), DataBufferFormat::UINT4);
 		octdbo->Bind();
-		glActiveTexture(GL_TEXTURE1);
+		RendererCommand::ActiveTexture(1);
 		colordbo = DataBuffer::Create(RendererData::MaxColorPaletteSize * 4 * sizeof(float), DataBufferFormat::FLOAT4);
 		colordbo->Bind();
 
@@ -103,10 +103,9 @@ namespace VoxelCore {
 		if (m_ActiveScene)
 		{
 			vbo->SetData(m_VertexData->data(), m_VertexData->size() * sizeof(float));
-			// HARDCODED API USAGE
 			if (RendererData::IndicesCount != 0)
 			{
-				glDrawElements(GL_TRIANGLES, RendererData::IndicesCount, GL_UNSIGNED_INT, 0);
+				RendererCommand::DrawElements(RendererData::IndicesCount, 0);
 				RendererData::DrawCalls++;
 			}
 			m_ActiveScene = false;
@@ -160,12 +159,11 @@ namespace VoxelCore {
 	{
 		DrawRect(glm::vec3(-aspectRatio, -1.0f, 0.0f), 2 * aspectRatio, 2.0f);
 
-		// HARDCODED API USAGE
-		glActiveTexture(GL_TEXTURE0);
+		RendererCommand::ActiveTexture(0);
 		octdbo->SetData(octree.GetData(), octree.GetNodeCount() * 4 * sizeof(uint32_t));
 		octdbo->Bind();
 
-		glActiveTexture(GL_TEXTURE1);
+		RendererCommand::ActiveTexture(1);
 		auto& colorData = palette.GetColors();
 		colordbo->SetData(colorData.data(), colorData.size() * 4 * sizeof(float));
 		colordbo->Bind();
