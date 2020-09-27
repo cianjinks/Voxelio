@@ -13,6 +13,12 @@ namespace VoxelCore {
 		AddColor(m_SelectionColor);
 	}
 
+	void VoxelColorPalette::ReplacePalette(size_t size)
+	{
+		m_ColorData.clear();
+		m_ColorData.resize(size);
+	}
+
 	std::vector<VoxelColor>& VoxelColorPalette::GetColors()
 	{
 		return m_Colors;

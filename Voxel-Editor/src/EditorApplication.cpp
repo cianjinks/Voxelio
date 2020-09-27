@@ -395,26 +395,95 @@ VoxelCore::Ray EditorApplication::GenerateMouseRay()
 
 void EditorApplication::SaveToFile(std::string& filePath)
 {
+	// VIO File Format:
+	// 8 Bytes: Size of Octree Data in Bytes
+	// x Bytes: Octree Data
+	// 8 Bytes: Size of Color Palette Data in Bytes
+	// x Bytes: Color Palette Data
+
+	uint64_t fileptr = 0;
+	// Open File
 	filePath.append(".vio");
 	VX_CORE_INFO("[SAVE] File Path: {}", filePath);
 	std::ofstream file;
 	file.open(filePath, std::ios_base::binary);
+
+	// 8 Bytes: Size of Octree Data in Bytes
 	size_t fileSize = sizeof(uint32_t) * 4 * m_Octree.GetNodeCount();
+	file.write(reinterpret_cast<char*>(&fileSize), 8);
+	fileptr += 8;
+	file.seekp(fileptr);
+
+	// x Bytes: Octree Data
 	file.write(reinterpret_cast<char*>(m_Octree.GetData()), fileSize);
+	fileptr += fileSize;
+	file.seekp(fileptr);
+
+	// 8 Bytes: Size of Color Palette Data in Bytes
+	size_t paletteSize = sizeof(float) * m_Palette.GetColorData().size();
+	file.write(reinterpret_cast<char*>(&paletteSize), 8);
+	fileptr += 8;
+	file.seekp(fileptr);
+
+	// x Bytes: Color Palette Data
+	file.write(reinterpret_cast<char*>(m_Palette.GetColorData().data()), paletteSize);
+	fileptr += paletteSize;
+	file.seekp(fileptr);
+
 	file.close();
+
+
+	//filePath.append(".vio");
+	//VX_CORE_INFO("[SAVE] File Path: {}", filePath);
+	//std::ofstream file;
+	//file.open(filePath, std::ios_base::binary);
+	//size_t fileSize = sizeof(uint32_t) * 4 * m_Octree.GetNodeCount();
+	//file.write(reinterpret_cast<char*>(m_Octree.GetData()), fileSize);
+	//file.close();
 }
 
 void EditorApplication::LoadFromFile(std::string& filePath)
 {
-	VX_CORE_INFO("[LOAD] File Path: {}", filePath);
+	uint64_t fileptr = 0;
+	// Open File 
 	std::ifstream file;
 	file.open(filePath, std::ios_base::binary);
 
-	file.seekg(0, std::ios::end);
-	size_t fileSize = file.tellg();
-	file.seekg(0, std::ios::beg);
+	// 8 Bytes: Size of Octree Data in Bytes
+	size_t fileSize = 0;
+	file.read(reinterpret_cast<char*>(&fileSize), 8);
+	fileptr += 8;
+	file.seekg(fileptr);
 
+	// x Bytes: Octree Data
 	m_Octree.ReplaceOctree(fileSize / (sizeof(uint32_t) * 4));
 	file.read(reinterpret_cast<char*>(m_Octree.GetData()), fileSize);
+	fileptr += fileSize;
+	file.seekg(fileptr);
+
+	// 8 Bytes: Size of Color Palette Data in Bytes
+	size_t paletteSize = 0;
+	file.read(reinterpret_cast<char*>(&paletteSize), 8);
+	fileptr += 8;
+	file.seekg(fileptr);
+
+	// x Bytes: Color Palette Data
+	m_Palette.ReplacePalette(paletteSize / sizeof(float));
+	file.read(reinterpret_cast<char*>(m_Palette.GetColorData().data()), paletteSize);
+	fileptr += paletteSize;
+	file.seekg(fileptr);
+
 	file.close();
+
+	//VX_CORE_INFO("[LOAD] File Path: {}", filePath);
+	//std::ifstream file;
+	//file.open(filePath, std::ios_base::binary);
+	//
+	//file.seekg(0, std::ios::end);
+	//size_t fileSize = file.tellg();
+	//file.seekg(0, std::ios::beg);
+	//
+	//m_Octree.ReplaceOctree(fileSize / (sizeof(uint32_t) * 4));
+	//file.read(reinterpret_cast<char*>(m_Octree.GetData()), fileSize);
+	//file.close();
 }
