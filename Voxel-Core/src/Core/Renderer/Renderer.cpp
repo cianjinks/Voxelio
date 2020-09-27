@@ -101,7 +101,7 @@ namespace VoxelCore {
 	{
 		if (m_ActiveScene)
 		{
-			vbo->SetData(m_VertexData->data(), m_VertexData->size() * sizeof(float));
+			vbo->SetData(m_VertexData->data(), (int)m_VertexData->size() * sizeof(float));
 			if (RendererData::IndicesCount != 0)
 			{
 				RendererCommand::DrawElements(RendererData::IndicesCount, 0);
@@ -164,7 +164,7 @@ namespace VoxelCore {
 
 		RendererCommand::ActiveTexture(1);
 		auto& colorData = palette.GetColors();
-		colordbo->SetData(colorData.data(), colorData.size() * 4 * sizeof(float));
+		colordbo->SetData(colorData.data(), (int)colorData.size() * 4 * sizeof(float));
 		colordbo->Bind();
 	}
 }

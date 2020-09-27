@@ -86,7 +86,7 @@ namespace VoxelCore {
 		void SetColorIndex(int x, int y, int z, uint32_t colorIndex);
 
 		uint32_t* GetData();
-		int GetNodeCount() const { return m_Nodes.size(); };
+		int GetNodeCount() const { return (int)m_Nodes.size(); };
 
 		constexpr static int s_OctreeLevels = 6;
 		static int MAX_OCTREE_NODES;

@@ -6,12 +6,12 @@
 namespace VoxelCore
 {
 
-	void RendererCommand::DrawElements(int indicesCount, int offset)
+	void RendererCommand::DrawElements(int indicesCount, const void* offset)
 	{
 		switch (Renderer::getAPI())
 		{
 		case GraphicsAPI::None: VX_CORE_CRITICAL("Unsupported graphics API specified for Draw Elements call"); return;
-		case GraphicsAPI::OpenGL: glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, (void*)offset); return;
+		case GraphicsAPI::OpenGL: glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, offset); return;
 		}
 
 		VX_CORE_ERROR("Unknown graphics API specified for Draw Elements call");

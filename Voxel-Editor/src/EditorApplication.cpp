@@ -19,8 +19,8 @@ void EditorApplication::PreRender()
 	VoxelCore::RendererCommand::EnableDepthTesting();
 	glfwSwapInterval(0);
 
-	m_FBOData.Width = m_WindowWidth;
-	m_FBOData.Height = m_WindowHeight;
+	m_FBOData.Width = (uint32_t)m_WindowWidth;
+	m_FBOData.Height = (uint32_t)m_WindowHeight;
 	m_FBO = VoxelCore::FrameBuffer::Create(m_FBOData);
 
 	m_FileBrowser.SetTypeFilters({s_ProjectFileExtension.c_str()});
@@ -221,7 +221,7 @@ void EditorApplication::ImGuiRender()
 	ImGui::Text("Color Palette: ");
 
 	const float squareDim = 50.0f;
-	int squaresPerLine = (ImGui::GetWindowWidth() / squareDim) - 1;
+	int squaresPerLine = ((int)(ImGui::GetWindowWidth() / squareDim)) - 1;
 	auto colors = m_Palette.GetColors();
 	int count = 1;
 
@@ -265,7 +265,7 @@ void EditorApplication::ImGuiRender()
 	ImGui::InputInt3("", &m_SelectedVoxel.x);
 
 	// Keep selected voxel in bounds
-	int upperVoxelBound = std::pow(2, m_Octree.s_OctreeLevels) - 1;
+	int upperVoxelBound = (int)std::pow(2, m_Octree.s_OctreeLevels) - 1;
 	int lowerVoxelBound = 0;
 	for (int i = 0; i < 3; i++)
 	{
@@ -509,8 +509,8 @@ void EditorApplication::LoadPaletteFromFile(std::string& filePath)
 
 void EditorApplication::GenerateToolButtons()
 {
-	float toolWindowWidth = ImGui::GetWindowWidth();
-	float dim = (toolWindowWidth / 3) - (0.05 * toolWindowWidth);
+	float toolWindowWidth = (float)ImGui::GetWindowWidth();
+	float dim = (toolWindowWidth / 3.0f) - (0.05f * toolWindowWidth);
 
 	// Color Tool Button
 	if (m_ToolHandler.GetActiveTool() == VoxelCore::ToolType::COLOR) {
