@@ -14,8 +14,6 @@ namespace VoxelCore {
 	{
 		const float sensitivity = m_CameraRadius / 10;
 		yoffset *= sensitivity;
-		
-		VX_CORE_INFO("Y Offset {:.3f}", yoffset);
 
 		m_CameraRadius -= yoffset;
 		CalculateCameraPos();

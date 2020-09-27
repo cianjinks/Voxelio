@@ -15,7 +15,8 @@ EditorApplication::EditorApplication()
 
 void EditorApplication::PreRender()
 {
-	glEnable(GL_DEPTH_TEST);
+	VoxelCore::RendererCommand::EnableBlending();
+	VoxelCore::RendererCommand::EnableDepthTesting();
 	glfwSwapInterval(0);
 
 	m_FBOData.Width = m_WindowWidth;
@@ -46,40 +47,32 @@ void EditorApplication::Render()
 	// Main Rendering
 	m_FBO->Bind();
 
-	glClearColor(173.0f / 255.0f, 216.0f / 255.0f, 230.0f / 255.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// Clear FBO Screen
+	VoxelCore::RendererCommand::ClearColor(glm::vec4(173.0f / 255.0f, 216.0f / 255.0f, 230.0f / 255.0f, 1.0f));
+	VoxelCore::RendererCommand::Clear();
 
 	VoxelCore::Renderer::BeginScene(m_OctreeCameraController, m_OctreeOrthoCamera);
 	VoxelCore::Renderer::DrawOctree(m_Octree, m_Palette, m_OctreeOrthoCamera.GetAspectRatio());
 	VoxelCore::Renderer::EndScene();
 	m_FBO->Unbind();
 
-	// Clear Screen
-	glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// Clear Screen behind FBO
+	VoxelCore::RendererCommand::ClearColor(glm::vec4(0.7f, 0.7f, 0.7f, 1.0f));
+	VoxelCore::RendererCommand::Clear();
 
 	// Tools Rendering (Shows preview of current tools action)
 	if (VoxelCore::Input::GetInputMode(GLFW_CURSOR) == GLFW_CURSOR_NORMAL) {
 		m_ToolHandler.ToolHover(m_Octree, GenerateMouseRay(), m_CurrentSelectedColorIndex);
 	}
-
-	// Update whether mouse is in viewport
-	int grabOffset = 4;
-	if (m_CursorPosImGui.x > grabOffset && m_CursorPosImGui.x < m_ViewportWindowDim.x - grabOffset && m_CursorPosImGui.y > grabOffset && m_CursorPosImGui.y < m_ViewportWindowDim.y - grabOffset)
-	{ m_MouseInViewport = true; }
-	else { m_MouseInViewport = false; }
 }
 
 void EditorApplication::ImGuiRender()
 {
-	// Note: Switch this to true to enable dockspace
 	static bool dockspaceOpen = true;
 	static bool opt_fullscreen_persistant = true;
 	bool opt_fullscreen = opt_fullscreen_persistant;
 	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
-	// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-	// because it would be confusing to have two docking targets within each others.
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
 	if (opt_fullscreen)
 	{
@@ -93,15 +86,9 @@ void EditorApplication::ImGuiRender()
 		window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 	}
 
-	// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background and handle the pass-thru hole, so we ask Begin() to not render a background.
 	if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
 		window_flags |= ImGuiWindowFlags_NoBackground;
 
-	// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
-	// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive, 
-	// all active windows docked into it will lose their parent and become undocked.
-	// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise 
-	// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 	ImGui::Begin("DockSpace Demo", &dockspaceOpen, window_flags);
 	ImGui::PopStyleVar();
@@ -300,25 +287,9 @@ void EditorApplication::ImGuiRender()
 	{
 		m_Octree.Deactivate(m_SelectedVoxel.x, m_SelectedVoxel.y, m_SelectedVoxel.z);
 	}
+	ImGui::Separator();
 
-	float toolWindowWidth = ImGui::GetWindowWidth();
-	float dim = (toolWindowWidth / 2) - (0.1 * toolWindowWidth);
-	if (ImGui::Button("Color Tool", ImVec2(dim, dim)))
-	{
-		// This colors voxels
-		m_ToolHandler.SetActiveTool(VoxelCore::ToolType::COLOR);
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Erase Tool", ImVec2(dim, dim)))
-	{
-		// This tool erases voxels
-		m_ToolHandler.SetActiveTool(VoxelCore::ToolType::ERASE);
-	}
-	if (ImGui::Button("Build Tool", ImVec2(dim, dim)))
-	{
-		// This tool adds new voxels
-		m_ToolHandler.SetActiveTool(VoxelCore::ToolType::BUILD);
-	}
+	GenerateToolButtons();
 
 	ImGui::End();
 
@@ -327,7 +298,7 @@ void EditorApplication::ImGuiRender()
 
 	//m_ViewportFocused = ImGui::IsWindowFocused();
 	//m_ViewportHovered = ImGui::IsWindowHovered();
-	//Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused || !m_ViewportHovered);
+	m_MouseInViewport = ImGui::IsWindowHovered();
 
 	ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 	m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
@@ -351,9 +322,12 @@ void EditorApplication::ImGuiRender()
 
 void EditorApplication::OnKeyPress(int key, int scancode, int action, int mods)
 {
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+	if (m_MouseInViewport)
 	{
-		
+		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		{
+
+		}
 	}
 }
 
@@ -364,12 +338,15 @@ void EditorApplication::OnMouseMove(float xpos, float ypos)
 
 void EditorApplication::OnMouseScroll(float xoffset, float yoffset)
 {
-	m_OctreeCameraController.OnMouseScroll(xoffset, yoffset);
+	if (m_MouseInViewport)
+	{
+		m_OctreeCameraController.OnMouseScroll(xoffset, yoffset);
+	}
 }
 
 void EditorApplication::OnMouseClick(int button, int action, int mods)
 {
-	// Check if mouse is over viewport ( the grabOffset accomodates for grabbing the edge of the window)
+	// Check if mouse is over viewport
 	if (m_MouseInViewport) {
 		if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
 			VoxelCore::Input::SetInputMode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -378,7 +355,7 @@ void EditorApplication::OnMouseClick(int button, int action, int mods)
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 		{
 			// I could probably just save the mouse ray from the render loop for this
-			m_ToolHandler.ToolLeftClick(m_Octree, GenerateMouseRay(), m_CurrentSelectedColorIndex);
+			m_ToolHandler.ToolLeftClick(m_Octree, GenerateMouseRay(), m_CurrentSelectedColorIndex, m_SelectedVoxel);
 		}
 	}
 	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
@@ -460,15 +437,6 @@ void EditorApplication::SaveToFile(std::string& filePath)
 	file.seekp(fileptr);
 
 	file.close();
-
-
-	//filePath.append(".vio");
-	//VX_CORE_INFO("[SAVE] File Path: {}", filePath);
-	//std::ofstream file;
-	//file.open(filePath, std::ios_base::binary);
-	//size_t fileSize = sizeof(uint32_t) * 4 * m_Octree.GetNodeCount();
-	//file.write(reinterpret_cast<char*>(m_Octree.GetData()), fileSize);
-	//file.close();
 }
 
 void EditorApplication::LoadFromFile(std::string& filePath)
@@ -504,18 +472,6 @@ void EditorApplication::LoadFromFile(std::string& filePath)
 	file.seekg(fileptr);
 
 	file.close();
-
-	//VX_CORE_INFO("[LOAD] File Path: {}", filePath);
-	//std::ifstream file;
-	//file.open(filePath, std::ios_base::binary);
-	//
-	//file.seekg(0, std::ios::end);
-	//size_t fileSize = file.tellg();
-	//file.seekg(0, std::ios::beg);
-	//
-	//m_Octree.ReplaceOctree(fileSize / (sizeof(uint32_t) * 4));
-	//file.read(reinterpret_cast<char*>(m_Octree.GetData()), fileSize);
-	//file.close();
 }
 
 void EditorApplication::SavePaletteToFile(std::string& filePath)
@@ -549,4 +505,69 @@ void EditorApplication::LoadPaletteFromFile(std::string& filePath)
 	file.read(reinterpret_cast<char*>(m_Palette.GetColors().data()), paletteSize);
 
 	file.close();
+}
+
+void EditorApplication::GenerateToolButtons()
+{
+	float toolWindowWidth = ImGui::GetWindowWidth();
+	float dim = (toolWindowWidth / 3) - (0.05 * toolWindowWidth);
+
+	// Color Tool Button
+	if (m_ToolHandler.GetActiveTool() == VoxelCore::ToolType::COLOR) {
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(64.0f / 255.0f, 224.0f / 255.0f, 208.0f / 255.0f, 1.0f));
+		if (ImGui::Button("Color", ImVec2(dim, dim)))
+		{
+			// This colors voxels
+			m_ToolHandler.SetActiveTool(VoxelCore::ToolType::COLOR);
+		}
+		ImGui::PopStyleColor(1);
+	}
+	else
+	{
+		if (ImGui::Button("Color", ImVec2(dim, dim)))
+		{
+			// This colors voxels
+			m_ToolHandler.SetActiveTool(VoxelCore::ToolType::COLOR);
+		}
+	}
+	ImGui::SameLine();
+
+	// Erase Tool Button
+	if (m_ToolHandler.GetActiveTool() == VoxelCore::ToolType::ERASE) {
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(64.0f / 255.0f, 224.0f / 255.0f, 208.0f / 255.0f, 1.0f));
+		if (ImGui::Button("Erase", ImVec2(dim, dim)))
+		{
+			// This tool erases voxels
+			m_ToolHandler.SetActiveTool(VoxelCore::ToolType::ERASE);
+		}
+		ImGui::PopStyleColor(1);
+	}
+	else
+	{
+		if (ImGui::Button("Erase", ImVec2(dim, dim)))
+		{
+			// This tool erases voxels
+			m_ToolHandler.SetActiveTool(VoxelCore::ToolType::ERASE);
+		}
+	}
+	ImGui::SameLine();
+
+	// Build Tool Button
+	if (m_ToolHandler.GetActiveTool() == VoxelCore::ToolType::BUILD) {
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(64.0f / 255.0f, 224.0f / 255.0f, 208.0f / 255.0f, 1.0f));
+		if (ImGui::Button("Build", ImVec2(dim, dim)))
+		{
+			// This tool adds new voxels
+			m_ToolHandler.SetActiveTool(VoxelCore::ToolType::BUILD);
+		}
+		ImGui::PopStyleColor(1);
+	}
+	else
+	{
+		if (ImGui::Button("Build", ImVec2(dim, dim)))
+		{
+			// This tool adds new voxels
+			m_ToolHandler.SetActiveTool(VoxelCore::ToolType::BUILD);
+		}
+	}
 }

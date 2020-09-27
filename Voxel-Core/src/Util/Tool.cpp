@@ -59,10 +59,6 @@ namespace VoxelCore {
 			}
 			case ToolType::COLOR:
 			{
-				if (m_LastNodeHit != nullptr)
-				{
-					VX_CORE_INFO("LastNodeHit: {}, LastChild: {}, LastColor: {}", m_LastNodeHit->GetData(), m_LastChildIndex, m_LastNodeColorIndex);
-				}
 				RayTraceHit hit = octree.RayTrace(ray);
 				// If the mouse has changed nodes
 				if ((hit.node != m_LastNodeHit || (hit.node == m_LastNodeHit && hit.childIndex != m_LastChildIndex)))
@@ -90,13 +86,14 @@ namespace VoxelCore {
 		}
 	}
 
-	void ToolHandler::ToolLeftClick(CompactVoxelOctree& octree, Ray ray, int currentSelectedColorIndex)
+	void ToolHandler::ToolLeftClick(CompactVoxelOctree& octree, Ray ray, int currentSelectedColorIndex, glm::ivec3& currentVoxel)
 	{
 		switch (m_ActiveToolType)
 		{
 			case ToolType::ERASE:
 			{
 				RayTraceHit hit = octree.RayTrace(ray);
+				currentVoxel = hit.nodeIndex;
 				// If the current node is valid
 				if (hit.node != nullptr && hit.childIndex >= 0)
 				{
@@ -108,6 +105,7 @@ namespace VoxelCore {
 			}
 			case ToolType::BUILD:
 			{
+				currentVoxel = m_LastNodeIndex;
 				if (m_LastNodeHit != nullptr)
 				{
 					// Make sure the index of the voxel we wish to place is valid (this is actually already done by CompactVoxelOctree::Activate
@@ -124,6 +122,7 @@ namespace VoxelCore {
 			case ToolType::COLOR:
 			{
 				RayTraceHit hit = octree.RayTrace(ray);
+				currentVoxel = hit.nodeIndex;
 				// If the current node is valid
 				if (hit.node != nullptr && hit.childIndex >= 0)
 				{

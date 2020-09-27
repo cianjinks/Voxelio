@@ -59,6 +59,8 @@ private:
 	void SavePaletteToFile(std::string& filePath);
 	void LoadPaletteFromFile(std::string& filePath);
 
+	void GenerateToolButtons();
+
 public:
 	EditorApplication();
 	virtual ~EditorApplication() = default;
