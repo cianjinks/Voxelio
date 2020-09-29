@@ -106,7 +106,7 @@ void EditorApplication::ImGuiRender()
 
 	if (ImGui::BeginMenuBar())
 	{
-		if (ImGui::BeginMenu("Menu"))
+		if (ImGui::BeginMenu("File"))
 		{
 			// Here we actually build out this option
 			ImGui::MenuItem("New Project", NULL, &s_NewModel);
