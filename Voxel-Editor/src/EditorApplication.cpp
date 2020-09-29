@@ -11,7 +11,7 @@ std::string EditorApplication::s_ProjectFileExtension = ".vio";
 std::string EditorApplication::s_PaletteFileExtension = ".viop";
 
 EditorApplication::EditorApplication()
-	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Test Window"), m_OctreeCameraController(1280.0f, 720.0f, 5.0f), m_OctreeOrthoCamera(1280.0f, 720.0f) {}
+	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Voxelio"), m_OctreeCameraController(1280.0f, 720.0f, 5.0f), m_OctreeOrthoCamera(1280.0f, 720.0f) {}
 
 void EditorApplication::PreRender()
 {

@@ -12,15 +12,21 @@ Created by Cian Jinks (contact via cjinks99@gmail.com)
 
 ## Download
 
-The latest release of Voxelio can be obtained via the [releases page]().
+The latest release of Voxelio can be obtained via the [releases page](https://github.com/cianjinks/Voxelio/releases).
 
-If you encounter any problems while running on one of the supported platforms mentioned above please [open an issue]().
+If you encounter any problems while running on one of the supported platforms mentioned above please [open an issue](https://github.com/cianjinks/Voxelio/issues).
 
 ## Preview
 
-![Preview One]()
+![Preview One](docs/previewone.png)
 
-If you end up creating something using Voxelio please share it with me by email to cjinks99@gmail.com. I would love to see what you create!
+Based on [this artwork](https://www.pinterest.ie/pin/486177722254960160)
+
+![Preview Two](docs/previewtwo.png)
+
+Based on [this artwork](https://www.youtube.com/williamsantacruzvoxelart)
+
+If you end up creating something using Voxelio please share it with me by email to cjinks99@gmail.com. I would love to see what you create and possibly feature it here!
 
 ## Tutorial
 
@@ -39,6 +45,7 @@ If you end up creating something using Voxelio please share it with me by email 
 
 *   Screenshot capturing and rendering
 *   Helper display grid
+*   Perspective switching
 *   Many more tools (fill blocks, fill color, selection, erase selection, etc)
 *   Rendered scene view
 *   Placeable lighting (merge SVO with normal rasterization)
