@@ -68,14 +68,17 @@ namespace VoxelCore {
 	{
 	private:
 		std::vector<CompactNode> m_Nodes;
+	public:
+		int m_Dimension;
+	private:
 
 	public:
-		CompactVoxelOctree();
+		CompactVoxelOctree(int levels);
 		~CompactVoxelOctree();
 
 		void GenerateOctree();
-		void Replace(size_t size);
-		void Reload();
+		void GenerateLevels();
+		void Reload(int levels);
 
 		void Activate(int x, int y, int z);
 		void Deactivate(int x, int y, int z);
@@ -88,15 +91,12 @@ namespace VoxelCore {
 		uint32_t* GetData();
 		int GetNodeCount() const { return (int)m_Nodes.size(); };
 
-		constexpr static int s_OctreeLevels = 6;
-		static int MAX_OCTREE_NODES;
+		int m_OctreeLevels;
+		std::map<int, std::string> m_OctreeLevelsMap;
+		constexpr static int MAX_OCTREE_LEVELS = 6;
+		constexpr static int MAX_OCTREE_NODES = 262144; // 8^6
 
 		int get2DIndex(glm::vec3 index);
-		
-	private:
-
-	public:
-		int m_Dimension;
 	};
 
 	struct OctreeStackElement

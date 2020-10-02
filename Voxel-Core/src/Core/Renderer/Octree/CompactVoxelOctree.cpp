@@ -240,12 +240,12 @@ namespace VoxelCore {
 		return -1;
 	}
 
-	int CompactVoxelOctree::MAX_OCTREE_NODES = (int)std::pow(8, s_OctreeLevels);
-
 	// OCTREE
-	CompactVoxelOctree::CompactVoxelOctree()
+	CompactVoxelOctree::CompactVoxelOctree(int levels)
+		: m_OctreeLevels(levels)
 	{
 		GenerateOctree();
+		GenerateLevels();
 	}
 
 	CompactVoxelOctree::~CompactVoxelOctree()
@@ -257,7 +257,7 @@ namespace VoxelCore {
 	{
 		m_Nodes.reserve(MAX_OCTREE_NODES);
 		m_Nodes.emplace_back(0x0001FFFF);
-		m_Dimension = (int)std::pow(2, s_OctreeLevels);
+		m_Dimension = (int)std::pow(2, m_OctreeLevels);
 		for (int x = 0; x < m_Dimension; x++)
 		{
 			for (int y = 0; y < m_Dimension; y++)
@@ -270,28 +270,35 @@ namespace VoxelCore {
 		}
 	}
 
-	void CompactVoxelOctree::Replace(size_t size)
+	// Generates a map of octree resolutions to strings of their dimensions
+	void CompactVoxelOctree::GenerateLevels()
 	{
-		m_Nodes.clear();
-		m_Nodes.resize(size);
+		for (int i = 1; i <= MAX_OCTREE_LEVELS; i++)
+		{
+			int dimension = (int)std::pow(2, i);
+			std::string dimString = std::to_string(dimension);
+			std::string name = dimString + "x" + dimString + "x" + dimString;
+			m_OctreeLevelsMap.insert(std::make_pair(i, name));
+		}
 	}
 
-	void CompactVoxelOctree::Reload()
+	void CompactVoxelOctree::Reload(int levels)
 	{
+		m_OctreeLevels = levels;
 		m_Nodes.clear();
 		GenerateOctree();
 	}
 
 	void CompactVoxelOctree::Activate(int x, int y, int z)
 	{
-		int sizelength = (int)std::pow(2, s_OctreeLevels);
+		int sizelength = (int)std::pow(2, m_OctreeLevels);
 		// Makes sure index is in bounds (otherwise undefined behavior can occur)
 		if ((x < sizelength && x >= 0) && (y < sizelength && y >= 0) && (z < sizelength && z >= 0))
 		{
 			//VX_CORE_INFO("[Activate Subnode] X: {0} Y {1} Z {2}", x, y, z);
 
 			CompactNode* node = &m_Nodes[0]; // Retrieve the root node
-			int size = (int)std::pow(2, s_OctreeLevels - 1);
+			int size = (int)std::pow(2, m_OctreeLevels - 1);
 
 			while (size != 0)
 			{
@@ -345,14 +352,14 @@ namespace VoxelCore {
 
 	void CompactVoxelOctree::Deactivate(int x, int y, int z)
 	{
-		int sizelength = (int)std::pow(2, s_OctreeLevels);
+		int sizelength = (int)std::pow(2, m_OctreeLevels);
 		// Makes sure index is in bounds (otherwise undefined behavior can occur)
 		if ((x < sizelength && x >= 0) && (y < sizelength && y >= 0) && (z < sizelength && z >= 0))
 		{
 			VX_CORE_INFO("[Deactivate Subnode] X: {0} Y {1} Z {2}", x, y, z);
 
 			CompactNode* node = &m_Nodes[0]; // Retrieve the root node
-			int size = (int)std::pow(2, s_OctreeLevels - 1);
+			int size = (int)std::pow(2, m_OctreeLevels - 1);
 
 			while (size != 0)
 			{
@@ -406,14 +413,14 @@ namespace VoxelCore {
 
 	void CompactVoxelOctree::SetColorIndex(int x, int y, int z, uint32_t colorIndex)
 	{
-		int sizelength = (int)std::pow(2, s_OctreeLevels);
+		int sizelength = (int)std::pow(2, m_OctreeLevels);
 		// Makes sure index is in bounds (otherwise undefined behavior can occur)
 		if ((x < sizelength && x >= 0) && (y < sizelength && y >= 0) && (z < sizelength && z >= 0))
 		{
 			//VX_CORE_INFO("[Set Color Index of Subnode] X: {0} Y {1} Z {2}", x, y, z);
 
 			CompactNode* node = &m_Nodes[0]; // Retrieve the root node
-			int size = (int)std::pow(2, s_OctreeLevels - 1);
+			int size = (int)std::pow(2, m_OctreeLevels - 1);
 
 			while (size != 0)
 			{
@@ -571,7 +578,7 @@ namespace VoxelCore {
 	int CompactVoxelOctree::Get(int x, int y, int z)
 	{
 		CompactNode node = m_Nodes[0];
-		uint32_t size = (uint32_t)std::pow(2, s_OctreeLevels - 1);
+		uint32_t size = (uint32_t)std::pow(2, m_OctreeLevels - 1);
 
 		while (size != 0)
 		{

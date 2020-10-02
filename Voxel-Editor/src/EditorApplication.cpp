@@ -11,7 +11,7 @@ std::string EditorApplication::s_ProjectFileExtension = ".vio";
 std::string EditorApplication::s_PaletteFileExtension = ".viop";
 
 EditorApplication::EditorApplication()
-	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Voxelio - untitled.vio"), m_OctreeCameraController(1280.0f, 720.0f, 5.0f), m_OctreeOrthoCamera(1280.0f, 720.0f) {}
+	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Voxelio - untitled.vio"), m_OctreeCameraController(1280.0f, 720.0f, 5.0f), m_OctreeOrthoCamera(1280.0f, 720.0f), m_Octree(4) {}
 
 void EditorApplication::PreRender()
 {
@@ -120,10 +120,26 @@ void EditorApplication::ImGuiRender()
 	// New Model
 	if (s_NewModel)
 	{
-		m_Octree.Reload();
-		m_Palette.Reload();
-		m_WindowName = std::string("Voxelio - untitled.vio");
-		s_NewModel = false;
+		// New Model Popup to Decide Resolution
+		ImGui::OpenPopup("Test Popup");
+		if (ImGui::BeginPopupModal("Test Popup"))
+		{
+			ImGui::SetWindowSize(ImVec2(m_WindowWidth / 2, m_WindowHeight / 2));
+			ImGui::Text("Resolutions: ");
+			
+			for (std::map<int, std::string>::iterator it = m_Octree.m_OctreeLevelsMap.begin(); it != m_Octree.m_OctreeLevelsMap.end(); it++)
+			{
+				if (ImGui::Button(it->second.c_str()))
+				{
+					VX_EDITOR_INFO("Octree Levels: {}", it->first);
+					m_Octree.Reload(it->first);
+					m_Palette.Reload();
+					m_WindowName = std::string("Voxelio - untitled.vio");
+					s_NewModel = false;
+				}
+			}
+		}
+		ImGui::EndPopup();
 	}
 
 	// Saving / Loading Models
@@ -158,7 +174,6 @@ void EditorApplication::ImGuiRender()
 		}
 		m_FileBrowser.ClearSelected();
 	}
-
 
 	// Info Panel
 
@@ -272,7 +287,7 @@ void EditorApplication::ImGuiRender()
 	ImGui::InputInt3("", &m_SelectedVoxel.x);
 
 	// Keep selected voxel in bounds
-	int upperVoxelBound = (int)std::pow(2, m_Octree.s_OctreeLevels) - 1;
+	int upperVoxelBound = (int)std::pow(2, m_Octree.m_OctreeLevels) - 1;
 	int lowerVoxelBound = 0;
 	for (int i = 0; i < 3; i++)
 	{
@@ -413,6 +428,7 @@ VoxelCore::Ray EditorApplication::GenerateMouseRay()
 void EditorApplication::SaveToFile(std::string& filePath)
 {
 	// VIO File Format:
+	// 4 Bytes: Octree Resolution
 	// 8 Bytes: Size of Octree Data in Bytes
 	// x Bytes: Octree Data
 	// 8 Bytes: Size of Color Palette Data in Bytes
@@ -438,6 +454,10 @@ void EditorApplication::SaveToFile(std::string& filePath)
 	
 	std::ofstream file;
 	file.open(filePath, std::ios_base::binary);
+
+	file.write(reinterpret_cast<char*>(&m_Octree.m_OctreeLevels), 4);
+	fileptr += 4;
+	file.seekp(fileptr);
 
 	// 8 Bytes: Size of Octree Data in Bytes
 	size_t fileSize = sizeof(uint32_t) * 4 * m_Octree.GetNodeCount();
@@ -482,6 +502,11 @@ void EditorApplication::LoadFromFile(std::string& filePath)
 	std::ifstream file;
 	file.open(filePath, std::ios_base::binary);
 
+	int octreeLevels;
+	file.read(reinterpret_cast<char*>(&octreeLevels), 4);
+	fileptr += 4;
+	file.seekg(fileptr);
+
 	// 8 Bytes: Size of Octree Data in Bytes
 	size_t fileSize = 0;
 	file.read(reinterpret_cast<char*>(&fileSize), 8);
@@ -489,7 +514,8 @@ void EditorApplication::LoadFromFile(std::string& filePath)
 	file.seekg(fileptr);
 
 	// x Bytes: Octree Data
-	m_Octree.Replace(fileSize / (sizeof(uint32_t) * 4));
+	m_Octree.Reload(octreeLevels);
+	VX_EDITOR_INFO("Octree Levels: {}", octreeLevels);
 	file.read(reinterpret_cast<char*>(m_Octree.GetData()), fileSize);
 	fileptr += fileSize;
 	file.seekg(fileptr);
