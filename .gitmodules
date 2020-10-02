@@ -7,3 +7,6 @@
 [submodule "Voxel-Core/dependencies/spdlog"]
 	path = Voxel-Core/dependencies/spdlog
 	url = https://github.com/gabime/spdlog
+[submodule "Voxel-Core/dependencies/imgui"]
+	path = Voxel-Core/dependencies/imgui
+	url = https://github.com/cianjinks/imgui
