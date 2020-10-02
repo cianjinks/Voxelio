@@ -15,5 +15,7 @@ namespace VoxelCore
 
 		static void EnableDepthTesting();
 		static void EnableBlending();
+		static void EnableVsync();
+		static void DisableVsync();
 	};
 }

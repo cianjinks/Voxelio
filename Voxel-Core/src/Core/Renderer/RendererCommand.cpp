@@ -73,6 +73,28 @@ namespace VoxelCore
 		VX_CORE_ERROR("Unknown graphics API specified for enabling depth testing call");
 	}
 
+	void RendererCommand::EnableVsync()
+	{
+		switch (Renderer::getAPI())
+		{
+			case GraphicsAPI::None: VX_CORE_CRITICAL("Unsupported graphics API specified for enabling vsync call"); return;
+			case GraphicsAPI::OpenGL: glfwSwapInterval(1); return;
+		}
+
+		VX_CORE_ERROR("Unknown graphics API specified for enabling vsync call");
+	}
+
+	void RendererCommand::DisableVsync()
+	{
+		switch (Renderer::getAPI())
+		{
+		case GraphicsAPI::None: VX_CORE_CRITICAL("Unsupported graphics API specified for disabling vsync call"); return;
+		case GraphicsAPI::OpenGL: glfwSwapInterval(0); return;
+		}
+
+		VX_CORE_ERROR("Unknown graphics API specified for disabling vsync call");
+	}
+
 
 
 }

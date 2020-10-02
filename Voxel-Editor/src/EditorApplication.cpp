@@ -17,7 +17,7 @@ void EditorApplication::PreRender()
 {
 	VoxelCore::RendererCommand::EnableBlending();
 	VoxelCore::RendererCommand::EnableDepthTesting();
-	glfwSwapInterval(0);
+	VoxelCore::RendererCommand::DisableVsync();
 
 	m_FBOData.Width = (uint32_t)m_WindowWidth;
 	m_FBOData.Height = (uint32_t)m_WindowHeight;
@@ -529,6 +529,8 @@ void EditorApplication::SavePaletteToFile(std::string& filePath)
 
 void EditorApplication::LoadPaletteFromFile(std::string& filePath)
 {
+	m_IsSaved = false;
+
 	VX_CORE_INFO("[PALETTE LOAD] File Path: {}", filePath);
 	std::ifstream file;
 	file.open(filePath, std::ios_base::binary);
