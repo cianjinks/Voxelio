@@ -31,5 +31,6 @@ namespace VoxelCore {
 			m_Window->Update();
 		}
 		Renderer::Shutdown();
+		m_Window->Shutdown();
 	}
 }

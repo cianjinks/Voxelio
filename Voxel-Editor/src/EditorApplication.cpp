@@ -11,7 +11,7 @@ std::string EditorApplication::s_ProjectFileExtension = ".vio";
 std::string EditorApplication::s_PaletteFileExtension = ".viop";
 
 EditorApplication::EditorApplication()
-	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Voxelio"), m_OctreeCameraController(1280.0f, 720.0f, 5.0f), m_OctreeOrthoCamera(1280.0f, 720.0f) {}
+	: m_WindowWidth(1280.0f), m_WindowHeight(720.0f), m_WindowName("Voxelio - untitled.vio"), m_OctreeCameraController(1280.0f, 720.0f, 5.0f), m_OctreeOrthoCamera(1280.0f, 720.0f) {}
 
 void EditorApplication::PreRender()
 {
@@ -122,6 +122,7 @@ void EditorApplication::ImGuiRender()
 	{
 		m_Octree.Reload();
 		m_Palette.Reload();
+		m_WindowName = std::string("Voxelio - untitled.vio");
 		s_NewModel = false;
 	}
 
@@ -179,6 +180,12 @@ void EditorApplication::ImGuiRender()
 		if (!m_Palette.AddColor(m_PaletteEditorColor))
 		{
 			m_PaletteFull = true;
+		}
+		// The file is no longer saved
+		m_IsSaved = true;
+		if (m_WindowName.back() != '*')
+		{
+			m_WindowName.append("*");
 		}
 	}
 
@@ -356,6 +363,13 @@ void EditorApplication::OnMouseClick(int button, int action, int mods)
 		{
 			// I could probably just save the mouse ray from the render loop for this
 			m_ToolHandler.ToolLeftClick(m_Octree, GenerateMouseRay(), m_CurrentSelectedColorIndex, m_SelectedVoxel);
+
+			// If a tool has been used we must have made an edit
+			m_IsSaved = false;
+			if (m_WindowName.back() != '*')
+			{
+				m_WindowName.append("*");
+			}
 		}
 	}
 	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
@@ -411,6 +425,17 @@ void EditorApplication::SaveToFile(std::string& filePath)
 		filePath.append(s_ProjectFileExtension);
 	}
 	VX_CORE_INFO("[SAVE] File Path: {}", filePath);
+
+	// Store current project file
+	std::string delimiter = "\\";
+	std::string m_CurrentFile = filePath;
+	size_t pos = 0;
+	while ((pos = m_CurrentFile.find(delimiter)) != std::string::npos) {
+		m_CurrentFile.erase(0, pos + delimiter.length());
+	}
+	m_WindowName = std::string("Voxelio - ").append(m_CurrentFile);
+	m_IsSaved = true;
+	
 	std::ofstream file;
 	file.open(filePath, std::ios_base::binary);
 
@@ -441,6 +466,16 @@ void EditorApplication::SaveToFile(std::string& filePath)
 
 void EditorApplication::LoadFromFile(std::string& filePath)
 {
+	// Store current project file
+	std::string delimiter = "\\";
+	std::string m_CurrentFile = filePath;
+	size_t pos = 0;
+	while ((pos = m_CurrentFile.find(delimiter)) != std::string::npos) {
+		m_CurrentFile.erase(0, pos + delimiter.length());
+	}
+	m_WindowName = std::string("Voxelio - ").append(m_CurrentFile);
+	m_IsSaved = true;
+
 	uint64_t fileptr = 0;
 	// Open File 
 	VX_CORE_INFO("[SAVE] File Path: {}", filePath);

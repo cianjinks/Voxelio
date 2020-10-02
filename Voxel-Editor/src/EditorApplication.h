@@ -6,7 +6,7 @@ class EditorApplication : public VoxelCore::Application
 public:
 	float m_WindowWidth;
 	float m_WindowHeight;
-	char* m_WindowName;
+	std::string m_WindowName;
 
 	int division = 0;
 
@@ -47,6 +47,9 @@ private:
 	static bool s_SaveModel;
 	static bool s_CloseSaveModel;
 
+	std::string m_CurrentFile = "untitled.vio";
+	bool m_IsSaved = true;
+
 	void SaveToFile(std::string& filePath);
 	void LoadFromFile(std::string& filePath);
 
@@ -77,7 +80,8 @@ public:
 
 	float GetWindowWidth() override { return m_WindowWidth; };
 	float GetWindowHeight() override { return m_WindowHeight; };
-	char* GetWindowName() override { return m_WindowName; };
+	std::string GetWindowName() override { return m_WindowName; };
+	bool GetSaveState() override { return m_IsSaved; };
 
 	VoxelCore::Ray GenerateMouseRay();
 

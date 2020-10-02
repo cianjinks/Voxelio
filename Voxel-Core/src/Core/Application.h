@@ -25,7 +25,8 @@ namespace VoxelCore {
 
 		virtual float GetWindowWidth() = 0;
 		virtual float GetWindowHeight() = 0;
-		virtual char* GetWindowName() = 0;
+		virtual std::string GetWindowName() = 0;
+		virtual bool GetSaveState() = 0;
 
 		virtual void OnKeyPress(int key, int scancode, int action, int mods) = 0;
 		virtual void OnMouseMove(float xpos, float ypos) = 0;

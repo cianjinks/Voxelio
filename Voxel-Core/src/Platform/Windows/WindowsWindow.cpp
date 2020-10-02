@@ -33,7 +33,7 @@ namespace VoxelCore {
 			VX_CORE_INFO("Initialised GLFW");
 		}
 
-		m_Window = glfwCreateWindow((int)application.GetWindowWidth(), (int)application.GetWindowHeight(), application.GetWindowName(), NULL, NULL);
+		m_Window = glfwCreateWindow((int)application.GetWindowWidth(), (int)application.GetWindowHeight(), application.GetWindowName().c_str(), NULL, NULL);
 		if (!m_Window)
 		{
 			if (s_NumWindows == 0)
@@ -90,8 +90,10 @@ namespace VoxelCore {
 
 	void WindowsWindow::Update()
 	{
+		Application& application = Application::Get();
 		glfwPollEvents();
 		glfwSwapBuffers(m_Window);
+		glfwSetWindowTitle(m_Window, application.GetWindowName().c_str());
 	}
 
 	void WindowsWindow::Shutdown()
