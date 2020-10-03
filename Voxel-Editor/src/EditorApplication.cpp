@@ -121,10 +121,9 @@ void EditorApplication::ImGuiRender()
 	if (s_NewModel)
 	{
 		// New Model Popup to Decide Resolution
-		ImGui::OpenPopup("Test Popup");
-		if (ImGui::BeginPopupModal("Test Popup"))
+		ImGui::OpenPopup("New Model");
+		if (ImGui::BeginPopupModal("New Model"))
 		{
-			ImGui::SetWindowSize(ImVec2(m_WindowWidth / 2, m_WindowHeight / 2));
 			ImGui::Text("Resolutions: ");
 			
 			for (std::map<int, std::string>::iterator it = m_Octree.m_OctreeLevelsMap.begin(); it != m_Octree.m_OctreeLevelsMap.end(); it++)
