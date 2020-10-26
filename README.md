@@ -18,6 +18,10 @@ If you encounter any problems while running on one of the supported platforms me
 
 ## Preview
 
+[![Preview Three](docs/previewthree.png)](https://youtu.be/HtH4kQmGAtI)
+
+Credits in [video](https://youtu.be/HtH4kQmGAtI) description
+
 ![Preview One](docs/previewone.png)
 
 Based on [this artwork](https://www.pinterest.ie/pin/486177722254960160)
