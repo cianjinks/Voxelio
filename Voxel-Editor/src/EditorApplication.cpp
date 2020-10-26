@@ -375,7 +375,7 @@ void EditorApplication::OnMouseClick(int button, int action, int mods)
 
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 		{
-			// I could probably just save the mouse ray from the render loop for this
+			// I could probably just saved the mouse ray from the render loop for this
 			m_ToolHandler.ToolLeftClick(m_Octree, GenerateMouseRay(), m_CurrentSelectedColorIndex, m_SelectedVoxel);
 
 			// If a tool has been used we must have made an edit
@@ -573,10 +573,11 @@ void EditorApplication::GenerateToolButtons()
 {
 	float toolWindowWidth = (float)ImGui::GetWindowWidth();
 	float dim = (toolWindowWidth / 3.0f) - (0.05f * toolWindowWidth);
+	ImVec4 buttonSelectcolor(64.0f / 255.0f, 224.0f / 255.0f, 208.0f / 255.0f, 1.0f);
 
 	// Color Tool Button
 	if (m_ToolHandler.GetActiveTool() == VoxelCore::ToolType::COLOR) {
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(64.0f / 255.0f, 224.0f / 255.0f, 208.0f / 255.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_Button, buttonSelectcolor);
 		if (ImGui::Button("Color", ImVec2(dim, dim)))
 		{
 			// This colors voxels
@@ -596,7 +597,7 @@ void EditorApplication::GenerateToolButtons()
 
 	// Erase Tool Button
 	if (m_ToolHandler.GetActiveTool() == VoxelCore::ToolType::ERASE) {
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(64.0f / 255.0f, 224.0f / 255.0f, 208.0f / 255.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_Button, buttonSelectcolor);
 		if (ImGui::Button("Erase", ImVec2(dim, dim)))
 		{
 			// This tool erases voxels
@@ -616,7 +617,7 @@ void EditorApplication::GenerateToolButtons()
 
 	// Build Tool Button
 	if (m_ToolHandler.GetActiveTool() == VoxelCore::ToolType::BUILD) {
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(64.0f / 255.0f, 224.0f / 255.0f, 208.0f / 255.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_Button, buttonSelectcolor);
 		if (ImGui::Button("Build", ImVec2(dim, dim)))
 		{
 			// This tool adds new voxels
@@ -630,6 +631,26 @@ void EditorApplication::GenerateToolButtons()
 		{
 			// This tool adds new voxels
 			m_ToolHandler.SetActiveTool(VoxelCore::ToolType::BUILD);
+		}
+	}
+
+	// Large Erase Tool Button
+	if (m_ToolHandler.GetActiveTool() == VoxelCore::ToolType::LARGE_ERASE)
+	{
+		ImGui::PushStyleColor(ImGuiCol_Button, buttonSelectcolor);
+		if (ImGui::Button("Large\nErase", ImVec2(dim, dim)))
+		{
+			// This tool allows erasing of a large voxel area
+			m_ToolHandler.SetActiveTool(VoxelCore::ToolType::LARGE_ERASE);
+		}
+		ImGui::PopStyleColor(1);
+	}
+	else
+	{
+		if (ImGui::Button("Large\nErase", ImVec2(dim, dim)))
+		{
+			// This tool allows erasing of a large voxel area
+			m_ToolHandler.SetActiveTool(VoxelCore::ToolType::LARGE_ERASE);
 		}
 	}
 }

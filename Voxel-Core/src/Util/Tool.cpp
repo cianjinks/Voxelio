@@ -83,6 +83,32 @@ namespace VoxelCore {
 				m_LastChildIndex = hit.childIndex;
 				break;
 			}
+			case ToolType::LARGE_ERASE: 
+			{
+				RayTraceHit hit = octree.RayTrace(ray);
+				// If the mouse has changed nodes
+				if ((hit.node != m_LastNodeHit || (hit.node == m_LastNodeHit && hit.childIndex != m_LastChildIndex)))
+				{
+					// Set color index of previous node back to its original color
+					if (m_LastNodeHit != nullptr && !m_LeftClickColored)
+					{
+						m_LastNodeHit->SetColorIndex(m_LastChildIndex, m_LastNodeColorIndex);
+					}
+					// Save the color of this new node
+					m_LastNodeColorIndex = hit.node->GetColorIndex(hit.childIndex);
+					// Reset bool to say we haven't colored this voxel yet
+					m_LeftClickColored = false;
+				}
+				// If the new node is valid
+				if (hit.node != nullptr)
+				{
+					// Highlight it using the highlight color
+					hit.node->SetColorIndex(hit.childIndex, 1);
+				}
+				m_LastNodeHit = hit.node;
+				m_LastChildIndex = hit.childIndex;
+				break;
+			}
 		}
 	}
 
@@ -135,6 +161,67 @@ namespace VoxelCore {
 				m_LastNodeHit = hit.node;
 				m_LastChildIndex = hit.childIndex;
 				m_LastNodeColorIndex = hit.node->GetColorIndex(hit.childIndex);
+				break;
+			}
+			case ToolType::LARGE_ERASE:
+			{
+				RayTraceHit hit = octree.RayTrace(ray);
+				if (m_IsFirstNode)
+				{
+					currentVoxel = hit.nodeIndex;
+					// If the current node is valid
+					if (hit.node != nullptr && hit.childIndex >= 0)
+					{
+						// We highlight it using the highlight color
+						m_FirstNodeColorIndex = m_LastNodeColorIndex;
+						hit.node->SetColorIndex(hit.childIndex, 1);
+					}
+					// Make sure the hover function knows it has been colored
+					m_LeftClickColored = true;
+
+					m_LastNodeHit = hit.node;
+					m_LastChildIndex = hit.childIndex;
+					m_LastNodeColorIndex = hit.node->GetColorIndex(hit.childIndex);
+
+					m_FirstNode = hit.node;
+					m_FirstNodeChildIndex = hit.childIndex;
+					m_FirstNodeIndex = hit.nodeIndex;
+					m_IsFirstNode = false;
+				}
+				else
+				{
+					glm::ivec3 secondNodeIndex = hit.nodeIndex;
+					// Debug
+					VX_CORE_INFO("First Node: {0}, {1}, {2}", m_FirstNodeIndex.x, m_FirstNodeIndex.y, m_FirstNodeIndex.z);
+					VX_CORE_INFO("Second Node: {0}, {1}, {2}", secondNodeIndex.x, secondNodeIndex.y, secondNodeIndex.z);
+
+					// Erase all blocks between first and second node
+					glm::ivec3 nodeDifference = abs(secondNodeIndex - m_FirstNodeIndex);
+					for (int x = 0; x <= nodeDifference.x; x++)
+					{
+						for (int y = 0; y <= nodeDifference.y; y++)
+						{
+							for (int z = 0; z <= nodeDifference.z; z++)
+							{
+								// Calculate block to erase
+								glm::ivec3 eraseBlock;
+								if (m_FirstNodeIndex.x <= secondNodeIndex.x) { eraseBlock.x = m_FirstNodeIndex.x + x; }
+								else { eraseBlock.x = secondNodeIndex.x + x; }
+								if (m_FirstNodeIndex.y <= secondNodeIndex.y) { eraseBlock.y = m_FirstNodeIndex.y + y; }
+								else { eraseBlock.y = secondNodeIndex.y + y; }
+								if (m_FirstNodeIndex.z <= secondNodeIndex.z) { eraseBlock.z = m_FirstNodeIndex.z + z; }
+								else { eraseBlock.z = secondNodeIndex.z + z; }
+								octree.Deactivate(eraseBlock.x, eraseBlock.y, eraseBlock.z);
+							}
+						}
+					}
+
+					// Reset color of first node
+					m_FirstNode->SetColorIndex(m_FirstNodeChildIndex, m_FirstNodeColorIndex);
+
+					// Reset first node flag
+					m_IsFirstNode = true;
+				}
 				break;
 			}
 		}

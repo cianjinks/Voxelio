@@ -8,7 +8,7 @@ namespace VoxelCore {
 	// However its probably best to create such a structure with static methods.
 	enum class ToolType
 	{
-		ERASE, BUILD, COLOR
+		ERASE, BUILD, COLOR, LARGE_ERASE
 	};
 
 	class ToolHandler
@@ -23,6 +23,13 @@ namespace VoxelCore {
 
 		glm::ivec3 m_LastNodeIndex = glm::ivec3(-1);
 		glm::ivec3 m_LastPreviousNodeIndex = glm::ivec3(-1);
+
+		// Large Erase Specific Vars
+		bool m_IsFirstNode = true;
+		glm::ivec3 m_FirstNodeIndex = glm::ivec3(-1);
+		CompactNode* m_FirstNode = nullptr;
+		int m_FirstNodeChildIndex = -1;
+		int m_FirstNodeColorIndex = -1;
 
 
 	public:
