@@ -327,8 +327,8 @@ void EditorApplication::ImGuiRender()
 	// Mouse position relative to the drawing of our framebuffer
 	ImVec2 mousePos = ImGui::GetMousePos();
 	ImVec2 cursorPos = ImGui::GetCursorPos();
-	ImVec2 windowPos = ImGui::GetWindowPos();
-	m_CursorPosImGui = { mousePos.x - windowPos.x - cursorPos.x, mousePos.y - windowPos.y - cursorPos.y };
+	m_ViewportPos = ImGui::GetWindowPos();
+	m_CursorPosImGui = { mousePos.x - m_ViewportPos.x - cursorPos.x, mousePos.y - m_ViewportPos.y - cursorPos.y };
 	m_ViewportWindowDim = { ImGui::GetWindowWidth() - cursorPos.x, ImGui::GetWindowHeight() - cursorPos.y };
 
 	uint64_t textureID = m_FBO->GetFrameBufferColorData();
@@ -336,6 +336,17 @@ void EditorApplication::ImGuiRender()
 	ImGui::End();
 	ImGui::PopStyleVar();
 
+	ImGui::End();
+
+	// Transparent Window for Rendering Text (Currently shows scene dimension)
+	ImGui::Begin("Text", 0, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs);
+	ImVec2 windowSize = ImGui::GetWindowSize();
+	ImGui::SetWindowPos(ImVec2(m_ViewportPos.x + m_ViewportSize.x - (1.05 * windowSize.x), m_ViewportPos.y + (1.25 * (windowSize.y / 2))));
+	//std::string dimString = std::to_string(m_Octree.m_Dimension);
+	//std::string name = dimString + "x" + dimString + "x" + dimString;
+	//ImGui::Text(name.c_str());
+	// Not sure whether its faster to search the octree level map or just generate the string again
+	ImGui::Text(m_Octree.m_OctreeLevelsMap.find(m_Octree.m_OctreeLevels)->second.c_str());
 	ImGui::End();
 
 	//ImGui::ShowDemoWindow();

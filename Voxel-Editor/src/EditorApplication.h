@@ -36,6 +36,7 @@ private:
 	glm::vec2 m_CursorPosImGui = glm::vec2(0.0f);
 
 	// Viewport Info
+	ImVec2 m_ViewportPos = ImVec2(0, 0);
 	ImVec2 m_ViewportWindowDim = ImVec2(0, 0);
 
 	// Model Saving / Loading
