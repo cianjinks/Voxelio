@@ -3,6 +3,8 @@
 
 namespace VoxelCore {
 
+	// This is kinda digusting :/
+
 	void ToolHandler::ToolHover(CompactVoxelOctree& octree, Ray ray, int currentSelectedColorIndex)
 	{
 		switch (m_ActiveToolType)
@@ -29,6 +31,7 @@ namespace VoxelCore {
 				}
 				m_LastNodeHit = hit.node;
 				m_LastChildIndex = hit.childIndex;
+				m_LastNodeIndex = hit.nodeIndex;
 				break;
 			}
 			case ToolType::BUILD:
@@ -124,8 +127,12 @@ namespace VoxelCore {
 				if (hit.node != nullptr && hit.childIndex >= 0)
 				{
 					// We deactivate it (This never resets the color)
-					hit.node->ClearValidMaskBit(hit.childIndex);
-					hit.node->ClearLeafMaskBit(hit.childIndex);
+					if (octree.m_VoxelStatusList[m_LastNodeIndex.x][m_LastNodeIndex.y][m_LastNodeIndex.z])
+					{
+						hit.node->ClearValidMaskBit(hit.childIndex);
+						hit.node->ClearLeafMaskBit(hit.childIndex);
+						octree.m_VoxelStatusList[m_LastNodeIndex.x][m_LastNodeIndex.y][m_LastNodeIndex.z] = false;
+					}
 				}
 				break;
 			}
@@ -191,10 +198,6 @@ namespace VoxelCore {
 				else
 				{
 					glm::ivec3 secondNodeIndex = hit.nodeIndex;
-					// Debug
-					VX_CORE_INFO("First Node: {0}, {1}, {2}", m_FirstNodeIndex.x, m_FirstNodeIndex.y, m_FirstNodeIndex.z);
-					VX_CORE_INFO("Second Node: {0}, {1}, {2}", secondNodeIndex.x, secondNodeIndex.y, secondNodeIndex.z);
-
 					// Erase all blocks between first and second node
 					glm::ivec3 nodeDifference = abs(secondNodeIndex - m_FirstNodeIndex);
 					for (int x = 0; x <= nodeDifference.x; x++)

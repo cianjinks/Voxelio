@@ -258,6 +258,8 @@ namespace VoxelCore {
 		m_Nodes.reserve(MAX_OCTREE_NODES);
 		m_Nodes.emplace_back(0x0001FFFF);
 		m_Dimension = (int)std::pow(2, m_OctreeLevels);
+		// Initialise the status list
+		m_VoxelStatusList = std::vector<std::vector<std::vector<bool>>>(m_Dimension, std::vector<std::vector<bool>>(m_Dimension, std::vector<bool>(m_Dimension, false)));
 		for (int x = 0; x < m_Dimension; x++)
 		{
 			for (int y = 0; y < m_Dimension; y++)
@@ -291,123 +293,135 @@ namespace VoxelCore {
 
 	void CompactVoxelOctree::Activate(int x, int y, int z)
 	{
-		int sizelength = (int)std::pow(2, m_OctreeLevels);
-		// Makes sure index is in bounds (otherwise undefined behavior can occur)
-		if ((x < sizelength && x >= 0) && (y < sizelength && y >= 0) && (z < sizelength && z >= 0))
+		if (!m_VoxelStatusList[x][y][z])
 		{
-			//VX_CORE_INFO("[Activate Subnode] X: {0} Y {1} Z {2}", x, y, z);
-
-			CompactNode* node = &m_Nodes[0]; // Retrieve the root node
-			int size = (int)std::pow(2, m_OctreeLevels - 1);
-
-			while (size != 0)
+			glm::ivec3 indexCopy = glm::ivec3(x, y, z);
+			int sizelength = (int)std::pow(2, m_OctreeLevels);
+			// Makes sure index is in bounds (otherwise undefined behavior can occur)
+			if ((x < sizelength && x >= 0) && (y < sizelength && y >= 0) && (z < sizelength && z >= 0))
 			{
-				int index = (x / size) + 2 * (y / size) + 4 * (z / size);
-				// Check if subnode at index is a branch or a leaf
-				if (node->GetValidMaskBit(index) == 1 && node->GetLeafMaskBit(index) == 0) // This would mean it is a branch
+				//VX_CORE_INFO("[Activate Subnode] X: {0} Y {1} Z {2}", x, y, z);
+
+				CompactNode* node = &m_Nodes[0]; // Retrieve the root node
+				int size = (int)std::pow(2, m_OctreeLevels - 1);
+
+				while (size != 0)
 				{
-					node = &m_Nodes[(size_t)node->GetIndex() + (size_t)index];
-					x -= size * (x / size);
-					y -= size * (y / size);
-					z -= size * (z / size);
-					size /= 2;
-				}
-				else
-				{
-					// If it's not a branch we need to check if this is the final subnode and thus supposed leaf
-					if (size == 1)
+					int index = (x / size) + 2 * (y / size) + 4 * (z / size);
+					// Check if subnode at index is a branch or a leaf
+					if (node->GetValidMaskBit(index) == 1 && node->GetLeafMaskBit(index) == 0) // This would mean it is a branch
 					{
-						// Actiavte the subnode if it is the final one
-						node->Activate(index);
-						break;
+						node = &m_Nodes[(size_t)node->GetIndex() + (size_t)index];
+						x -= size * (x / size);
+						y -= size * (y / size);
+						z -= size * (z / size);
+						size /= 2;
 					}
 					else
 					{
-						// Turn the leaf into a branch if it is not the final one
-
-						// Check if a branch index already exists:
-						bool branch = node->HasBranch();
-
-						node->ClearLeafMaskBit(index);
-						node->SetValidMaskBit(index);
-						if (branch)
+						// If it's not a branch we need to check if this is the final subnode and thus supposed leaf
+						if (size == 1)
 						{
-							// In this case I think it will ruin all other nodes index (solved via a freelist or padding as done below)
-							m_Nodes[(size_t)node->GetIndex() + (size_t)index] = 0x0000FFFF;
+							// Actiavte the subnode if it is the final one
+							node->Activate(index);
+							break;
 						}
 						else
 						{
-							node->SetIndex((uint32_t)m_Nodes.size());
-							m_Nodes.insert(m_Nodes.end(), { 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF });
+							// Turn the leaf into a branch if it is not the final one
+
+							// Check if a branch index already exists:
+							bool branch = node->HasBranch();
+
+							node->ClearLeafMaskBit(index);
+							node->SetValidMaskBit(index);
+							if (branch)
+							{
+								// In this case I think it will ruin all other nodes index (solved via a freelist or padding as done below)
+								m_Nodes[(size_t)node->GetIndex() + (size_t)index] = 0x0000FFFF;
+							}
+							else
+							{
+								node->SetIndex((uint32_t)m_Nodes.size());
+								m_Nodes.insert(m_Nodes.end(), { 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF });
+							}
 						}
 					}
 				}
+				// Voxel has been activated
+				m_VoxelStatusList[indexCopy.x][indexCopy.y][indexCopy.z] = true;
 			}
-		}
-		else
-		{
-			VX_CORE_CRITICAL("Octree Index {0}, {1}, {2} is out of bounds", x, y, z);
+			else
+			{
+				VX_CORE_CRITICAL("Octree Index {0}, {1}, {2} is out of bounds", x, y, z);
+			}
 		}
 	}
 
 	void CompactVoxelOctree::Deactivate(int x, int y, int z)
 	{
-		int sizelength = (int)std::pow(2, m_OctreeLevels);
-		// Makes sure index is in bounds (otherwise undefined behavior can occur)
-		if ((x < sizelength && x >= 0) && (y < sizelength && y >= 0) && (z < sizelength && z >= 0))
+		if (m_VoxelStatusList[x][y][z])
 		{
-			VX_CORE_INFO("[Deactivate Subnode] X: {0} Y {1} Z {2}", x, y, z);
-
-			CompactNode* node = &m_Nodes[0]; // Retrieve the root node
-			int size = (int)std::pow(2, m_OctreeLevels - 1);
-
-			while (size != 0)
+			glm::ivec3 indexCopy = glm::ivec3(x, y, z);
+			int sizelength = (int)std::pow(2, m_OctreeLevels);
+			// Makes sure index is in bounds (otherwise undefined behavior can occur)
+			if ((x < sizelength && x >= 0) && (y < sizelength && y >= 0) && (z < sizelength && z >= 0))
 			{
-				int index = (x / size) + 2 * (y / size) + 4 * (z / size);
-				// Check if subnode at index is a branch or a leaf
-				if (node->GetValidMaskBit(index) == 1 && node->GetLeafMaskBit(index) == 0) // This would mean it is a branch
+				VX_CORE_INFO("[Deactivate Subnode] X: {0} Y {1} Z {2}", x, y, z);
+
+				CompactNode* node = &m_Nodes[0]; // Retrieve the root node
+				int size = (int)std::pow(2, m_OctreeLevels - 1);
+
+				while (size != 0)
 				{
-					node = &m_Nodes[(size_t)node->GetIndex() + (size_t)index];//(size_t)node->GetBranchIndex(index)];
-					x -= size * (x / size);
-					y -= size * (y / size);
-					z -= size * (z / size);
-					size /= 2;
-				}
-				else
-				{
-					// If it's not a branch we need to check if this is the final subnode and thus supposed leaf
-					if (size == 1)
+					int index = (x / size) + 2 * (y / size) + 4 * (z / size);
+					// Check if subnode at index is a branch or a leaf
+					if (node->GetValidMaskBit(index) == 1 && node->GetLeafMaskBit(index) == 0) // This would mean it is a branch
 					{
-						// Deactivate the subnode if it is the final one
-						node->Deactivate(index);
-						break;
+						node = &m_Nodes[(size_t)node->GetIndex() + (size_t)index];//(size_t)node->GetBranchIndex(index)];
+						x -= size * (x / size);
+						y -= size * (y / size);
+						z -= size * (z / size);
+						size /= 2;
 					}
 					else
 					{
-						// Turn the leaf into a branch if it is not the final one
-
-						// Check if a branch index already exists:
-						bool branch = node->HasBranch();
-
-						node->ClearLeafMaskBit(index);
-						node->SetValidMaskBit(index);
-						if (branch)
+						// If it's not a branch we need to check if this is the final subnode and thus supposed leaf
+						if (size == 1)
 						{
-							// In this case I think it will ruin all other nodes index (solved via a freelist or padding as done below)
-							m_Nodes[(size_t)node->GetIndex() + (size_t)index] = 0x0000FFFF;
+							// Deactivate the subnode if it is the final one
+							node->Deactivate(index);
+							break;
 						}
 						else
 						{
-							node->SetIndex((uint32_t)m_Nodes.size());
-							m_Nodes.insert(m_Nodes.end(), { 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF });
+							// Turn the leaf into a branch if it is not the final one
+
+							// Check if a branch index already exists:
+							bool branch = node->HasBranch();
+
+							node->ClearLeafMaskBit(index);
+							node->SetValidMaskBit(index);
+							if (branch)
+							{
+								// In this case I think it will ruin all other nodes index (solved via a freelist or padding as done below)
+								m_Nodes[(size_t)node->GetIndex() + (size_t)index] = 0x0000FFFF;
+							}
+							else
+							{
+								node->SetIndex((uint32_t)m_Nodes.size());
+								m_Nodes.insert(m_Nodes.end(), { 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF });
+							}
 						}
 					}
 				}
+				// Voxel has been deactivated
+				m_VoxelStatusList[indexCopy.x][indexCopy.y][indexCopy.z] = false;
 			}
-		}
-		else
-		{
-			VX_CORE_CRITICAL("Octree Index {0}, {1}, {2} is out of bounds", x, y, z);
+			else
+			{
+				VX_CORE_CRITICAL("Octree Index {0}, {1}, {2} is out of bounds", x, y, z);
+			}
 		}
 	}
 

@@ -70,6 +70,7 @@ namespace VoxelCore {
 		std::vector<CompactNode> m_Nodes;
 	public:
 		int m_Dimension;
+		std::vector<std::vector<std::vector<bool>>> m_VoxelStatusList;
 	private:
 
 	public:

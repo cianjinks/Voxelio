@@ -36,7 +36,7 @@ namespace VoxelCore {
 		void ToolHover(CompactVoxelOctree& octree, Ray ray, int currentSelectedColorIndex);
 		void ToolLeftClick(CompactVoxelOctree& octree, Ray ray, int currentSelectedColorIndex, glm::ivec3& currentVoxel);
 
-		void SetActiveTool(ToolType tool) { m_ActiveToolType = tool; };
+		void SetActiveTool(ToolType tool) { m_ActiveToolType = tool; if (tool == ToolType::LARGE_ERASE) { m_IsFirstNode = true; } };
 		ToolType GetActiveTool() { return m_ActiveToolType; };
 	};
 
